@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="jumbotron">
+    <div class="container">
+        <h1 class="display-3">sgCPA</h1>
+    </div>
+</div>
+
+<div class="container">
+    <h1>Iniciar sesion</h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="{{ form.username.id_for_label }}" class="form-label">Usuario:</label>
+            <input type="text" class="form-control" id="{{ form.username.id_for_label }}" name="{{ form.username.name }}">
+        </div>
+        <div class="form-group">
+            <label for="{{ form.password.id_for_label }}" class="form-label">Contrasena:</label>
+            <input type="password" class="form-control" id="{{ form.password.id_for_label }}" name="{{ form.password.name }}">
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+        <p class="lead">
+            No tienes una cuenta? <a href="{% url 'signup' %}">Registrate</a>
+        </p>
+    </form>
+</div>
+
+{% endblock %}
