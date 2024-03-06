@@ -53,15 +53,18 @@ class ListUsersView(ListView):
     model = User
     template_name = 'users.html'
     context_object_name = 'users'
-
-    print('ListUsersView')
-    print(User.objects.all())
     
     def get_queryset(self):
         return User.objects.all()
     
     def get_context_data(self, **kwargs):
+
+        print('ListUsersView')
+
         context = super().get_context_data(**kwargs)
-        context['roles'] = UserRoles.objects.all()
+        context['user_roles'] = UserRoles.objects.all()
+        context['users'] = User.objects.all()
+
+        print(context['roles'])
         return context
 
