@@ -3,6 +3,12 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth.forms import UserCreationForm
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
+from django.views.generic.list import ListView
+from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
+from django.utils.decorators import method_decorator
+from .models import UserRoles
+
 
 # Create your views here.
 
@@ -40,4 +46,22 @@ class CustomSignupView(CreateView):
         print('Invalid registration attempt')
         print(form.errors.as_data())
         return super().form_invalid(form)
+
+
+@method_decorator(login_required, name='dispatch')
+class ListUsersView(ListView):
+    model = User
+    template_name = 'users.html'
+    context_object_name = 'users'
+
+    print('ListUsersView')
+    print(User.objects.all())
+    
+    def get_queryset(self):
+        return User.objects.all()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['roles'] = UserRoles.objects.all()
+        return context
 
