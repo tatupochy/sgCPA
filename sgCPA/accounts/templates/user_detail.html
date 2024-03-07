@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %} Home {% endblock %}
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="container card">
+    <div class="row">
+        <h1>Detalles de usuario: {{ object.first_name }}</h1>
+    </div>
+    <div class="row">
+        <div class="col">
+            <p><strong>Username:</strong> {{ object.username }}</p>
+            <p><strong>Email:</strong> {{ object.email }}</p>
+            <p><strong>Nombre:</strong> {{ object.first_name }}</p>
+        </div>
+        <div class="col">
+            <p><strong>Apellido:</strong> {{ object.last_name }}</p>
+            <p><strong>Fecha de inicio:</strong> {{ object.date_joined }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-primary" style="margin-top: 1%;"><a href="{% url 'user_edit' object.pk %}">Editar</a></button>
+            <button class="btn btn-danger" style="margin-top: 1%;">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
