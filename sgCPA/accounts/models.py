@@ -11,6 +11,7 @@ class Role(models.Model):
         ('user', 'Usuario'),
     )
     name = models.CharField(max_length=5, choices=ROLES, default='user')
+    description = models.CharField(max_length=100, blank=True, null=True)
     
     def __str__(self):
         return self.name
