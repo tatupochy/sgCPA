@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalles de Usuario {% endblock %}
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="container card">
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-primary" href="{% url 'users' %}" role="button">Atrás</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h1>Detalles de usuario: {{ object.first_name }}</h1>
+            <p><strong>Username:</strong> {{ object.username }}</p>
+            <p><strong>Email:</strong> {{ object.email }}</p>
+            <p><strong>Nombre:</strong> {{ object.first_name }}</p>
+            <p><strong>Apellido:</strong> {{ object.last_name }}</p>
+            <p><strong>Fecha de inicio:</strong> {{ object.date_joined }}</p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <a class="btn btn-primary" href="{% url 'user_edit' object.pk %}" role="button">Editar</a>
+            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar este usuario?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-danger">Eliminar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
