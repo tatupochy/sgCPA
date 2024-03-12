@@ -18,7 +18,8 @@ class Role(models.Model):
 
 
 class UserRoles(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    # only one role per user
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
     role = models.ForeignKey(Role, on_delete=models.CASCADE)
     
     def __str__(self):

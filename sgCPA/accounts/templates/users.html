@@ -18,10 +18,10 @@
         <tbody>
             {% for user in users %}
             <tr>
-                <td><a href="{% url 'user_detail' user.pk %}">{{ user.username }}</a></td>
+                <td>{{ user.username }}</td>
                 <td>{{ user.first_name }}</td>
                 <td>Roles</td>
-                <td><button class="btn btn-danger" style="margin-top: 1%;"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"><i class="fa fa-pencil"></i></button></td>
+                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/users/{{ user.id }}'"><i class="fa fa-pencil"></i></button></td>
             </tr>
             {%  endfor %}
         </tbody>

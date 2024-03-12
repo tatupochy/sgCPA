@@ -12,17 +12,17 @@
     </div>
     <div class="row">
         <div class="col">
-            <h1>Detalles de usuario: {{ object.first_name }}</h1>
-            <p><strong>Username:</strong> {{ object.username }}</p>
-            <p><strong>Email:</strong> {{ object.email }}</p>
-            <p><strong>Nombre:</strong> {{ object.first_name }}</p>
-            <p><strong>Apellido:</strong> {{ object.last_name }}</p>
-            <p><strong>Fecha de inicio:</strong> {{ object.date_joined }}</p>
+            <h1>Detalles de usuario: {{ user.first_name }}</h1>
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Nombre:</strong> {{ user.first_name }}</p>
+            <p><strong>Apellido:</strong> {{ user.last_name }}</p>
+            <p><strong>Fecha de inicio:</strong> {{ user.date_joined }}</p>
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <a class="btn btn-primary" href="{% url 'user_edit' object.pk %}" role="button">Editar</a>
+            <a class="btn btn-primary" href="{% url 'user_edit' user.pk %}" role="button">Editar</a>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
         </div>
     </div>
