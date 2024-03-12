@@ -3,7 +3,8 @@
 {% block title %} Editar Usuario {% endblock %}
 
 {% block content %}
-<div class="container card">
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users/{{ user.id }}'" style="cursor: pointer;"></i>
     <h1>Editar usuario: {{ user.username }}</h1>
     <form method="post" class="form">
         {% csrf_token %}
@@ -26,7 +27,7 @@
         <!-- Agregar campos del formulario UserRolesForm -->
         <div class="form-group">
             <label for="id_role" class="form-label">Rol:</label>
-            <select class="form-select" id="id_role" name="role">
+            <select class="form-control" id="id_role" name="role" style="width: 40%">
                 {% for role in roles %}
                     {% if role.id == user_roles.role.id %}  <!-- Verifica si el rol es el actual del usuario -->
                         <option value="{{ role.id }}" selected>{{ role.name }}</option>
@@ -35,11 +36,9 @@
                     {% endif %}
                 {% endfor %}
             </select>
-            <p>El rol actual del usuario es: {{ user_roles.role.name }}</p>
         </div>        
         <!-- Fin de los campos del formulario UserRolesForm -->
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
-        <a class="usuario-link" href="{% url 'user_detail' user.pk %}">Ver perfil completo</a>
         {% if form.errors %}
         <div class="alert alert-danger mt-3">
             <ul>

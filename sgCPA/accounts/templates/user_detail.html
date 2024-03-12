@@ -4,10 +4,11 @@
 
 {% block content %}
 <!-- Main jumbotron for a primary marketing message or call to action -->
-<div class="container card">
+<div class="container card" style="padding: 1%;">
     <div class="row">
         <div class="col">
-            <a class="btn btn-primary" href="{% url 'users' %}" role="button">Atrás</a>
+{#            <a class="btn btn-primary" href="{% url 'users' %}" role="button">Atrás</a>#}
+            <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
         </div>
     </div>
     <div class="row">

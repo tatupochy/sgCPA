@@ -11,17 +11,23 @@
             <tr>
                 <th scope="col">Usuario</th>
                 <th scope="col">Nombre</th>
-                <th scope="col">Roles</th>
-                <th scope="col" class="col-md-2"></th>
+                <th scope="col">Rol</th>
+                <th scope="col">Estado</th>
+                <th scope="col" class="col-md-2 text-center"><button class="btn btn-primary" onclick= "window.location.href = '/accounts/users/create'"><i class="fa fa-plus"></i></button></th>
             </tr>
         </thead>
         <tbody>
             {% for user in users %}
             <tr>
-                <td>{{ user.username }}</td>
+                <td onclick= "window.location.href = '/accounts/users/{{ user.id }}'" style="cursor: pointer;">{{ user.username }}</td>
                 <td>{{ user.first_name }}</td>
-                <td>Roles</td>
-                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/users/{{ user.id }}'"><i class="fa fa-pencil"></i></button></td>
+                <td>{{ user.role }}</td>
+                {% if user.is_active %}
+                    <td>Activo</td>
+                {% else %}
+                    <td>Inactivo</td>
+                {% endif %}
+                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/users/{{ user.id }}/edit'"><i class="fa fa-pencil"></i></button></td>
             </tr>
             {%  endfor %}
         </tbody>
