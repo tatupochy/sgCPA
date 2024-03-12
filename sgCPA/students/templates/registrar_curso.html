@@ -1,0 +1,16 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<form action="/registrar_curso/" class="mt-4 d-flex flex-column justify-content-center border w-50 mx-auto p-5 gap-3" method="post"> 
+    {% csrf_token %}
+    <legend class="text-center">
+        Registro de curso
+    </legend>
+    
+    {{ form.as_p }}
+
+    <section class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary">Guardar</button>
+    </section>
+</form>
+{% endblock %}
