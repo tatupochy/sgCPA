@@ -87,9 +87,13 @@ def user_create_view(request):
         if password != confirm_password:
             return render(request, "user_create.html", {'roles': roles, 'error': 'Passwords do not match'})
         else:
-            # create user
-            user = User(username=form_data['username'], email=form_data['email'], first_name=form_data['first_name'],
-                        last_name=form_data['last_name'], password=password, is_active=False)
+            # create user with hashed password
+            user = User.objects.create_user(username=form_data['username'],
+                                            email=form_data['email'],
+                                            first_name=form_data['first_name'],
+                                            last_name=form_data['last_name'],
+                                            password=password)
+            user.is_active = False  # set user as inactive
             user.save()
 
             # create user roles
