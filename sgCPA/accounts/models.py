@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
-
+from django.db.models.signals import post_migrate
+from django.dispatch import receiver
+import os
 
 # Create your models here.
 
@@ -16,6 +18,16 @@ class Role(models.Model):
     def __str__(self):
         return self.name
 
+@receiver(post_migrate)
+def create_roles(sender, **kwargs):
+    if not os.environ.get('ROLES_CREATED'):
+        if not Role.objects.filter(name='admin').exists():
+            Role.objects.create(name='admin', description='Administrador')
+
+        if not Role.objects.filter(name='user').exists():
+            Role.objects.create(name='user', description='Usuario')
+        
+        os.environ['ROLES_CREATED'] = 'True'
 
 class UserRoles(models.Model):
     # only one role per user
