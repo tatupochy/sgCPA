@@ -2,6 +2,7 @@ from django.shortcuts import render
 from .models import UserRoles
 from functools import wraps
 
+
 def attribute_required(view_func):
     @wraps(view_func)
     def _wrapped_view(request, *args, **kwargs):

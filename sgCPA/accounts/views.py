@@ -18,6 +18,7 @@ class CustomLoginView(LoginView):
         print('Invalid login attempt')
         return super().form_invalid(form)
 
+
 @login_required
 def users_view(request):
     users = User.objects.all()
@@ -31,6 +32,7 @@ def users_view(request):
 
     return render(request, "users.html", {'users': users})
 
+
 @login_required
 def user_detail_view(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -39,6 +41,7 @@ def user_detail_view(request, pk):
     if user_roles:
         user.role = user_roles.role
     return render(request, "user_detail.html", {'user': user})
+
 
 @attribute_required
 @login_required
@@ -89,6 +92,7 @@ def user_edit_view(request, pk):
 
         return redirect('users')
 
+
 @attribute_required
 @login_required
 def user_create_view(request):
@@ -120,3 +124,14 @@ def user_create_view(request):
             user_role.save()
 
         return redirect('users')
+
+
+@attribute_required
+@login_required
+def user_delete_view(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if user == request.user:
+        return render(request, "user_delete_error.html")
+    else:
+        user.delete()
+    return redirect('users')

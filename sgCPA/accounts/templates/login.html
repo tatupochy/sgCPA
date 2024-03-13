@@ -48,6 +48,17 @@
                 <p class="lead" style="margin-top: 2%;">
                     {% comment %} No tienes una cuenta? <a href="{% url 'signup' %}">Registrate</a> {% endcomment %}
                 </p>
+                {% if form.errors %}
+                    <div class="alert alert-danger mt-3">
+                        <ul>
+                            {% for field, errors in form.errors.items %}
+                            {% for error in errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
             </form>
         </div>
     </main>
