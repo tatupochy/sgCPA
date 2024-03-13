@@ -1,6 +1,8 @@
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from .models import Role, User, UserRoles
+from .decorators import attribute_required
 
 
 # Create your views here.
@@ -16,7 +18,7 @@ class CustomLoginView(LoginView):
         print('Invalid login attempt')
         return super().form_invalid(form)
 
-
+@login_required
 def users_view(request):
     users = User.objects.all()
 
@@ -29,19 +31,26 @@ def users_view(request):
 
     return render(request, "users.html", {'users': users})
 
-
+@login_required
 def user_detail_view(request, pk):
     user = get_object_or_404(User, pk=pk)
+    
+    user_roles = UserRoles.objects.filter(user=user).first()
+    if user_roles:
+        user.role = user_roles.role
     return render(request, "user_detail.html", {'user': user})
 
-
+@attribute_required
+@login_required
 def user_edit_view(request, pk):
     user = get_object_or_404(User, pk=pk)
     roles = Role.objects.all()
     user_roles = UserRoles.objects.filter(user=user).first()
 
+    print("active user", user.is_active)
     print("roles", roles)
     print("user_roles", user_roles)
+    print('user_is_active', user.is_active)
 
     print('request.method', request.method)
 
@@ -56,6 +65,14 @@ def user_edit_view(request, pk):
         user.email = form_data['email']
         user.first_name = form_data['first_name']
         user.last_name = form_data['last_name']
+
+        if 'is_active' in form_data:
+            if form_data['is_active'] == 'on':
+                user.is_active = True
+            else:
+                user.is_active = False
+        else:
+            user.is_active = False
 
         user.save()
 
@@ -72,7 +89,8 @@ def user_edit_view(request, pk):
 
         return redirect('users')
 
-
+@attribute_required
+@login_required
 def user_create_view(request):
     roles = Role.objects.all()
     if request.method == "GET":
