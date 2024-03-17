@@ -50,6 +50,7 @@
         <div class="col">
             <a class="btn btn-primary" href="{% url 'user_edit' user.pk %}" role="button">Editar</a>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
+            <button type="button" class="btn btn-secundary" onclick= "window.location.href = '/accounts/persons/{{ person.id }}'">Ver persona</button>
         </div>
     </div>
 </div>

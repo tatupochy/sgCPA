@@ -6,6 +6,18 @@ import os
 
 # Create your models here.
 
+class Person(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(max_length=100)
+    last_name = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100, unique=True)
+    phone = models.CharField(max_length=20, blank=True, null=True)
+    address = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=100, blank=True, null=True)
+    country = models.CharField(max_length=100, blank=True, null=True)
+    postal_code = models.CharField(max_length=20, blank=True, null=True)
+    birth_date = models.DateField(blank=True , null=True)
+
 
 class Role(models.Model):
     ROLES= (

@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from .models import Role, User, UserRoles
+from .models import Role, User, UserRoles, Person
 from .decorators import attribute_required
 
 
@@ -17,6 +17,69 @@ class CustomLoginView(LoginView):
     def form_invalid(self, form):
         print('Invalid login attempt')
         return super().form_invalid(form)
+    
+login_required
+def persons_view(request):
+    persons = Person.objects.all()
+    return render(request, "persons.html", {'persons': persons})
+
+@login_required
+def person_create_view(request):
+    if request.method == "GET":
+        
+        users = User.objects.all()
+
+        return render(request, "person_create.html", {'users': users})
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        person = Person(user=request.user,
+                        name=form_data['name'],
+                        last_name=form_data['last_name'],
+                        email=form_data['email'],
+                        phone=form_data['phone'],
+                        address=form_data['address'],
+                        city=form_data['city'],
+                        country=form_data['country'],
+                        postal_code=form_data['postal_code'],
+                        birth_date=form_data['birth_date'])
+        person.save()
+        return redirect('person_detail', pk=person.pk)
+    
+
+@login_required
+def person_detail_view(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+
+    print("person birth_date", person.birth_date)
+    formatted_birth_date = person.birth_date.strftime('%Y-%m-%d')
+    person.birth_date = formatted_birth_date
+    return render(request, "person_detail.html", {'person': person})
+
+
+@login_required
+def person_edit_view(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+    if request.method == "GET":
+        # print json of person
+        print("person", person.__dict__)
+        return render(request, "person_edit.html", {'person': person})
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        person.name = form_data['name']
+        person.last_name = form_data['last_name']
+        person.email = form_data['email']
+        person.phone = form_data['phone']
+        person.address = form_data['address']
+        person.city = form_data['city']
+        person.country = form_data['country']
+        person.postal_code = form_data['postal_code']
+        person.birth_date = form_data['birth_date']
+        person.save()
+        return redirect('person_detail', pk=person.pk)
 
 
 @login_required
@@ -36,11 +99,11 @@ def users_view(request):
 @login_required
 def user_detail_view(request, pk):
     user = get_object_or_404(User, pk=pk)
-    
+    person = Person.objects.filter(user=user).first()
     user_roles = UserRoles.objects.filter(user=user).first()
     if user_roles:
         user.role = user_roles.role
-    return render(request, "user_detail.html", {'user': user})
+    return render(request, "user_detail.html", {'user': user, 'person': person})
 
 
 @attribute_required
@@ -97,8 +160,9 @@ def user_edit_view(request, pk):
 @login_required
 def user_create_view(request):
     roles = Role.objects.all()
+    persons = Person.objects.all()
     if request.method == "GET":
-        return render(request, "user_create.html", {'roles': roles})
+        return render(request, "user_create.html", {'roles': roles, 'persons': persons})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
@@ -107,23 +171,26 @@ def user_create_view(request):
         confirm_password = form_data['password2']
 
         if password != confirm_password:
-            return render(request, "user_create.html", {'roles': roles, 'error': 'Passwords do not match'})
+            return render(request, "user_create.html", {'roles': roles, 'error': 'Las contraseñas no coinciden', 'persons': persons})
         else:
-            # create user with hashed password
-            user = User.objects.create_user(username=form_data['username'],
-                                            email=form_data['email'],
-                                            first_name=form_data['first_name'],
-                                            last_name=form_data['last_name'],
-                                            password=password)
-            user.is_active = False  # set user as inactive
-            user.save()
-
+            # create user with person data
+            person = Person.objects.get(pk=form_data['person'])
+            if person.user:
+                return render(request, "user_create.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'persons': persons})
+            username = form_data['username']
+            email = person.email
+            first_name = person.name
+            last_name = person.last_name
+            password = form_data['password']
+            user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password)
+            person.user = user
+            person.save()
             # create user roles
             role = Role.objects.get(pk=form_data['role'])
             user_role = UserRoles(user=user, role=role)
             user_role.save()
 
-        return redirect('users')
+        return redirect('user_detail', pk=user.pk)
 
 
 @attribute_required

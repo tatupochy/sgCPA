@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+
+{% block title %} Crear Persona {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/persons'" style="cursor: pointer;"></i>
+    <h1>Crear persona: </h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name" class="form-label">Nombre:</label>
+            <input type="text" class="form-control" id="id_name" name="name">
+        </div>
+        <div class="form-group">
+            <label for="id_last_name" class="form-label">Apellido:</label>
+            <input type="text" class="form-control" id="id_last_name" name="last_name">
+        </div>
+        <div class="form-group">
+            <label for="id_email" class="form-label">Correo:</label>
+            <input type="email" class="form-control" id="id_email" name="email">
+        </div>
+        <div class="form-group">
+            <label for="id_phone" class="form-label">Teléfono:</label>
+            <input type="text" class="form-control" id="id_phone" name="phone">
+        </div>
+        <div class="form-group">
+            <label for="id_address" class="form-label">Dirección:</label>
+            <input type="text" class="form-control" id="id_address" name="address">
+        </div>
+        <div class="form-group">
+            <label for="id_city" class="form-label">Ciudad:</label>
+            <input type="text" class="form-control" id="id_city" name="city">
+        </div>
+        <div class="form-group">
+            <label for="id_country" class="form-label">País:</label>
+            <input type="text" class="form-control" id="id_country" name="country">
+        </div>
+        <div class="form-group">
+            <label for="id_postal_code" class="form-label">Código postal:</label>
+            <input type="text" class="form-control" id="id_postal_code" name="postal_code">
+        </div>
+        <div class="form-group">
+            <label for="id_birth_date" class="form-label">Fecha de nacimiento:</label>
+            <input type="date" class="form-control" id="id_birth_date" name="birth_date">
+        </div>
+        {% comment %} <div class="form-group">
+            <label for="id_user" class="form-label">Usuario:</label>
+            <select class="form-control" id="id_user" name="user" style="width: 40%">
+                <option value="" selected>---------</option>
+                {% for user in users %}
+                    <option value="{{ user.id }}">{{ user.username }}</option>
+                {% endfor %}
+            </select>
+        </div> {% endcomment %}
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
