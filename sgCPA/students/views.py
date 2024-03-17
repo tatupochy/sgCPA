@@ -35,19 +35,44 @@ def registrar_alumno(request):
 
 ###### Cursos ######   
 def registrar_curso(request):
+    CHOICE_SHIFTS = Course.CHOICE_SHIFTS
+    CHOICES_SECTIONS = Course.CHOICES_SECTIONS
+
     if request.method == 'POST':
-        form = CursoForm(request.POST)
-        if form.is_valid():
-            curso = form.save(commit=False)
-            curso.year = datetime.datetime.now().year
+        print(request.POST)
+        name = request.POST.get('name')
+        shift = request.POST.get('shift')
+        section = request.POST.get('section')
+        active =  request.POST.get('active') == 'on'  # Convertir a booleano
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        fee_amount = request.POST.get('fee_amount')
+        days_per_week = request.POST.get('days_per_week')
+
+        # Verificar si todos los campos requeridos están presentes
+        if name and shift and start_date and end_date and fee_amount and days_per_week:
+            # Crear una instancia de Course
+            curso = Course(
+                name=name,
+                shift=shift,
+                section=section,
+                active=active,
+                start_date=start_date,
+                end_date=end_date,
+                fee_amount=fee_amount,
+                days_per_week=days_per_week,
+                year=datetime.datetime.now().year
+            )
+            # Guardar el curso en la base de datos
             curso.save()
-            return redirect('detalle_curso', curso_id=curso.id)
+            return redirect('detalle_curso', id=curso.id)
+        else:
+            # Si falta algún campo requerido, mostrar un mensaje de error o realizar alguna otra acción
+            return HttpResponse("Faltan campos requeridos")
     else:
-        form = CursoForm()
-    return render(request, 'registrar_curso.html', {'form': form})
-
-
-
+        return render(request, 'registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS})
+    
 def detalle_curso(request, id):
     curso = get_object_or_404(Course, pk= id)
-    return render(request, 'detalle_curso.html', {'curso': curso})
+    cursos = Course.objects.all()
+    return render(request, 'detalle_curso.html', {'curso': curso, 'cursos': cursos})

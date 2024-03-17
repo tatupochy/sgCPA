@@ -7,8 +7,63 @@
         Registro de curso
     </legend>
     
-    {{ form.as_p }}
-
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="name" class="mb-2 form-label"> Nombre del Curso </label>
+            <input class="form-control" id="name" name="name" type="text" />
+        </article>
+    </section>
+    
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="start_date" class="mb-2 form-label">Fecha de Inicio</label>
+            <input class="form-control" id="start_date" type="date" name="start_date" />
+        </article>
+        <article class="w-50">
+            <label for="end_date" class="mb-2 form-label">Fecha de Fin</label>
+            <input class="form-control" id="end_date" type="date" name="end_date" />
+        </article>
+    </section>
+    
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="fee_amount" class="mb-2 form-label">Monto Cuota Mensual</label>
+            <input class="form-control" id="fee_amount" type="number" name="fee_amount" min="0" max="5000000" />
+        </article>
+        <article class="w-50">
+            <label for="days_per_week" class="mb-2 form-label">Días por Semana</label>
+            <input class="form-control" id="days_per_week" type="number" name="days_per_week" min="1" max="7"/>
+        </article>
+    </section>
+    
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="shift" class="mb-2 form-label">Turno</label>
+            <select class="form-select" id="shift" name="shift">
+                <option value="">Seleccionar turno</option>
+                {% for choice in CHOICE_SHIFTS %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </article>
+        <article class="w-50">
+            <label for="section" class="mb-2 form-label">Sección</label>
+            <select class="form-select" id="section" name="section">
+                <option value="">Seleccionar sección</option>
+                {% for choice in CHOICES_SECTIONS %}
+                    <option value="{{ choice.0 }}">{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </article>
+    </section>
+    
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="active" class="mb-2 form-check-label">Curso activo?</label>
+            <input class="form-check-input" id="active" type="checkbox" name="active" />
+        </article>
+    </section>
+    
     <section class="d-flex justify-content-center">
         <button type="submit" class="btn btn-primary">Guardar</button>
     </section>
