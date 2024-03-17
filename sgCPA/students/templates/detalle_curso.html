@@ -1,16 +1,16 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<h2 class="mt-4 mb-3">Lista de Cursos</h2>
+<h2 class="mt-4 mb-3">Detalle del Curso</h2>
 
 <form class="mb-3" method="GET" action="">
-    <label for="activo" class="form-label">Filtrar por estado:</label>
-    <select id="activo" name="activo" class="form-select">
-        <option value="">Todos</option>
-        <option value="1">Activos</option>
-        <option value="0">No Activos</option>
-    </select>
-    <button type="submit" class="btn btn-primary">Filtrar</button>
+  <label for="activo" class="form-label">Filtrar por estado:</label>
+  <select id="activo" name="activo" class="form-select">
+      <option value="">Todos</option>
+      <option value="1">Activos</option>
+      <option value="0">No Activos</option>
+  </select>
+  <button type="submit" class="btn btn-primary">Filtrar</button>
 </form>
 
 <table class="table table-bordered">
@@ -26,11 +26,11 @@
   <tbody>
     {% for curso in cursos %}
     <tr>
-      <td>{{ curso.año }}</td>
-      <td>{{ curso.nombre }}</td>
-      <td>{{ curso.turno }}</td>
-      <td>{{ curso.seccion }}</td>
-      <td>{{ curso.fecha_inicio }}</td>
+      <td>{{ curso.year }}</td>
+      <td>{{ curso.name }}</td>
+      <td>{{ curso.shift }}</td>
+      <td>{{ curso.section }}</td>
+      <td>{{ curso.start_date }}</td>
     </tr>
     {% endfor %}
   </tbody>
