@@ -4,25 +4,51 @@
 
 {% block content %}
 <!-- Main jumbotron for a primary marketing message or call to action -->
-<div class="container card">
+<div class="container card" style="padding: 1%;">
+
+{#   <a class="btn btn-primary" href="{% url 'users' %}" role="button">Atrás</a>#}
+    <div class="row">
+      <div class="col">
+        <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
+        <h1>Detalles de usuario: {{ user.first_name }}</h1>
+      </div>
+    </div>
+    
     <div class="row">
         <div class="col">
-            <a class="btn btn-primary" href="{% url 'users' %}" role="button">Atrás</a>
+          <div class="form-group">
+              <label for="id_username" class="form-label">Nombre de usuario:</label>
+              <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" readonly >
+          </div>
+          <div class="form-group">
+              <label for="id_email" class="form-label">Correo electrónico:</label>
+              <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" readonly >
+          </div>
+          <div class="form-group">
+              <label for="id_first_name" class="form-label">Primer nombre:</label>
+              <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}" readonly >
+          </div>
+          <div class="form-group">
+              <label for="id_last_name" class="form-label">Apellido:</label>
+              <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}" readonly >
+          </div>
+          <div class="form-group">
+            <label for="id_is_active" class="form-label">Estado:</label>
+            {% if user.is_active %}
+              <input type="text" class="form-control" id="id_is_active" name="active" value="Activo" readonly >
+            {% else %}
+              <input type="text" class="form-control" id="id_is_active" name="active" value="Inactivo" readonly >
+            {% endif %}
+          </div>
+          <div class="form-group">
+            <label for="id_role" class="form-label">Rol:</label>
+            <input type="text" class="form-control" id="id_role" name="role" value="{{ user.role }}" readonly >
+          </div>
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <h1>Detalles de usuario: {{ object.first_name }}</h1>
-            <p><strong>Username:</strong> {{ object.username }}</p>
-            <p><strong>Email:</strong> {{ object.email }}</p>
-            <p><strong>Nombre:</strong> {{ object.first_name }}</p>
-            <p><strong>Apellido:</strong> {{ object.last_name }}</p>
-            <p><strong>Fecha de inicio:</strong> {{ object.date_joined }}</p>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <a class="btn btn-primary" href="{% url 'user_edit' object.pk %}" role="button">Editar</a>
+            <a class="btn btn-primary" href="{% url 'user_edit' user.pk %}" role="button">Editar</a>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
         </div>
     </div>
@@ -43,7 +69,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger">Eliminar</button>
+        <button type="button" class="btn btn-danger" onclick="window.location.href = '/accounts/users/{{ user.pk }}/delete'">Eliminar</button>
       </div>
     </div>
   </div>

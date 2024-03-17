@@ -1,130 +1,137 @@
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.views import LoginView
-from django.contrib.auth.forms import UserCreationForm
-from django.urls import reverse_lazy
-from django.views.generic import CreateView
-from django.views.generic.list import ListView
-from django.contrib.auth.models import User
-from django.views.generic.edit import FormView
-from django.views.generic.detail import DetailView
-from .forms import UserEditForm, UserRolesForm
 from django.contrib.auth.decorators import login_required
-from django.utils.decorators import method_decorator
-from .models import UserRoles
-from .models import Role as Role
+from django.contrib.auth.views import LoginView
+from .models import Role, User, UserRoles
+from .decorators import attribute_required
 
 
 # Create your views here.
 
-
 class CustomLoginView(LoginView):
-    template_name = 'login.html'  # Replace 'accounts/login.html' with the path to your login template
+    template_name = 'login.html'
 
     def form_valid(self, form):
-        # Custom logic to handle successful login
-        # For example, you can redirect the user to a specific page
         print('Valid login attempt')
         return super().form_valid(form)
 
     def form_invalid(self, form):
-        # Custom logic to handle invalid login
-        # For example, you can log the failed login attempt
         print('Invalid login attempt')
         return super().form_invalid(form)
 
 
-class CustomSignupView(CreateView):
-    template_name = 'register.html'  # La plantilla de registro
-    form_class = UserCreationForm  # El formulario de creación de usuario proporcionado por Django
-    success_url = reverse_lazy('login')  # La URL a la que se redirigirá después del registro exitoso
+@login_required
+def users_view(request):
+    users = User.objects.all()
 
-    def form_valid(self, form):
-        # Custom logic to handle successful registration
-        # For example, you can log the registered user
-        print('Valid registration attempt')
-        return super().form_valid(form)
-
-    def form_invalid(self, form):
-        # Custom logic to handle invalid registration
-        # For example, you can log the failed registration attempt
-        print('Invalid registration attempt')
-        print(form.errors.as_data())
-        return super().form_invalid(form)
-
-
-@method_decorator(login_required, name='dispatch')
-class ListUsersView(ListView):
-    model = User
-    template_name = 'users.html'
-    context_object_name = 'users'
-    
-    def get_queryset(self):
-        return User.objects.all()
-    
-    def get_context_data(self, **kwargs):
-
-        print('ListUsersView')
-
-        context = super().get_context_data(**kwargs)
-        context['user_roles'] = UserRoles.objects.all()
-        context['users'] = User.objects.all()
-        context['roles'] = Role.objects.all()
-
-        print(context['roles'])
-        return context
-    
-
-@method_decorator(login_required, name='dispatch')
-class UserDetailView(DetailView):
-    model = User
-    template_name = 'user_detail.html'
-
-
-@method_decorator(login_required, name='dispatch')
-class UserCreateView(CreateView):
-    template_name = 'user_create.html'
-    form_class = UserCreationForm
-    success_url = reverse_lazy('users')
-    
-    def form_valid(self, form):
-        form.save()
-        return super().form_valid(form)
-
-
-@method_decorator(login_required, name='dispatch')
-class UserEditView(FormView):
-    form_class = UserEditForm
-    user_roles_form_class = UserRolesForm
-    template_name = 'user_edit.html'
-    success_url = reverse_lazy('users')
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['instance'] = self.get_user()
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['user'] = self.get_user()
-        context['roles'] = Role.objects.all()
-        return context
-
-    def get_user(self):
-        return get_object_or_404(User, pk=self.kwargs['pk'])
-
-    def post(self, request, *args, **kwargs):
-        user_form = self.form_class(request.POST, instance=self.get_user())
-        user_roles_form = self.user_roles_form_class(request.POST)
-
-        if user_form.is_valid() and user_roles_form.is_valid():
-            user = user_form.save()
-            user_roles = user_roles_form.save(commit=False)
-            user_roles.user = user
-            user_roles.save()
-            return redirect(self.get_success_url())
+    for user in users:
+        user_roles = UserRoles.objects.filter(user=user).first()
+        if user_roles:
+            user.role = user_roles.role
         else:
-            return self.form_invalid(user_form, user_roles_form)
+            user.role = None
 
-    def form_invalid(self, user_form, user_roles_form):
-        return self.render_to_response(self.get_context_data(user_form=user_form, user_roles_form=user_roles_form))
+    return render(request, "users.html", {'users': users})
 
+
+@login_required
+def user_detail_view(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    
+    user_roles = UserRoles.objects.filter(user=user).first()
+    if user_roles:
+        user.role = user_roles.role
+    return render(request, "user_detail.html", {'user': user})
+
+
+@attribute_required
+@login_required
+def user_edit_view(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    roles = Role.objects.all()
+    user_roles = UserRoles.objects.filter(user=user).first()
+
+    print("active user", user.is_active)
+    print("roles", roles)
+    print("user_roles", user_roles)
+    print('user_is_active', user.is_active)
+
+    print('request.method', request.method)
+
+    if request.method == "GET":
+        return render(request, "user_edit.html", {'user': user, 'roles': roles, 'user_roles': user_roles})
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        # update user
+        user.username = form_data['username']
+        user.email = form_data['email']
+        user.first_name = form_data['first_name']
+        user.last_name = form_data['last_name']
+
+        if 'is_active' in form_data:
+            if form_data['is_active'] == 'on':
+                user.is_active = True
+            else:
+                user.is_active = False
+        else:
+            user.is_active = False
+
+        user.save()
+
+        # update user roles
+        role = Role.objects.get(pk=form_data['role'])
+        if user_roles:
+            print("user_roles", user_roles)
+            user_role = user_roles
+            user_role.role = role
+            user_role.save()
+        else:
+            user_role = UserRoles(user=user, role=role)
+            user_role.save()
+
+        return redirect('users')
+
+
+@attribute_required
+@login_required
+def user_create_view(request):
+    roles = Role.objects.all()
+    if request.method == "GET":
+        return render(request, "user_create.html", {'roles': roles})
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        password = form_data['password']
+        confirm_password = form_data['password2']
+
+        if password != confirm_password:
+            return render(request, "user_create.html", {'roles': roles, 'error': 'Passwords do not match'})
+        else:
+            # create user with hashed password
+            user = User.objects.create_user(username=form_data['username'],
+                                            email=form_data['email'],
+                                            first_name=form_data['first_name'],
+                                            last_name=form_data['last_name'],
+                                            password=password)
+            user.is_active = False  # set user as inactive
+            user.save()
+
+            # create user roles
+            role = Role.objects.get(pk=form_data['role'])
+            user_role = UserRoles(user=user, role=role)
+            user_role.save()
+
+        return redirect('users')
+
+
+@attribute_required
+@login_required
+def user_delete_view(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if user == request.user:
+        return render(request, "user_delete_error.html")
+    else:
+        user.delete()
+    return redirect('users')

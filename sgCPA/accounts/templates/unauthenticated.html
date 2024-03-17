@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %} No autenticado {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center">Inicia sesión</h1>
+            <p class="text-center">Es necesario iniciar sesión para continuar.</p>
+            <button class="btn btn-primary" onclick="window.location.href = '/accounts/login'">Volver</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
