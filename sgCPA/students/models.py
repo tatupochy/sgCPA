@@ -4,6 +4,7 @@ from django.db import models
 class Student(models.Model):
     name = models.CharField(max_length=100)
     lastName = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, null=True, default=None)
     birthDate = models.DateField()
     inscriptionDate = models.DateField()
     ciNumber = models.CharField(max_length=20)
