@@ -18,7 +18,7 @@ class CustomLoginView(LoginView):
         print('Invalid login attempt')
         return super().form_invalid(form)
     
-login_required
+@login_required
 def persons_view(request):
     persons = Person.objects.all()
     return render(request, "persons.html", {'persons': persons})
@@ -34,7 +34,7 @@ def person_create_view(request):
         form_data = request.POST.dict()
         print('form_data', form_data)
 
-        person = Person(user=request.user,
+        person = Person(user=None,
                         name=form_data['name'],
                         last_name=form_data['last_name'],
                         email=form_data['email'],
@@ -202,3 +202,43 @@ def user_delete_view(request, pk):
     else:
         user.delete()
     return redirect('users')
+
+
+@login_required
+def roles_view(request):
+    roles = Role.objects.all()
+    return render(request, "roles.html", {'roles': roles})
+
+
+@login_required
+def role_detail_view(request, pk):
+    role = get_object_or_404(Role, pk=pk)
+    return render(request, "role_detail.html", {'role': role})
+
+
+@login_required
+def role_create_view(request):
+    if request.method == "GET":
+        return render(request, "role_create.html")
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        role = Role(name=form_data['name'])
+        role.save()
+        return redirect('role_detail', pk=role.pk)
+
+
+@login_required
+def role_edit_view(request, pk):
+    role = get_object_or_404(Role, pk=pk)
+    if request.method == "GET":
+        return render(request, "role_edit.html", {'role': role})
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        role.name = form_data['name']
+        role.save()
+        return redirect('role_detail', pk=role.pk)
+
