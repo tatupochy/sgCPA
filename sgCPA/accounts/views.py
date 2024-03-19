@@ -139,9 +139,9 @@ def user_edit_view(request, pk):
 @login_required
 def user_create_view(request):
     persons = Person.objects.all()
-    groups = Group.objects.all()
+    roles = Group.objects.all()
     if request.method == "GET":
-        return render(request, "user_create.html", {'persons': persons, 'groups': groups})
+        return render(request, "user_create.html", {'persons': persons, 'groups': roles})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
