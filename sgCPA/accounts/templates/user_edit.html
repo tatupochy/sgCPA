@@ -36,18 +36,19 @@
                 </div>                
                 <!-- Agregar campos del formulario UserRolesForm -->
                 <div class="form-group">
-                    <label for="id_role" class="form-label">Rol:</label>
-                    <select class="form-control" id="id_role" name="role" style="width: 40%">
-                        {% for role in roles %}
-                            {% if role.id == user_roles.role.id %}  <!-- Verifica si el rol es el actual del usuario -->
-                                <option value="{{ role.id }}" selected>{{ role.name }}</option>
+                    <label for="id_group" class="form-label">Grupo:</label>
+                    <select class="form-control" id="id_group" name="group" style="width: 40%">
+                        {% for group in groups %}
+                            <!-- Verifica si el group es uno de los grupos del usuario -->
+                            {% if group in user.groups.all %}
+                                <option value="{{ group.id }}" selected>{{ group.name }}</option>
                             {% else %}
-                                <option value="{{ role.id }}">{{ role.name }}</option>
+                                <option value="{{ group.id }}">{{ group.name }}</option>
                             {% endif %}
                         {% endfor %}
                     </select>
-                </div>        
-                <!-- Fin de los campos del formulario UserRolesForm -->
+                </div>                        
+                <!-- Fin de los campos del formulario UsergroupesForm -->
                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
                 {% if form.errors %}
                 <div class="alert alert-danger mt-3">

@@ -5,39 +5,37 @@
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
-    <h1>Crear usuario: {{ user.username }}</h1>
+    <h1>Crear usuario:</h1>
+    <p>Nota: la contraseña debe cambiarse obligatoriamente una vez realizado el primer inicio de sesión.</p>
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
+            <label for="id_person" class="form-label">Persona:</label>
+            <select class="form-control" id="id_person" name="person" style="width: 40%">
+                <option value="" selected>---------</option>
+                {% for person in persons %}
+                    <option value="{{ person.id }}">{{ person.name }} {{ person.last_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
             <label for="id_username" class="form-label">Nombre de usuario:</label>
-            <input type="text" class="form-control" id="id_username" name="username">
-        </div>
-        <div class="form-group">
-            <label for="id_email" class="form-label">Correo electrónico:</label>
-            <input type="email" class="form-control" id="id_email" name="email">
-        </div>
-        <div class="form-group">
-            <label for="id_first_name" class="form-label">Primer nombre:</label>
-            <input type="text" class="form-control" id="id_first_name" name="first_name">
-        </div>
-        <div class="form-group">
-            <label for="id_last_name" class="form-label">Apellido:</label>
-            <input type="text" class="form-control" id="id_last_name" name="last_name">
+            <input type="text" class="form-control" id="id_username" name="username" readonly>
         </div>
         <div class="form-group">
             <label for="id_password" class="form-label">Contraseña:</label>
-            <input type="password" class="form-control" id="id_password" name="password">
+            <input type="text" class="form-control" id="id_password" name="password" readonly>
         </div>
         <div class="form-group">
             <label for="id_password2" class="form-label">Confirmar contraseña:</label>
-            <input type="password" class="form-control" id="id_password2" name="password2">
+            <input type="text" class="form-control" id="id_password2" name="password2" readonly>
         </div>
         <!-- Agregar campos del formulario UserRolesForm -->
         <div class="form-group">
-            <label for="id_role" class="form-label">Rol:</label>
-            <select class="form-control" id="id_role" name="role" style="width: 40%">
-                {% for role in roles %}
-                    <option value="{{ role.id }}">{{ role.name }}</option>
+            <label for="id_group" class="form-label">Rol:</label>
+            <select class="form-control" id="id_group" name="group" style="width: 40%">
+                {% for group in groups %}
+                    <option value="{{ group.id }}">{{ group.name }}</option>
                 {% endfor %}
             </select>
         </div>        
@@ -54,6 +52,45 @@
                 </ul>
             </div>
         {% endif %}
+        {% if error %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    <li>{{ error }}</li>
+                </ul>
+            </div>
+        {% endif %}
     </form>
 </div>
+
+<script>
+    $(document).ready(function() {
+        // Escuchar el evento de cambio en el campo id_person
+        $('#id_person').on('change', function() {
+            console.log('Cambio');
+            console.log($('#id_person').val());
+            if ($('#id_person').val() == '') {
+                $('#id_username').val('');
+                $('#id_password').val('');
+                $('#id_password2').val('');
+            } else {
+                // Obtener el objeto seleccionado
+                var person = $('#id_person option:selected').text();
+                // Dividir el texto en nombre y apellido
+                var names = person.split(' ');
+                // Construir el nombre de usuario usando la primera letra del nombre y el apellido
+                var username = names[0].charAt(0) + names[1];
+                // Establecer el valor del campo de nombre de usuario
+                $('#id_username').val(username.toLowerCase());
+
+                var password = names[0].charAt(0) + names[1] + '123';
+                $('#id_password').val(password.toLowerCase());
+                $('#id_password2').val(password.toLowerCase());
+            }
+        });
+    
+        // Ejecutar el evento de cambio una vez al cargar la página
+        $('#id_person').change();
+    });
+    
+</script>
 {% endblock %}

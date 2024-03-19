@@ -41,15 +41,16 @@
             {% endif %}
           </div>
           <div class="form-group">
-            <label for="id_role" class="form-label">Rol:</label>
-            <input type="text" class="form-control" id="id_role" name="role" value="{{ user.role }}" readonly >
-          </div>
+            <label for="id_group" class="form-label">Rol:</label>
+            <input type="text" class="form-control" id="id_group" name="group" value="{% for group in user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}" readonly>
+        </div>
         </div>
     </div>
     <div class="row">
         <div class="col">
             <a class="btn btn-primary" href="{% url 'user_edit' user.pk %}" role="button">Editar</a>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
+            <button type="button" class="btn btn-secundary" onclick= "window.location.href = '/accounts/persons/{{ person.id }}'">Ver persona</button>
         </div>
     </div>
 </div>
