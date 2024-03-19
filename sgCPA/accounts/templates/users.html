@@ -21,7 +21,16 @@
             <tr>
                 <td onclick= "window.location.href = '/accounts/users/{{ user.id }}'" style="cursor: pointer;">{{ user.username }}</td>
                 <td>{{ user.first_name }}</td>
-                <td>{{ user.role }}</td>
+                <td>
+                  {% if user.groups.all %}
+                    {% for group in user.groups.all %}
+                      {{ group.name }}
+                      {% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  {% else %}
+                    Sin rol
+                  {% endif %}
+                </td>
                 {% if user.is_active %}
                     <td>Activo</td>
                 {% else %}

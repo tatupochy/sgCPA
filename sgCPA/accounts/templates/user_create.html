@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
-    <h1>Crear usuario: {{ user.username }}</h1>
+    <h1>Crear usuario:</h1>
     <p>Nota: la contraseña debe cambiarse obligatoriamente una vez realizado el primer inicio de sesión.</p>
     <form method="post" class="form">
         {% csrf_token %}
@@ -32,10 +32,10 @@
         </div>
         <!-- Agregar campos del formulario UserRolesForm -->
         <div class="form-group">
-            <label for="id_role" class="form-label">Rol:</label>
-            <select class="form-control" id="id_role" name="role" style="width: 40%">
-                {% for role in roles %}
-                    <option value="{{ role.id }}">{{ role.name }}</option>
+            <label for="id_group" class="form-label">Rol:</label>
+            <select class="form-control" id="id_group" name="group" style="width: 40%">
+                {% for group in groups %}
+                    <option value="{{ group.id }}">{{ group.name }}</option>
                 {% endfor %}
             </select>
         </div>        

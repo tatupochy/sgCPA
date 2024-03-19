@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %} Crear Rol {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/roles'" style="cursor: pointer;"></i>
+    <h1>Crear Rol:</h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name" class="form-label">Nombre del rol:</label>
+            <input type="text" class="form-control" id="id_name" name="name">
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    <li>{{ error }}</li>
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}

@@ -5,33 +5,35 @@
 {% block content %}
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="container card" style="padding: 1%;">
-
-{#   <a class="btn btn-primary" href="{% url 'roles' %}" role="button">Atrás</a>#}
-    <div class="row">
+  <div class="row">
       <div class="col">
-        <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/roles'" style="cursor: pointer;"></i>
-        <h1>Detalles del rol: {{ rol.first_name }}</h1>
+          <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/roles'" style="cursor: pointer;"></i>
+          <h1>Detalles del rol: {{ rol.name }}</h1>
       </div>
-    </div>
+  </div>
 
-    <div class="row">
-        <div class="col">
+  <div class="row">
+      <div class="col">
           <div class="form-group">
               <label for="id_name" class="form-label">Nombre:</label>
               <input type="text" class="form-control" id="id_name" name="name" value="{{ role.name }}" readonly >
           </div>
           <div class="form-group">
-              <label for="id_description" class="form-label">Descripción:</label>
-              <input type="text" class="form-control" id="id_description" name="description" value="{{ role.description }}" readonly >
+              <label for="id_permissions" class="form-label">Permisos:</label>
+              <ul>
+                  {% for permission in permissions %}
+                      <li>{{ permission.name }}</li>
+                  {% endfor %}
+              </ul>
           </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col">
-            <a class="btn btn-primary" href="{% url 'role_edit' role.pk %}" role="button">Editar</a>
-            <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
-        </div>
-    </div>
+      </div>
+  </div>
+  <div class="row">
+      <div class="col">
+          <a class="btn btn-primary" href="{% url 'role_edit' role.pk %}" role="button">Editar</a>
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
+      </div>
+  </div>
 </div>
 
 <!-- Modal -->

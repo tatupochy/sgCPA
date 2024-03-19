@@ -1,8 +1,8 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from .models import Role, User, UserRoles, Person
-from .decorators import attribute_required
+from django.contrib.auth.models import Group, Permission, User
+from .models import User, Person
 
 
 # Create your views here.
@@ -86,13 +86,6 @@ def person_edit_view(request, pk):
 def users_view(request):
     users = User.objects.all()
 
-    for user in users:
-        user_roles = UserRoles.objects.filter(user=user).first()
-        if user_roles:
-            user.role = user_roles.role
-        else:
-            user.role = None
-
     return render(request, "users.html", {'users': users})
 
 
@@ -100,28 +93,21 @@ def users_view(request):
 def user_detail_view(request, pk):
     user = get_object_or_404(User, pk=pk)
     person = Person.objects.filter(user=user).first()
-    user_roles = UserRoles.objects.filter(user=user).first()
-    if user_roles:
-        user.role = user_roles.role
     return render(request, "user_detail.html", {'user': user, 'person': person})
 
 
-@attribute_required
 @login_required
 def user_edit_view(request, pk):
     user = get_object_or_404(User, pk=pk)
-    roles = Role.objects.all()
-    user_roles = UserRoles.objects.filter(user=user).first()
+    groups = Group.objects.all()
 
     print("active user", user.is_active)
-    print("roles", roles)
-    print("user_roles", user_roles)
     print('user_is_active', user.is_active)
 
     print('request.method', request.method)
 
     if request.method == "GET":
-        return render(request, "user_edit.html", {'user': user, 'roles': roles, 'user_roles': user_roles})
+        return render(request, "user_edit.html", {'user': user, 'groups': groups})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
@@ -140,29 +126,22 @@ def user_edit_view(request, pk):
         else:
             user.is_active = False
 
-        user.save()
+        # update user group
+        group = form_data['group']
+        user.groups.clear()
+        user.groups.add(group)
 
-        # update user roles
-        role = Role.objects.get(pk=form_data['role'])
-        if user_roles:
-            print("user_roles", user_roles)
-            user_role = user_roles
-            user_role.role = role
-            user_role.save()
-        else:
-            user_role = UserRoles(user=user, role=role)
-            user_role.save()
+        user.save()
 
         return redirect('users')
 
 
-@attribute_required
 @login_required
 def user_create_view(request):
-    roles = Role.objects.all()
     persons = Person.objects.all()
+    groups = Group.objects.all()
     if request.method == "GET":
-        return render(request, "user_create.html", {'roles': roles, 'persons': persons})
+        return render(request, "user_create.html", {'persons': persons, 'groups': groups})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
@@ -185,15 +164,13 @@ def user_create_view(request):
             user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password)
             person.user = user
             person.save()
-            # create user roles
-            role = Role.objects.get(pk=form_data['role'])
-            user_role = UserRoles(user=user, role=role)
-            user_role.save()
+            # asign group to user
+            group = form_data['group']
+            user.groups.add(group)
 
         return redirect('user_detail', pk=user.pk)
 
 
-@attribute_required
 @login_required
 def user_delete_view(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -206,14 +183,15 @@ def user_delete_view(request, pk):
 
 @login_required
 def roles_view(request):
-    roles = Role.objects.all()
+    roles = Group.objects.all()
     return render(request, "roles.html", {'roles': roles})
 
 
 @login_required
 def role_detail_view(request, pk):
-    role = get_object_or_404(Role, pk=pk)
-    return render(request, "role_detail.html", {'role': role})
+    role = get_object_or_404(Group, pk=pk)
+    permissions = role.permissions.all()
+    return render(request, "role_detail.html", {'role': role, 'permissions': permissions})
 
 
 @login_required
@@ -224,21 +202,35 @@ def role_create_view(request):
         form_data = request.POST.dict()
         print('form_data', form_data)
 
-        role = Role(name=form_data['name'])
+        role = Group(name=form_data['name'])
         role.save()
-        return redirect('role_detail', pk=role.pk)
 
+        return redirect('roles')
 
 @login_required
 def role_edit_view(request, pk):
-    role = get_object_or_404(Role, pk=pk)
+    role = get_object_or_404(Group, pk=pk)
+    role_permissions = role.permissions.all()
+    permissions = Permission.objects.all()
     if request.method == "GET":
-        return render(request, "role_edit.html", {'role': role})
+        return render(request, "role_edit.html", {'role': role, 'role_permissions': role_permissions, 'permissions': permissions})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
 
         role.name = form_data['name']
+        role.permissions.clear()
+        for key, value in form_data.items():
+            if key.startswith('permission_'):
+                permission = Permission.objects.get(pk=value)
+                role.permissions.add(permission)
+        
         role.save()
         return redirect('role_detail', pk=role.pk)
+    
 
+@login_required
+def role_delete_view(request, pk):
+    role = get_object_or_404(Group, pk=pk)
+    role.delete()
+    return redirect('roles')
