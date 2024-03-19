@@ -1,0 +1,81 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="heading">
+    <h1>Listado de Alumnos</h1>
+    <i class="fa-solid fa-user-plus fa-2x" id="add"></i>
+</div>
+
+<table class="table table-hover table-bordered">
+    <thead class="fixed-head">
+        <tr>
+            <th>
+                Acciones
+            </th>
+            <th>Nombre</th>
+            <th>Apellido</th>
+            <th>Email</th>
+            <th>Fecha de Nacimiento</th>
+            <th>Fecha de Inscripción</th>
+            <th>Número de Cédula</th>
+            <th>Teléfono</th>
+            <th>Ciudad</th>
+            <th>Teléfono del Padre</th>
+            <th>Teléfono de la Madre</th>
+            <!-- <th>Activo</th> -->
+        </tr>
+    </thead>
+    <tbody id="tbody" class="scrollable-body">
+        {% for student in student_list %}
+        <tr id={{student.id}}>
+            <td class="acciones-container">
+                <div class="acciones">
+                    <button class="btn btn-primary editar" data-id={{student.id}}>
+                        <i class="fa-solid fa-pencil editar" data-id={{student.id}}></i>
+                    </button>
+                    <button data-id={{student.id}} type="button" class="btn btn-danger" data-bs-toggle="modal"
+                        data-bs-target="#staticBackdrop">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            </td>
+            <td>{{ student.name }}</td>
+            <td>{{ student.lastName }}</td>
+            <td>{{ student.email }}</td>
+            <td>{{ student.birthDate }}</td>
+            <td>{{ student.inscriptionDate }}</td>
+            <td>{{ student.ciNumber }}</td>
+            <td>{{ student.phone }}</td>
+            <td>{{ student.city }}</td>
+            <td>{{ student.fatherPhone }}</td>
+            <td>{{ student.motherPhone }}</td>
+            <!-- <td>{{ student.active }}</td> -->
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-4" id="staticBackdropLabel">Inhabilitar Alumno</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body fs-4">
+                Esta seguro que quiere inhabilitar a este alumno?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="delete" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'scripts/listado.js' %}" type="module"></script>
+
+
+{% endblock %}
