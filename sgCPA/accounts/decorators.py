@@ -2,21 +2,19 @@ from django.shortcuts import render
 from functools import wraps
 
 
-# def attribute_required(view_func):
-#     @wraps(view_func)
-#     def _wrapped_view(request, *args, **kwargs):
-#         if not request.user.is_authenticated:
-#             return render(request, "unauthenticated.html")
-        
-#         user = request.user
-#         if user_roles:
-#             user.role = user_roles.role
-#         else:
-#             user.role = None
+def attribute_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return render(request, "unauthenticated.html")
 
-#         if user.role and user.role.name == 'user':
-#             return render(request, "unauthorized.html")
+        user = request.user
+        user_group = user.groups.all()
+        user_group_names = [group.name for group in user_group]
 
-#         return view_func(request, *args, **kwargs)
+        if 'Administrador' not in user_group_names:
+            return render(request, "unauthorized.html")
 
-#     return _wrapped_view
+        return view_func(request, *args, **kwargs)
+
+    return _wrapped_view
