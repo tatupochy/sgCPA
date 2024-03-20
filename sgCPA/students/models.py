@@ -12,6 +12,7 @@ class Student(models.Model):
     city = models.CharField(max_length=100)
     fatherPhone = models.CharField(max_length=20)
     motherPhone = models.CharField(max_length=20)
+    active = models.BooleanField(null=True, default=True)
 
 ###### Cursos disponibles ######
 class Course(models.Model):

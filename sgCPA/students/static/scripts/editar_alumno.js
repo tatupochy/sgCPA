@@ -82,11 +82,11 @@ d.addEventListener('DOMContentLoaded', () => {
                         }, 3000)
                     } else {
                         const success = d.createElement('div')
-                        success.textContent = 'Alumno Registrado correctamente!'
+                        success.textContent = 'Alumno Actualizado correctamente!'
                         success.style.color = 'green'
                         success.style.textAlign = 'center'
                         form.append(success)
-                        form.reset()
+                        // form.reset()
 
                         setTimeout(() => {
                             window.location.href = '/listado_alumnos'

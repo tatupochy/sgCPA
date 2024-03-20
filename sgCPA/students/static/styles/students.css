@@ -1,0 +1,32 @@
+.heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .5rem 1rem;
+}
+
+.heading i {
+    cursor: pointer;
+}
+
+.acciones-container {
+    display: flex;
+    align-items: center;
+    resize: horizontal;
+    padding: .3rem;
+}
+
+.acciones {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    flex: 1;
+    cursor: pointer;
+}
+
+.resizable-column{
+    resize: horizontal;
+    overflow: hidden;
+    min-width: fit-content;
+}
