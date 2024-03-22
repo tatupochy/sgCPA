@@ -1,0 +1,42 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<h2 class="mt-4 mb-3">Detalle del Curso</h2>
+
+<form class="mb-3" method="GET" action="">
+  <label for="activo" class="form-label">Filtrar por estado:</label>
+  <select id="activo" name="activo" class="form-select">
+      <option value="">Todos</option>
+      <option value="1">Activos</option>
+      <option value="0">No Activos</option>
+  </select>
+  <button type="submit" class="btn btn-primary">Filtrar</button>
+</form>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>Año</th>
+      <th>Nombre del Curso</th>
+      <th>Turno</th>
+      <th>Sección</th>
+      <th>Fecha de Inicio</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for curso in cursos %}
+    <tr>
+      <td>{{ curso.year }}</td>
+      <td>{{ curso.name }}</td>
+      <td>{{ curso.shift }}</td>
+      <td>{{ curso.section }}</td>
+      <td>{{ curso.start_date }}</td>
+      <td>
+        <a href="{% url 'editar_curso' curso.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-fill"></i> Editar</a>
+        <a href="{% url 'borrar_curso' curso.id %}" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i> Borrar</a> 
+    </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

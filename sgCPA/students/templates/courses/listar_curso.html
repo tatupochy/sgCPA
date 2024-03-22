@@ -1,7 +1,7 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
-<h2 class="mt-4 mb-3">Detalle del Curso</h2>
+<h2 class="mt-4 mb-3">Listado de Cursos</h2>
 
 <form class="mb-3" method="GET" action="">
   <label for="activo" class="form-label">Filtrar por estado:</label>
@@ -21,6 +21,7 @@
       <th>Turno</th>
       <th>Sección</th>
       <th>Fecha de Inicio</th>
+      <th>Acciones</th>
     </tr>
   </thead>
   <tbody>
@@ -31,6 +32,10 @@
       <td>{{ curso.shift }}</td>
       <td>{{ curso.section }}</td>
       <td>{{ curso.start_date }}</td>
+      <td>
+        <a href="{% url 'editar_curso' curso.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-fill"></i> Editar</a>
+        <a href="{% url 'borrar_curso' curso.id %}" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i> Borrar</a> 
+      </td>
     </tr>
     {% endfor %}
   </tbody>

@@ -1,0 +1,11 @@
+{% extends 'layout/base.html' %}
+
+{% block content %}
+<h2 class="mt-4 mb-3">Borrar Curso</h2>
+
+<p>¿Estás seguro de que deseas eliminar el curso "{{ curso.name }}"?</p>
+<form method="post" action="{% url 'borrar_curso' curso.id %}">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-danger">Confirmar Eliminación</button>
+</form>
+{% endblock %}
