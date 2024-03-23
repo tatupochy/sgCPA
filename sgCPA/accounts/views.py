@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import Group, Permission, User
-from .models import User, Person
+from .models import User, Person, UserLogin
 from .decorators import attribute_required
 
 
@@ -13,9 +13,42 @@ class CustomLoginView(LoginView):
 
     def form_valid(self, form):
         print('Valid login attempt')
+
+        user = User.objects.get(username=form.data['username'])
+        user_logins = UserLogin.objects.filter(user=user)
+
+        if user_logins.exists():
+            user_login = user_logins.first()
+            user_login.attempts = 0
+            user_login.last_login = user.last_login
+            user_login.save()
+        else:
+            user_login = UserLogin(user=user, attempts=0)
+            user_login.save()
+
         return super().form_valid(form)
 
     def form_invalid(self, form):
+
+        user = User.objects.get(username=form.data['username'])
+        print('user', user)
+
+        user_logins = UserLogin.objects.filter(user=user)
+        if user_logins.exists():
+            user_login = user_logins.first()
+            user_login.attempts += 1
+
+            if user_login.attempts >= 3:
+                user.is_active = False
+                user_login.attempts = 0
+                user_login.save()
+                return render(self.request, "login_error.html")
+
+            user_login.save()
+        else:
+            user_login = UserLogin(user=user, attempts=1)
+            user_login.save()
+
         print('Invalid login attempt')
         return super().form_invalid(form)
 
