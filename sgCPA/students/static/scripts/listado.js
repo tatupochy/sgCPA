@@ -5,6 +5,17 @@ d.addEventListener('DOMContentLoaded', () => {
     const buttons = d.querySelectorAll('.btn-danger')
     const addButton = d.getElementById('add')
     const editButtons = d.querySelectorAll('.editar')
+    const searchButton = d.getElementById('searchButton')
+    const searchInput = d.getElementById('searchInput')
+
+    searchButton.addEventListener('click', async(e) => {
+        const value = searchInput.value;
+        if(value){
+            window.location.href = `/listado_alumnos/buscar/${value}`
+        }else{
+            window.location.href = `/listado_alumnos`
+        }
+    })
 
 
     buttons.forEach(button => {

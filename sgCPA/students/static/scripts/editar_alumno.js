@@ -91,7 +91,7 @@ d.addEventListener('DOMContentLoaded', () => {
                         setTimeout(() => {
                             window.location.href = '/listado_alumnos'
                             success.remove();
-                        }, 3000)
+                        }, 500)
                     }
                 }
             })

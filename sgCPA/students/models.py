@@ -44,4 +44,4 @@ class Student(models.Model):
     fatherPhone = models.CharField(max_length=20)
     motherPhone = models.CharField(max_length=20)
     active = models.BooleanField(null=True, default=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, default=None, blank=True)

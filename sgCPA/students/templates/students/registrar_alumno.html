@@ -3,51 +3,52 @@
 
 
 {% block content%}
+
 <form class="mt-4 d-flex flex-column justify-content-center  w-50 mx-auto p-5 gap-3" id="form">
     {% csrf_token %}
     <legend class="text-center">
         Registrar alumno
     </legend>
-    
+
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class=" w-50">
-            <label for="name" class="mb-2 form-label" >Nombres</label>
-            <input class="form-control" id="name" name="name" type="text" autocomplete="off"  />
+            <label for="name" class="mb-2 form-label">Nombres</label>
+            <input class="form-control" id="name" name="name" type="text" autocomplete="off" />
         </article>
         <article class=" w-50">
             <label for="lastName" class="mb-2 form-label">Apellidos</label>
-            <input class="form-control" id="lastName" name="lastName" type="text" autocomplete="off"  />
+            <input class="form-control" id="lastName" name="lastName" type="text" autocomplete="off" />
         </article>
     </section>
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class=" w-50">
             <label for="birthDate" class="mb-2 form-label">Fecha de nacimiento</label>
-            <input class="form-control" id="birthDate" type="date" name="birthDate" autocomplete="off"  />
+            <input class="form-control" id="birthDate" type="date" name="birthDate" autocomplete="off" />
         </article>
         <article class=" w-50">
             <label for="inscriptionDate" class="mb-2 form-label">Fecha de inscripcion</label>
-            <input class="form-control" id="inscriptionDate" type="date" name="inscriptionDate" autocomplete="off"  />
+            <input class="form-control" id="inscriptionDate" type="date" name="inscriptionDate" autocomplete="off" />
         </article>
     </section>
 
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class=" w-50">
             <label for="ciNumber" class="mb-2 form-label">Numero de cedula</label>
-            <input class="form-control" id="ciNumber" type="text" name="ciNumber" autocomplete="off"  />
+            <input class="form-control" id="ciNumber" type="text" name="ciNumber" autocomplete="off" />
         </article>
 
         <article class=" w-50">
             <label for="phone" class="mb-2 form-label">Celular Alumno</label>
-            <input class="form-control" id="phone" type="text" name="phone" autocomplete="off"  />
+            <input class="form-control" id="phone" type="text" name="phone" autocomplete="off" />
         </article>
-        
+
     </section>
 
     <section class="d-flex gap-3 justify-content-start align-items-center w-100">
-        
+
         <article class=" w-50">
             <label for="city" class="mb-2 form-label">Ciudad</label>
-            <input class="form-control" id="city" type="text" name="city" autocomplete="off"  />
+            <input class="form-control" id="city" type="text" name="city" autocomplete="off" />
         </article>
 
         <article class=" w-50">
@@ -67,14 +68,27 @@
         </article>
     </section>
 
-    
+    <section>
+        <article>
+            <label for="course" class="mb-2 form-label">Curso</label>
+            <select class="form-control" name="course" id="course">
+                <option value="">Seleccionar curso</option>
+                {% for curso in cursos %}
+                    <option value="{{ curso.id }}">{{ curso.name }}</option>
+                {% endfor %}
+            </select>
+        </article>
+    </section>
+
+
     <section class="d-flex justify-content-center">
         <button type="submit" class="btn btn-primary">Registrar</button>
     </section>
 
 
+
+
 </form>
 <!-- <script src="https://cdn.jsdelivr.net/npm/yup@1.4.0/index.min.js"></script> -->
 <script src="{% static 'scripts/registrar_alumno.js' %}" type="module"></script>
-{% endblock%}
-
+{% endblock %}

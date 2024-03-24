@@ -1,23 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404, Http404
-from django.core.exceptions import ValidationError
-from django.http import HttpResponseBadRequest, HttpResponse
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
 from .models import Student, Course
 from django.db.models import Q
 from datetime import datetime
-from django.core.paginator import Paginator
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 import datetime
 
 def registrar_alumno(request):
     if request.method == "GET":
         cursos = Course.objects.all()
-        print(cursos)
         data = {
             'cursos': cursos 
         }
         return render(request, 'students/registrar_alumno.html', data)
     
     form_data = request.POST.dict()
-    curso = Course.objects.get(pk=1)
+    curso = Course.objects.get(pk=form_data.get('course'))
 
 
     student = Student(
@@ -44,28 +43,19 @@ def registrar_alumno(request):
     student.save()
     return HttpResponse("Enviado correctamente")
 
-def listado_alumnos(request):
-    
-    student_list = Student.objects.filter(Q(active=True) | Q(active__isnull=True))
-    page = request.GET.get('page', 1)
-    
-    try:
-        paginator = Paginator(student_list, 10)
-        student_list = paginator.page(page)
-    except:
-        raise Http404
-    
-    data = {
-        'entity': student_list,
-        'paginator': paginator
-    }
-        
-    return render(request, 'students/listado_alumnos.html', data)
-    
+
 def editar_alumno(request, id):
+    
+
     if request.method == "GET":
         
         student = get_object_or_404(Student, id=id)
+        
+        cursos = Course.objects.all()
+        data = {
+            'cursos': cursos ,
+            'student': student
+        }
     
     # Convertir la fecha de nacimiento al formato adecuado
         if student.birthDate:
@@ -75,12 +65,21 @@ def editar_alumno(request, id):
         if student.inscriptionDate:
             student.inscriptionDate = student.inscriptionDate.strftime("%Y-%m-%d")
     
-        return render(request, 'students/editar_alumno.html', {'student': student})
+        return render(request, 'students/editar_alumno.html', data)
     
     else:
        student = get_object_or_404(Student, id=id)
        form_data = request.POST
-       print(form_data)
+       
+       try:
+            course_id = form_data.get('course')
+            if course_id:
+             course = Course.objects.get(pk=course_id)
+            else:
+             course = None
+       except Course.DoesNotExist:
+          course = None
+       
         
         # Actualizar los campos del estudiante con los datos recibidos
        student.name = form_data.get('name')
@@ -93,21 +92,94 @@ def editar_alumno(request, id):
        student.city = form_data.get('city')
        student.fatherPhone = form_data.get('fatherPhone')
        student.motherPhone = form_data.get('motherPhone')
+       student.course = course
+       
+       
         
        try:
           student.full_clean()
           student.save()  # Guardar los cambios en la base de datos
           return HttpResponse("Estudiante actualizado correctamente")
        except ValidationError as e:
-            errors = e.message_dict
-            return HttpResponseBadRequest("Error en la validación: {}".format(errors))
-    
-
+             errors = e.message_dict
+             return HttpResponseBadRequest("Error en la validación: {}".format(errors))
+        
+        
 def eliminar(request, id):
     student = get_object_or_404(Student, id=id)
     student.active = False
     student.save()
     return HttpResponse("Registro modificado correctamente")
+
+def listado_alumnos(request):
+    
+    student_list = Student.objects.filter(Q(active=True) | Q(active__isnull=True))
+    page = request.GET.get('page', 1)
+    
+    
+    has_results = student_list.exists()
+    
+    if not has_results:
+        # Si no se encuentra ningún estudiante, pasar un parámetro adicional al template
+        data = {
+            'has_results': False,
+            'param': id
+        }
+        return render(request, 'students/listado_alumnos.html', data)
+    
+    try:
+        paginator = Paginator(student_list, 10)
+        student_list = paginator.page(page)
+    except:
+        raise Http404
+    
+    data = {
+        'entity': student_list,
+        'paginator': paginator,
+        'has_results': True
+    }
+        
+    return render(request, 'students/listado_alumnos.html', data)
+
+def buscar(request, id):
+    # Realizar la búsqueda en el modelo Student
+    student_list = Student.objects.filter(name__icontains=id) | Student.objects.filter(lastName__icontains=id)
+    
+    # Verificar si se encontraron estudiantes
+    has_results = student_list.exists()
+    
+    if not has_results:
+        # Si no se encuentra ningún estudiante, pasar un parámetro adicional al template
+        data = {
+            'has_results': False,
+            'param': id
+        }
+        return render(request, 'students/listado_alumnos.html', data)
+    
+    # Realizar la paginación si se encuentran estudiantes
+    page = request.GET.get('page', 1)
+    paginator = Paginator(student_list, 10)
+    
+    try:
+        students = paginator.page(page)
+    except PageNotAnInteger:
+        students = paginator.page(1)
+    except EmptyPage:
+        students = paginator.page(paginator.num_pages)
+    
+    data = {
+        'entity': students,
+        'paginator': paginator,
+        'param': id,
+        'has_results': True
+    }
+    
+    return render(request, 'students/listado_alumnos.html', data)
+    
+
+    
+
+
         
 
 

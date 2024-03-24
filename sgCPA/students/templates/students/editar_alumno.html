@@ -67,6 +67,18 @@
         </article>
     </section>
 
+    <section>
+        <article>
+            <label for="course" class="mb-2 form-label">Curso</label>
+            <select class="form-control" name="course" id="course">
+                <option value="">Seleccionar curso</option>
+                {% for curso in cursos %}
+                    <option value="{{ curso.id }}" {% if student.course.id == curso.id %} selected {% endif %}>{{ curso.name }}</option>
+                {% endfor %}
+            </select>
+        </article>
+    </section>
+
     
     <section class="d-flex justify-content-center">
         <button type="submit" class="btn btn-primary">Registrar</button>
