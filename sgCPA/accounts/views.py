@@ -2,7 +2,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth.models import Group, Permission, User
-from .models import User, Person
+from .models import User, Person, UserLogin
+from .decorators import attribute_required
 
 
 # Create your views here.
@@ -12,17 +13,53 @@ class CustomLoginView(LoginView):
 
     def form_valid(self, form):
         print('Valid login attempt')
+
+        user = User.objects.get(username=form.data['username'])
+        user_logins = UserLogin.objects.filter(user=user)
+
+        if user_logins.exists():
+            user_login = user_logins.first()
+            user_login.attempts = 0
+            user_login.last_login = user.last_login
+            user_login.save()
+        else:
+            user_login = UserLogin(user=user, attempts=0)
+            user_login.save()
+
         return super().form_valid(form)
 
     def form_invalid(self, form):
+
+        user = User.objects.get(username=form.data['username'])
+        print('user', user)
+
+        user_logins = UserLogin.objects.filter(user=user)
+        if user_logins.exists():
+            user_login = user_logins.first()
+            user_login.attempts += 1
+
+            if user_login.attempts >= 3:
+                user.is_active = False
+                user_login.attempts = 0
+                user_login.save()
+                return render(self.request, "login_error.html")
+
+            user_login.save()
+        else:
+            user_login = UserLogin(user=user, attempts=1)
+            user_login.save()
+
         print('Invalid login attempt')
         return super().form_invalid(form)
-    
+
+
 @login_required
 def persons_view(request):
     persons = Person.objects.all()
     return render(request, "persons.html", {'persons': persons})
 
+
+@attribute_required
 @login_required
 def person_create_view(request):
     if request.method == "GET":
@@ -58,6 +95,7 @@ def person_detail_view(request, pk):
     return render(request, "person_detail.html", {'person': person})
 
 
+@attribute_required
 @login_required
 def person_edit_view(request, pk):
     person = get_object_or_404(Person, pk=pk)
@@ -96,6 +134,7 @@ def user_detail_view(request, pk):
     return render(request, "user_detail.html", {'user': user, 'person': person})
 
 
+@attribute_required
 @login_required
 def user_edit_view(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -136,6 +175,7 @@ def user_edit_view(request, pk):
         return redirect('users')
 
 
+@attribute_required
 @login_required
 def user_create_view(request):
     persons = Person.objects.all()
@@ -171,6 +211,7 @@ def user_create_view(request):
         return redirect('user_detail', pk=user.pk)
 
 
+@attribute_required
 @login_required
 def user_delete_view(request, pk):
     user = get_object_or_404(User, pk=pk)
@@ -194,6 +235,7 @@ def role_detail_view(request, pk):
     return render(request, "role_detail.html", {'role': role, 'permissions': permissions})
 
 
+@attribute_required
 @login_required
 def role_create_view(request):
     if request.method == "GET":
@@ -207,6 +249,8 @@ def role_create_view(request):
 
         return redirect('roles')
 
+
+@attribute_required
 @login_required
 def role_edit_view(request, pk):
     role = get_object_or_404(Group, pk=pk)
@@ -229,6 +273,7 @@ def role_edit_view(request, pk):
         return redirect('role_detail', pk=role.pk)
     
 
+@attribute_required
 @login_required
 def role_delete_view(request, pk):
     role = get_object_or_404(Group, pk=pk)

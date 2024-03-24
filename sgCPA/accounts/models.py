@@ -3,6 +3,7 @@ from django.contrib.auth.models import User, Group
 
 # Create your models here.
 
+
 class Person(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=100)
@@ -14,6 +15,13 @@ class Person(models.Model):
     country = models.CharField(max_length=100, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     birth_date = models.DateField(blank=True , null=True)
+
+
+class UserLogin(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    last_login = models.DateTimeField(auto_now=True)
+    last_logout = models.DateTimeField(auto_now=True)
+    attempts = models.IntegerField(default=0)
 
 
 # class Role(models.Model):

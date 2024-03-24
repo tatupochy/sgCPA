@@ -6,7 +6,7 @@
 <div class="container card" style="padding: 1%;">
     <div class="row">
         <div class="col">
-           <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/persons/{{ person.id }}'" style="cursor: pointer;"></i>
+           <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/roles/{{ role.id }}'" style="cursor: pointer;"></i>
             <h1>Editar Rol: {{ role.name }}</h1> 
         </div>
     </div>
@@ -23,7 +23,7 @@
                     <div class="checkbox-group">
                         {% for permission in permissions %}
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="permissions" value="{{ permission.id }}"
+                                <input class="form-check-input" type="checkbox" name="permission_{{ permission.id }}" value="{{ permission.id }}"
                                        {% if permission in role_permissions %} checked {% endif %}>
                                 <label class="form-check-label" for="permission_{{ permission.id }}">{{ permission.name }}</label>
                             </div>

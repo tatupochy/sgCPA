@@ -10,7 +10,6 @@
         <thead>
             <tr>
                 <th scope="col">Nombre</th>
-                <th scope="col" class="col-md-2 text-center">Permisos</th>
                 <th scope="col" class="col-md-2 text-center"><button class="btn btn-primary" onclick= "window.location.href = '/accounts/roles/create'"><i class="fa fa-plus"></i></button></th>
             </tr>
         </thead>
@@ -18,13 +17,6 @@
             {% for rol in roles %}
             <tr>
                 <td onclick= "window.location.href = '/accounts/roles/{{ rol.id }}'" style="cursor: pointer;">{{ rol.name }}</td>
-                <td>
-                    <ul>
-                        {% for permission in rol.permissions.all %}
-                        <li>{{ permission.name }}</li>
-                        {% endfor %}
-                    </ul>
-                </td>
                 <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-toggle="modal" data-target="#deleteModal" data-rol-id="{{ rol.id }}"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/roles/{{ rol.id }}/edit'"><i class="fa fa-pencil"></i></button></td>
             </tr>
             {%  endfor %}
