@@ -1,10 +1,11 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404, Http404
 from django.core.exceptions import ValidationError
 from django.http import HttpResponseBadRequest, HttpResponse
 from .models import Student, Course
 from .forms import CursoForm
 from django.db.models import Q
 from datetime import datetime
+from django.core.paginator import Paginator
 
 def registrar_alumno(request):
     if request.method == "GET":
@@ -35,9 +36,22 @@ def registrar_alumno(request):
     return HttpResponse("Enviado correctamente")
 
 def listado_alumnos(request):
-    if request.method == "GET":
-        student_list = Student.objects.filter(Q(active=True) | Q(active__isnull=True))
-        return render(request, 'students/listado_alumnos.html', {'student_list': student_list})
+    
+    student_list = Student.objects.filter(Q(active=True) | Q(active__isnull=True))
+    page = request.GET.get('page', 1)
+    
+    try:
+        paginator = Paginator(student_list, 10)
+        student_list = paginator.page(page)
+    except:
+        raise Http404
+    
+    data = {
+        'entity': student_list,
+        'paginator': paginator
+    }
+        
+    return render(request, 'students/listado_alumnos.html', data)
     
 def editar_alumno(request, id):
     if request.method == "GET":

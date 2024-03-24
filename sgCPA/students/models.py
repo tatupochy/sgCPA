@@ -1,18 +1,7 @@
 from django.db import models
 
 # Create your models here.
-class Student(models.Model):
-    name = models.CharField(max_length=100)
-    lastName = models.CharField(max_length=100)
-    email = models.CharField(max_length=100, null=True, default=None)
-    birthDate = models.DateField()
-    inscriptionDate = models.DateField()
-    ciNumber = models.CharField(max_length=20)
-    phone = models.CharField(max_length=20)
-    city = models.CharField(max_length=100)
-    fatherPhone = models.CharField(max_length=20)
-    motherPhone = models.CharField(max_length=20)
-    active = models.BooleanField(null=True, default=True)
+
 
 ###### Cursos disponibles ######
 class Course(models.Model):
@@ -42,3 +31,17 @@ class Course(models.Model):
             return f"{self.name} - {self.get_shift_display()} {self.section}"
         else:
             return f"{self.name} - {self.get_shift_display()}"
+        
+class Student(models.Model):
+    name = models.CharField(max_length=100)
+    lastName = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, null=True, default=None)
+    birthDate = models.DateField()
+    inscriptionDate = models.DateField()
+    ciNumber = models.CharField(max_length=20)
+    phone = models.CharField(max_length=20)
+    city = models.CharField(max_length=100)
+    fatherPhone = models.CharField(max_length=20)
+    motherPhone = models.CharField(max_length=20)
+    active = models.BooleanField(null=True, default=True)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)

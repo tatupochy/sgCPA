@@ -27,7 +27,7 @@
         </tr>
     </thead>
     <tbody id="tbody" class="scrollable-body">
-        {% for student in student_list %}
+        {% for student in entity %}
         <tr id={{student.id}}>
             <td class="acciones-container">
                 <div class="acciones">
@@ -55,6 +55,9 @@
         {% endfor %}
     </tbody>
 </table>
+<div>
+    {% include '../pagination.html' %}
+</div>
 
 <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
     aria-labelledby="staticBackdropLabel" aria-hidden="true">
