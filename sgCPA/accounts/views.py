@@ -17,6 +17,10 @@ class CustomLoginView(LoginView):
         user = User.objects.get(username=form.data['username'])
         user_logins = UserLogin.objects.filter(user=user)
 
+        # if is first login, redirect to change password
+        if user.last_login is None:
+            return redirect('change_password', pk=user.pk)
+
         if user_logins.exists():
             user_login = user_logins.first()
             user_login.attempts = 0
@@ -42,7 +46,8 @@ class CustomLoginView(LoginView):
                 user.is_active = False
                 user_login.attempts = 0
                 user_login.save()
-                return render(self.request, "login_error.html")
+                user.save()
+                return render(self.request, "user_blocked.html")
 
             user_login.save()
         else:
@@ -220,6 +225,28 @@ def user_delete_view(request, pk):
     else:
         user.delete()
     return redirect('users')
+
+
+@login_required
+def change_password(request, pk):
+    user = get_object_or_404(User, pk=pk)
+    if request.method == "GET":
+        return render(request, "user_change_password.html", {'user': user})
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        password = form_data['password']
+        confirm_password = form_data['password2']
+
+        if password != confirm_password:
+            return render(request, "user_change_password.html", {'user': user, 'error': 'Las contraseñas no coinciden'})
+        else:
+            user.set_password(password)
+            user.last_login = None
+            user.save()
+
+        return redirect('users')
 
 
 @login_required

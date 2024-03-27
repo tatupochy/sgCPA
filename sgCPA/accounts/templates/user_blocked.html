@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %} Usuario bloqueado {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <div class="row">
+        <div class="col">
+            <h1 class="text-center">Usuario bloqueado</h1>
+            <p class="text-center">Usuario bloqueado por demasiados intentos.</p>
+            <button class="btn btn-primary" onclick="window.location.href = '/accounts/login'">Volver</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -18,31 +18,31 @@
         <div class="col">
           <div class="form-group">
               <label for="id_username" class="form-label">Nombre de usuario:</label>
-              <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" readonly >
+              <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" disabled readonly >
           </div>
           <div class="form-group">
               <label for="id_email" class="form-label">Correo electrónico:</label>
-              <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" readonly >
+              <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" disabled readonly >
           </div>
           <div class="form-group">
               <label for="id_first_name" class="form-label">Primer nombre:</label>
-              <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}" readonly >
+              <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}" disabled readonly >
           </div>
           <div class="form-group">
               <label for="id_last_name" class="form-label">Apellido:</label>
-              <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}" readonly >
+              <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}" disabled readonly >
           </div>
           <div class="form-group">
             <label for="id_is_active" class="form-label">Estado:</label>
             {% if user.is_active %}
-              <input type="text" class="form-control" id="id_is_active" name="active" value="Activo" readonly >
+              <input type="text" class="form-control" id="id_is_active" name="active" value="Activo" disabled readonly >
             {% else %}
-              <input type="text" class="form-control" id="id_is_active" name="active" value="Inactivo" readonly >
+              <input type="text" class="form-control" id="id_is_active" name="active" value="Inactivo" disabled readonly >
             {% endif %}
           </div>
           <div class="form-group">
             <label for="id_group" class="form-label">Rol:</label>
-            <input type="text" class="form-control" id="id_group" name="group" value="{% for group in user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}" readonly>
+            <input type="text" class="form-control" id="id_group" name="group" value="{% for group in user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}" disabled readonly>
         </div>
         </div>
     </div>
