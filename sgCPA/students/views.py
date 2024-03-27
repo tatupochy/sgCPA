@@ -37,7 +37,6 @@ def registrar_alumno(request):
         student.full_clean()
     except ValidationError as e:
         errors = e.message_dict
-        print(errors)
         return HttpResponseBadRequest("Error en la validación: {}".format(errors))
 
     student.save()

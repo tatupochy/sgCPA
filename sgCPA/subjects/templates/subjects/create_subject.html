@@ -1,0 +1,57 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+
+{% block content%}
+
+<form class="mt-4 d-flex flex-column justify-content-center  w-50 mx-auto p-5 gap-3 border rounded" id="form"
+    method="post">
+    {% csrf_token %}
+
+    {% if subject %}
+    <legend class="text-center">
+        Editar Materia
+    </legend>
+    {% else %}
+    <legend class="text-center">
+        Registrar Materia
+    </legend>
+    {% endif %}
+
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class=" w-50">
+            <label for="name" class="mb-2 form-label">Nombre de materia</label>
+            <input value="{{subject.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
+        </article>
+    </section>
+
+    <section class="d-flex flex-column justify-content-center">
+        <article>
+            <button type="submit" class="btn btn-primary mb-4">Guardar</button>
+        </article>
+        {% if success %}
+        <article>
+            <div class="alert alert-success p-2" role="alert">
+                {% if subject %}
+                    Actualizado correctamente
+                {% else %}
+                    Creado correctamente
+                {% endif %}    
+            </div>
+
+        </article>
+        {% endif %}
+
+        {% if error %}
+        <article>
+            <div class="alert alert-danger p-2" role="alert">
+                {{error}}
+            </div>
+        </article>
+        {% endif %}
+    </section>
+
+</form>
+<!-- <script src="https://cdn.jsdelivr.net/npm/yup@1.4.0/index.min.js"></script> -->
+<!-- <script src="{% static 'scripts/registrar_alumno.js' %}" type="module"></script> -->
+{% endblock %}

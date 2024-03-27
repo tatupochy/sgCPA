@@ -1,0 +1,50 @@
+{% extends 'layout/subject_base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="heading">
+    <h1>Listado de Materias</h1>
+    <div class="input-group  buscar">
+        <input value="{{param}}" type="text" class="form-control" id="searchInput" placeholder="Nombre" autocomplete="off">
+        <button  class="input-group-text" id="searchButton"><i class="fa-solid fa-magnifying-glass"></i></button>
+    </div>
+    <div class="d-flex gap-3 align-content-center justify-content-center">
+        <span class="fs-4 fw-bold">Crear Materia</span>
+        <a href="/registrar_materia">
+            <i class="fa-solid fa-plus fa-2x" id="add"></i>
+        </a>
+    </div>
+</div>
+
+<div id="tableContainer">
+    {% if has_results %}
+        {% include  './subject_table.html' %}
+    {% else %}
+        <p>No se encontraron resultado</p>
+    {% endif  %}
+</div>
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-4" id="staticBackdropLabel">Inhabilitar Materia</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body fs-4">
+                Esta seguro que quiere inhabilitar esta materia?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="delete" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- <script src="{% static 'scripts/listado.js' %}" type="module"></script> -->
+
+
+{% endblock %}
