@@ -53,10 +53,42 @@
                     </a>
                     <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Registrar</a>
+                            <a href="/accounts/users" class="sidebar-link">Listar</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Roles</a>
+                            <a href="/accounts/users/create" class="sidebar-link">Registrar</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#persons" aria-expanded="false" aria-controls="persons">
+                        <i class="lni lni-user"></i>
+                        <span>Personas</span>
+                    </a>
+                    <ul id="persons" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="/accounts/persons" class="sidebar-link">Listar</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/accounts/persons/create" class="sidebar-link">Registrar</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#roles" aria-expanded="false" aria-controls="roles">
+                        <i class="lni lni-check-box"></i>
+                        <span>Roles</span>
+                    </a>
+                    <ul id="roles" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="/accounts/roles" class="sidebar-link">Listar</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/accounts/roles/create" class="sidebar-link">Registrar</a>
                         </li>
                     </ul>
                 </li>
