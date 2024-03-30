@@ -1,0 +1,38 @@
+<div class="table-container">
+    
+    <table class="table table-hover table-bordered" id="table">
+        <thead class="fixed-head">
+            <tr>
+                <th class="actions-column">
+                    Acciones
+                </th>
+                <th>Nombre</th>
+                <!-- <th>Activo</th> -->
+            </tr>
+        </thead>
+        <tbody id="tbody">
+            {% for subject in entity %}
+            <tr id={{subject.id}} class="actions-column">
+                <td class="acciones-container">
+                    <div class="acciones">
+                        <a href="/editar_materia/{{subject.id}}">
+                            <button class="btn btn-primary editar" data-id={{subject.id}}>
+                                <i class="fa-solid fa-pencil editar" data-id={{subject.id}}></i>
+                            </button>
+                        </a>
+                        <button data-id={{subject.id}} type="button" class="btn btn-danger" data-bs-toggle="modal"
+                            data-bs-target="#staticBackdrop">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </td>
+                <td>{{ subject.name }}</td>
+                <!-- <td>{{ subject.active }}</td> -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div>
+    {% include '../pagination.html' %}
+</div>

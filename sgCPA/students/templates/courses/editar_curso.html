@@ -62,6 +62,15 @@
             <label for="active" class="mb-2 form-check-label">Curso activo?</label>
             <input class="form-check-input" id="active" type="checkbox" name="active" {% if curso.active %} checked {% endif %} />
         </article>
+
+        <article class="w-50">
+            <label for="active" class="mb-2 form-check-label">Materias</label>
+            <select  class="form-select" name="subjects" id="subjects" multiple>
+                {% for subject in subject_list %}
+                    <option value="{{subject.id}}"{% if subject.id in ids_de_materias %}selected{% endif %} >{{subject.name}}</option>
+                {% endfor %}
+            </select>
+        </article>
     </section>
     
     <section class="d-flex justify-content-center">

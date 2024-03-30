@@ -1,9 +1,14 @@
+.actions-column {
+    width: 120px;
+}
+
 .heading {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding: .5rem 1rem;
     gap: 1rem;
+    margin-bottom: 1rem;
 }
 
 .heading > * {
@@ -31,24 +36,18 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* height: 100%; */
-    /* flex: 1; */
+    height: 100%;
+    flex: 1;
     cursor: pointer;
 }
 
-.scrollable-body tr td {
+.resizable-column{
+    resize: horizontal;
+    overflow: hidden;
     min-width: fit-content;
 }
 
 .table-container {
-    height: calc(100vh - 150px);
-    margin-bottom: .6rem;
-    width: 100%;
-    overflow-y: auto;
+    height: calc(100vh - 180px);
+    overflow-y: scroll;
 }
-
-.table-container table {
-    height: auto;
-    width: 100%;
-}
-
