@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %} Matrículas {% endblock %}
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="container">
+    <h1>Matrículas</h1>
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Estudiante</th>
+                <th scope="col">Año</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Monto</th>
+                <th scope="col">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for enrollment in enrollments %}
+            <tr onclick="window.location.href='/enrollments/{{ enrollment.id }}';" style="cursor: pointer;">
+                <td>{{ enrollment.student.name }} - {{ enrollment.student.ciNumber }}</td>
+                <td>{{ enrollment.year }}</td>
+                <td>{{ enrollment.enrollment_date }}</td>
+                <td>{{ enrollment.enrollment_amount }}</td>
+                <td>{{ enrollment.state.description }}</td>
+            </tr>    
+            {%  endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

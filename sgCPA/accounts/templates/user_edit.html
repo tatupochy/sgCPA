@@ -37,7 +37,7 @@
                 <!-- Agregar campos del formulario UserRolesForm -->
                 <div class="form-group">
                     <label for="id_group" class="form-label">Grupo:</label>
-                    <select class="form-control" id="id_group" name="group" style="width: 40%">
+                    <select class="form-select" id="id_group" name="group" style="width: 40%">
                         {% for group in groups %}
                             <!-- Verifica si el group es uno de los grupos del usuario -->
                             {% if group in user.groups.all %}

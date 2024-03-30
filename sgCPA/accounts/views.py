@@ -1,9 +1,12 @@
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.contrib.auth import logout
+from django.views.generic import RedirectView
 from django.contrib.auth.models import Group, Permission, User
 from .models import User, Person, UserLogin
-from .decorators import attribute_required
+from .decorators import attribute_required, login_required_custom
+from django.urls import reverse_lazy
 
 
 # Create your views here.
@@ -11,15 +14,28 @@ from .decorators import attribute_required
 class CustomLoginView(LoginView):
     template_name = 'login.html'
 
+    def get_success_url(self):
+        user = self.request.user
+        if user.last_login is None:
+            # Si es el primer inicio de sesión, redirige a la página de cambio de contraseña
+            return reverse_lazy('change_password', kwargs={'pk': user.pk})
+        else:
+            # De lo contrario, redirige a la URL personalizada después del inicio de sesión
+            return reverse_lazy('listado_alumnos')
+        
+class LogoutView(RedirectView):
+    url = reverse_lazy('login')  # Redirige a la página de inicio de sesión después de cerrar sesión
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super().get(request, *args, **kwargs)
+
+
     def form_valid(self, form):
         print('Valid login attempt')
 
         user = User.objects.get(username=form.data['username'])
         user_logins = UserLogin.objects.filter(user=user)
-
-        # if is first login, redirect to change password
-        if user.last_login is None:
-            return redirect('change_password', pk=user.pk)
 
         if user_logins.exists():
             user_login = user_logins.first()
@@ -29,7 +45,7 @@ class CustomLoginView(LoginView):
         else:
             user_login = UserLogin(user=user, attempts=0)
             user_login.save()
-
+            
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -58,14 +74,14 @@ class CustomLoginView(LoginView):
         return super().form_invalid(form)
 
 
-@login_required
+@login_required_custom
 def persons_view(request):
     persons = Person.objects.all()
     return render(request, "persons.html", {'persons': persons})
 
 
 @attribute_required
-@login_required
+@login_required_custom
 def person_create_view(request):
     if request.method == "GET":
         
@@ -90,7 +106,7 @@ def person_create_view(request):
         return redirect('person_detail', pk=person.pk)
     
 
-@login_required
+@login_required_custom
 def person_detail_view(request, pk):
     person = get_object_or_404(Person, pk=pk)
 
@@ -101,7 +117,7 @@ def person_detail_view(request, pk):
 
 
 @attribute_required
-@login_required
+@login_required_custom
 def person_edit_view(request, pk):
     person = get_object_or_404(Person, pk=pk)
     if request.method == "GET":
@@ -125,14 +141,14 @@ def person_edit_view(request, pk):
         return redirect('person_detail', pk=person.pk)
 
 
-@login_required
+@login_required_custom
 def users_view(request):
     users = User.objects.all()
 
     return render(request, "users.html", {'users': users})
 
 
-@login_required
+@login_required_custom
 def user_detail_view(request, pk):
     user = get_object_or_404(User, pk=pk)
     person = Person.objects.filter(user=user).first()
@@ -140,7 +156,7 @@ def user_detail_view(request, pk):
 
 
 @attribute_required
-@login_required
+@login_required_custom
 def user_edit_view(request, pk):
     user = get_object_or_404(User, pk=pk)
     groups = Group.objects.all()
@@ -181,7 +197,7 @@ def user_edit_view(request, pk):
 
 
 @attribute_required
-@login_required
+@login_required_custom
 def user_create_view(request):
     persons = Person.objects.all()
     roles = Group.objects.all()
@@ -217,7 +233,7 @@ def user_create_view(request):
 
 
 @attribute_required
-@login_required
+@login_required_custom
 def user_delete_view(request, pk):
     user = get_object_or_404(User, pk=pk)
     if user == request.user:
@@ -227,7 +243,7 @@ def user_delete_view(request, pk):
     return redirect('users')
 
 
-@login_required
+@login_required_custom
 def change_password(request, pk):
     user = get_object_or_404(User, pk=pk)
     if request.method == "GET":
@@ -249,13 +265,13 @@ def change_password(request, pk):
         return redirect('users')
 
 
-@login_required
+@login_required_custom
 def roles_view(request):
     roles = Group.objects.all()
     return render(request, "roles.html", {'roles': roles})
 
 
-@login_required
+@login_required_custom
 def role_detail_view(request, pk):
     role = get_object_or_404(Group, pk=pk)
     permissions = role.permissions.all()
@@ -263,7 +279,7 @@ def role_detail_view(request, pk):
 
 
 @attribute_required
-@login_required
+@login_required_custom
 def role_create_view(request):
     if request.method == "GET":
         return render(request, "role_create.html")
@@ -278,7 +294,7 @@ def role_create_view(request):
 
 
 @attribute_required
-@login_required
+@login_required_custom
 def role_edit_view(request, pk):
     role = get_object_or_404(Group, pk=pk)
     role_permissions = role.permissions.all()
@@ -301,7 +317,7 @@ def role_edit_view(request, pk):
     
 
 @attribute_required
-@login_required
+@login_required_custom
 def role_delete_view(request, pk):
     role = get_object_or_404(Group, pk=pk)
     role.delete()

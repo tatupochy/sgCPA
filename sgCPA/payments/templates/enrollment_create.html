@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block title %} Crear Matrícula {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/enrollments'" style="cursor: pointer;"></i>
+    <h1>Crear matrícula: </h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_student" class="form-label">Estudiante:</label>
+            <select class="form-select" id="id_student" name="student" style="width: 40%">
+                <option value="" selected>---------</option>
+                {% for student in students %}
+                    <option value="{{ student.id }}">{{ student.ciNumber }} - {{ student.lastName }}</option>
+                {% endfor %}
+            </select>
+        </div> 
+        <div class="form-group">
+            <label for="id_year" class="form-label">Año:</label>
+            <input type="number" class="form-control" id="id_year" name="year">
+        </div>
+        <div class="form-group">
+            <label for="id_enrollment_date" class="form-label">Fecha:</label>
+            <input type="date" class="form-control" id="id_enrollment_date" name="enrollment_date">
+        </div>
+        <div class="form-group">
+            <label for="id_enrollment_amount" class="form-label">Monto:</label>
+            <input type="number" class="form-control" id="id_enrollment_amount" name="enrollment_amount">
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+
+{% block title %} Cuota {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/fees'" style="cursor: pointer;"></i>
+    <h1>Cuota: {{ fee.student.ciNumber }} </h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_student" class="form-label">Estudiante:</label>
+            <input type="text" class="form-control" id="id_student" name="student" value="{{ fee.student.ciNumber }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_year" class="form-label">Año:</label>
+            <input type="number" class="form-control" id="id_year" name="year" value="{{ fee.year }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_fee_date" class="form-label">Fecha:</label>
+            <input type="date" class="form-control" id="id_fee_date" name="fee_date" value="{{ fee.fee_date }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_expiration_date" class="form-label">Fecha:</label>
+            <input type="date" class="form-control" id="id_expiration_date" name="expiration_date" value="{{ fee.expiration_date }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_fee_amount" class="form-label">Monto:</label>
+            <input type="text" class="form-control" id="id_fee_amount" value="{{ fee.fee_amount }}" name="fee_amount" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_state" class="form-label">Estado:</label>
+            <input type="text" class="form-control" id="id_state" value="{{ fee.state.description }}" name="id_state" disabled readonly>
+        </div>
+    </form>
+</div>
+{% endblock %}

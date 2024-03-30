@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %} Cuotas {% endblock %}
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="container">
+    <h1>Cuotas</h1>
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Estudiante</th>
+                <th scope="col">Año</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Fecha de vencimiento</th>
+                <th scope="col">Monto</th>
+                <th scope="col">Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for fee in fees %}
+            <tr onclick="window.location.href='/fees/{{ fee.id }}';" style="cursor: pointer;">
+                <td>{{ fee.student.ciNumber }}</td>
+                <td>{{ fee.year }}</td>
+                <td>{{ fee.fee_date }}</td>
+                <td>{{ fee.expiration_date }}</td>
+                <td>{{ fee.fee_amount }}</td>
+                <td>{{ fee.state.description }}</td>
+            </tr>    
+            {%  endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

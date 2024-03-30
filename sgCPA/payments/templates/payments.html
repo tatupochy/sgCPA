@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %} Pagos {% endblock %}
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="container">
+    <h1>Pagos</h1>
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Estudiante</th>
+                <th scope="col">Año</th>
+                <th scope="col">Fecha</th>
+                <th scope="col">Monto</th>
+                <th scope="col">Método</th>
+                <th scope="col">Tipo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for payment in payments %}
+            <tr>
+                <td>{{ payment.student }}</td>
+                <td>{{ payment.year }}</td>
+                <td>{{ payment.payment_date }}</td>
+                <td>{{ payment.payment_amount }}</td>
+                <td>{{ payment.payment_method }}</td>
+                <td>{{ payment.payment_type }}</td>
+            </tr>    
+            {%  endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

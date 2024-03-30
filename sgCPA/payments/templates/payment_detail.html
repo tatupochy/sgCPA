@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %} Pago {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments'" style="cursor: pointer;"></i>
+    <h1>Crear pago: </h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_student" class="form-label">Estudiante:</label>
+            <input type="text" class="form-control" id="id_student" name="student" value="{{ payment.student }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_year" class="form-label">Año:</label>
+            <input type="number" class="form-control" id="id_year" name="year" value="{{ payment.year }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_payment_date" class="form-label">Fecha:</label>
+            <input type="date" class="form-control" id="id_payment_date" name="payment_date" value="{{ payment.payment_date }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_payment_amount" class="form-label">Monto:</label>
+            <input type="number" class="form-control" id="id_payment_amount" value="{{ payment.payment_method }}" name="payment_amount" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_payment_method" class="form-label">Método:</label disabled readonly>
+            <input type="text" class="form-control" id="id_payment_method" value="{{ payment.payment_type }}" name="payment_method" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_payment_type" class="form-label">Tipo:</label>
+            <input type="text" class="form-control" id="id_payment_type" value="{{ payment.fee }}" name="payment_type" disabled readonly>
+        </div>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}
