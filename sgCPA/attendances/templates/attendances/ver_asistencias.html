@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Asistencias</title>
+</head>
+<body>
+    <h1>Asistencias del curso "{{ curso.name }}"</h1>
+
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Nombre del Estudiante</th>
+                {% for fecha in fechas %}
+                    <th>{{ fecha|date:"d-m-Y" }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for estudiante in estudiantes %}
+                <tr>
+                    <td>{{ estudiante.name }}</td>
+                    {% for fecha in fechas %}
+                        <td>
+                            {% if asistencias_dict|default:0|get:estudiante.id|default:{}|get:fecha %}
+                                P
+                            {% else %}
+                                A
+                            {% endif %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

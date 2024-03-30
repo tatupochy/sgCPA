@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'accounts',
     'students',
-    'subjects'
+    'subjects',
+    'attendances',
 ]
 
 MIDDLEWARE = [
@@ -62,6 +63,7 @@ TEMPLATES = [
             os.path.join(BASE_DIR, 'accounts', 'templates'),
             os.path.join(BASE_DIR, 'students', 'templates'),
             os.path.join(BASE_DIR, 'subjects', 'templates'),
+            os.path.join(BASE_DIR, 'attendances', 'templates'),
             ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -79,7 +81,7 @@ WSGI_APPLICATION = 'sgCPA.wsgi.application'
 
 
 # Database
-# https://docs.djangoproject.com/en/5.0/ref/settings/#databases
+# https://docs.djangoproject.com/en/5.0/ref/settings/#database
 
 # DATABASES = {
 #     'default': {
