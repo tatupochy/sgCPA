@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404, Http404
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
 from .models import Student, Course
+from subjects.models import Subject
 from django.db.models import Q
 from datetime import datetime
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -188,7 +189,7 @@ def registrar_curso(request):
     CHOICES_SECTIONS = Course.CHOICES_SECTIONS
 
     if request.method == 'POST':
-        print(request.POST)
+        subjects_ids = request.POST.getlist('subjects')
         name = request.POST.get('name')
         shift = request.POST.get('shift')
         section = request.POST.get('section')
@@ -214,12 +215,14 @@ def registrar_curso(request):
             )
             # Guardar el curso en la base de datos
             curso.save()
+            curso.subjects.add(*subjects_ids)
             return redirect('detalle_curso', id=curso.id)
         else:
             # Si falta algún campo requerido, mostrar un mensaje de error o realizar alguna otra acción
             return HttpResponse("Faltan campos requeridos")
     else:
-        return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS})
+        subject_list = Subject.objects.all()
+        return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list})
     
 def detalle_curso(request, id):
     curso = get_object_or_404(Course, pk= id)
@@ -229,6 +232,7 @@ def detalle_curso(request, id):
 def editar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)
     if request.method == 'POST':
+        subjects_ids = request.POST.getlist('subjects')
         name = request.POST.get('name')
         shift = request.POST.get('shift')
         section = request.POST.get('section')
@@ -248,7 +252,7 @@ def editar_curso(request, id):
             curso.end_date = end_date
             curso.fee_amount = fee_amount
             curso.days_per_week = days_per_week
-            # Guardar los cambios en la base de datos
+            curso.subjects.set(subjects_ids)
             curso.save()
             return redirect('detalle_curso', id=curso.id)
         else:
@@ -256,7 +260,11 @@ def editar_curso(request, id):
     else:
         CHOICE_SHIFTS = Course.CHOICE_SHIFTS
         CHOICES_SECTIONS = Course.CHOICES_SECTIONS
-        return render(request, 'courses/editar_curso.html', {'curso': curso, 'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS})
+        subject_list = Subject.objects.all()
+        curso.start_date = curso.start_date.strftime("%Y-%m-%d")
+        curso.end_date = curso.end_date.strftime("%Y-%m-%d")
+        ids_de_materias = list(curso.subjects.values_list('id', flat=True))
+        return render(request, 'courses/editar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'curso': curso, 'subject_list': subject_list, 'ids_de_materias': ids_de_materias})
     
 def borrar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)

@@ -1,5 +1,7 @@
 from django.db import models
 
+from subjects.models import Subject
+
 # Create your models here.
 
 
@@ -25,6 +27,7 @@ class Course(models.Model):
     fee_amount = models.DecimalField(max_digits=10, decimal_places=0)
     days_per_week = models.IntegerField()
     year = models.IntegerField()
+    subjects = models.ManyToManyField(Subject, blank=True)
 
     def __str__(self):
         if self.section:

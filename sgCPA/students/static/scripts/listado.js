@@ -27,9 +27,10 @@ d.addEventListener('DOMContentLoaded', () => {
     deleteButton.addEventListener('click', async(e) => {
         const id = deleteButton.dataset.id
         await fetch(`eliminar/${id}`)
-        const tbody = d.getElementById('tbody')
-        const elementToDelete = d.getElementById(id);
-        if(elementToDelete) tbody.removeChild(elementToDelete)
+        window.location.reload()
+        // const tbody = d.getElementById('tbody')
+        // const elementToDelete = d.getElementById(id);
+        // if(elementToDelete) tbody.removeChild(elementToDelete)
     })
 
     addButton.addEventListener('click', () => {

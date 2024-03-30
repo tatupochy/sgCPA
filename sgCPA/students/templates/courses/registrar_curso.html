@@ -1,4 +1,5 @@
 {% extends 'layout/base.html' %}
+{% load static %}
 
 {% block content %}
 <form action="/registrar_curso/" class="mt-4 d-flex flex-column justify-content-center border w-50 mx-auto p-5 gap-3" method="post"> 
@@ -62,10 +63,22 @@
             <label for="active" class="mb-2 form-check-label">Curso activo?</label>
             <input class="form-check-input" id="active" type="checkbox" name="active" />
         </article>
+
+        <article class="w-50">
+            <label for="active" class="mb-2 form-check-label">Materias</label>
+            <select class="form-select" name="subjects" id="subjects" multiple>
+                {% for subject in subject_list %}
+                    <option value="{{subject.id}}" {% if subject.id in selected_subject_ids %}selected{% endif %}>{{subject.name}}</option>
+                {% endfor %}
+            </select>
+        </article>
     </section>
+
     
     <section class="d-flex justify-content-center">
         <button type="submit" class="btn btn-primary">Guardar</button>
     </section>
 </form>
+
+<!-- <script src="{% static 'scripts/multipleSelect.js' %}"></script> -->
 {% endblock %}
