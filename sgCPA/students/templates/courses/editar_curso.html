@@ -1,6 +1,7 @@
 {% extends 'layout/base.html' %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@2.0.1/dist/css/multi-select-tag.css">
 <form action="{% url 'editar_curso' curso.id %}" class="mt-4 d-flex flex-column justify-content-center border w-50 mx-auto p-5 gap-3" method="post"> 
     {% csrf_token %}
     <legend class="text-center">
@@ -77,4 +78,16 @@
         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
     </section>
 </form>
+<script src="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@2.0.1/dist/js/multi-select-tag.js"></script>
+    <script>
+        new MultiSelectTag('subjects', {
+            placeholder: 'Buscar materia',
+            rounded: false,
+            tagColor: {
+                bgColor: 'white',
+                textColor: 'black',
+                borderColor: 'black'
+            }
+        })
+    </script>
 {% endblock %}
