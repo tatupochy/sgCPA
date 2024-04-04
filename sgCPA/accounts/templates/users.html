@@ -6,6 +6,10 @@
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="container">
     <h1>Usuarios</h1>
+
+    <label for="show_inactive_users">Mostrar usuarios inactivos</label>
+    <input type="checkbox" id="show_inactive_users" {% if request.GET.show_inactive_users == "true" %} checked {% endif %} onchange="toggleInactiveUsers(this)">
+
     <table class="table table-hover table-bordered table-striped">
         <thead>
             <tr>
@@ -71,6 +75,25 @@
         var modal = $(this);
         modal.find('#deleteButton').attr('href', '/accounts/users/' + userId + '/delete');
     });
+</script>
+
+<script>
+    window.onload = function() {
+        var urlParams = new URLSearchParams(window.location.search);
+        var showInactiveUsers = urlParams.get('show_inactive_users');
+        if (showInactiveUsers === "true") {
+            document.getElementById('show_inactive_users').checked = true;
+        }
+    };
+
+    function toggleInactiveUsers(checkbox) {
+        var url = window.location.href.split('?')[0];
+        if (checkbox.checked) {
+            window.location.href = url + '?show_inactive_users=true';
+        } else {
+            window.location.href = url;
+        }
+    }
 </script>
 
 {% endblock %}
