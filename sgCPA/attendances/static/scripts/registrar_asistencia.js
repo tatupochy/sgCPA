@@ -1,3 +1,4 @@
+//sgCPA\attendances\static\scripts\registrar_asistencia.js
 // Función para actualizar la lista de alumnos
 async function actualizarListaAlumnos(cursoId) {
     const response = await fetch(`/alumnos_por_curso/${cursoId}`);
