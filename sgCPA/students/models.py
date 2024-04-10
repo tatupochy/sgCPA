@@ -35,6 +35,14 @@ class Course(models.Model):
         else:
             return f"{self.name} - {self.get_shift_display()}"
         
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_cursos', 'Puede ver cursos'),
+            ('xyz_puede_crear_cursos', 'Puede crear cursos'),
+            ('xyz_puede_modificar_cursos', 'Puede modificar cursos'),
+            ('xyz_puede_eliminar_cursos', 'Puede eliminar cursos'),
+        ]
+        
 class Student(models.Model):
     name = models.CharField(max_length=100)
     lastName = models.CharField(max_length=100)
@@ -48,3 +56,11 @@ class Student(models.Model):
     motherPhone = models.CharField(max_length=20)
     active = models.BooleanField(null=True, default=True)
     course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, default=None, blank=True)
+
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_estudiantes', 'Puede ver estudiantes'),
+            ('xyz_puede_crear_estudiantes', 'Puede crear estudiantes'),
+            ('xyz_puede_modificar_estudiantes', 'Puede modificar estudiantes'),
+            ('xyz_puede_eliminar_estudiantes', 'Puede eliminar estudiantes'),
+        ]

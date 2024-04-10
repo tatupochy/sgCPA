@@ -31,6 +31,14 @@ class Fee(models.Model):
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
 
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_cuotas', 'Puede ver cuotas'),
+            ('xyz_puede_crear_cuotas', 'Puede crear cuotas'),
+            ('xyz_puede_modificar_cuotas', 'Puede modificar cuotas'),
+            ('xyz_puede_eliminar_cuotas', 'Puede eliminar cuotas'),
+        ]
+
 
 class Enrollment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
@@ -39,6 +47,14 @@ class Enrollment(models.Model):
     enrollment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
+
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_matriculas', 'Puede ver matrículas'),
+            ('xyz_puede_crear_matriculas', 'Puede crear matrículas'),
+            ('xyz_puede_modificar_matriculas', 'Puede modificar matrículas'),
+            ('xyz_puede_eliminar_matriculas', 'Puede eliminar matrículas'),
+        ]
 
 class PaymentMethod(models.Model):
     PAYMENT_METHOD_CHOICES = (
@@ -86,5 +102,13 @@ class Payment(models.Model):
     payment_type = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
     fee = models.ForeignKey(Fee, on_delete=models.CASCADE, null=True, blank=True)
     enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, null=True, blank=True)
+
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_pagos', 'Puede ver pagos'),
+            ('xyz_puede_crear_pagos', 'Puede crear pagos'),
+            ('xyz_puede_modificar_pagos', 'Puede modificar pagos'),
+            ('xyz_puede_eliminar_pagos', 'Puede eliminar pagos'),
+        ]
 
     

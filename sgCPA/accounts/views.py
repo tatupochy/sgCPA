@@ -306,7 +306,8 @@ def role_create_view(request):
 def role_edit_view(request, pk):
     role = get_object_or_404(Group, pk=pk)
     role_permissions = role.permissions.all()
-    permissions = Permission.objects.all()
+    # filter all permissions that start with 'xyz_'
+    permissions = Permission.objects.filter(codename__startswith='xyz_')
     if request.method == "GET":
         return render(request, "role_edit.html", {'role': role, 'role_permissions': role_permissions, 'permissions': permissions})
     else:
