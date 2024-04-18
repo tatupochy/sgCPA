@@ -87,20 +87,21 @@
     };
 
     function toggleFields() {
-        var paymentType = document.getElementById('id_payment_type').value;
+        var paymentType = document.getElementById('id_payment_type');
+        var paymentTypeText = paymentType.options[paymentType.selectedIndex].text;
         var feeField = document.getElementById('fee_field');
         var enrollmentField = document.getElementById('enrollment_field');
 
-        if (paymentType == "1") {
-            feeField.style.display = "block";
-        } else {
-            feeField.style.display = "none";
-        }
-
-        if (paymentType == "2") {
+        if (paymentTypeText == "Matrícula") {
             enrollmentField.style.display = "block";
         } else {
             enrollmentField.style.display = "none";
+        }
+
+        if (paymentTypeText == "Cuota") {
+            feeField.style.display = "block";
+        } else {
+            feeField.style.display = "none";
         }
     }
 </script>
