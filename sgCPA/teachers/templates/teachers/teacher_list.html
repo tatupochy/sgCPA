@@ -1,0 +1,18 @@
+<!-- templates/teachers/teacher_list.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher List</title>
+</head>
+<body>
+    <h1>Teacher List</h1>
+    <ul>
+        {% for teacher in teachers %}
+            <li><a href="{% url 'teacher_detail' teacher.pk %}">{{ teacher.name }}</a></li>
+        {% endfor %}
+    </ul>
+    <a href="{% url 'teacher_create' %}">Add Teacher</a>
+</body>
+</html>

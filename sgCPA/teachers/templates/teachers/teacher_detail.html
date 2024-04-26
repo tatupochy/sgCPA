@@ -1,0 +1,17 @@
+<!-- templates/teachers/teacher_detail.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Detail</title>
+</head>
+<body>
+    <h1>Teacher Detail</h1>
+    <p>Name: {{ teacher.name }}</p>
+    <p>Last Name: {{ teacher.lastName }}</p>
+    <!-- Add other details as needed -->
+    <a href="{% url 'teacher_update' teacher.pk %}">Edit</a>
+    <a href="{% url 'teacher_delete' teacher.pk %}">Delete</a>
+</body>
+</html>

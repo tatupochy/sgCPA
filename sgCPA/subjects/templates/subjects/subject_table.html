@@ -20,10 +20,18 @@
                                 <i class="fa-solid fa-pencil editar" data-id={{subject.id}}></i>
                             </button>
                         </a>
-                        <button data-id={{subject.id}} type="button" class="btn btn-danger" data-bs-toggle="modal"
+
+                        <!-- <button data-id={{subject.id}} type="button" class="btn btn-danger" data-bs-toggle="modal"
                             data-bs-target="#staticBackdrop">
                             <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                        </button> -->
+
+                        <a href="/eliminar_materia/{{subject.id}}">
+                            <button data-id={{subject.id}} type="button" class="btn btn-danger" data-bs-toggle="modal"
+                                >
+                                <i class="fa-solid fa-trash-can" data-id={{subject.id}}></i>
+                            </button>
+                        </a>
                     </div>
                 </td>
                 <td>{{ subject.name }}</td>

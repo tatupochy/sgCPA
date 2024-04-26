@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %} Docentes {% endblock %}
+
+{% block content %}
+<form class="mt-4 d-flex flex-column justify-content-center w-50 mx-auto p-5 gap-3" id="form" method="POST">
+    {% csrf_token %}
+    <legend class="text-center">
+        Registrar profesor
+    </legend>
+
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="name" class="mb-2 form-label">Nombres</label>
+            <input class="form-control" id="name" name="name" type="text" autocomplete="off" />
+        </article>
+        <article class="w-50">
+            <label for="lastName" class="mb-2 form-label">Apellidos</label>
+            <input class="form-control" id="lastName" name="lastName" type="text" autocomplete="off" />
+        </article>
+    </section>
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="birthDate" class="mb-2 form-label">Fecha de nacimiento</label>
+            <input class="form-control" id="birthDate" type="date" name="birthDate" autocomplete="off" />
+        </article>
+    </section>
+
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="ciNumber" class="mb-2 form-label">Numero de cedula</label>
+            <input class="form-control" id="ciNumber" type="text" name="ciNumber" autocomplete="off" />
+        </article>
+
+        <article class="w-50">
+            <label for="phone" class="mb-2 form-label">Celular Profesor</label>
+            <input class="form-control" id="phone" type="text" name="phone" autocomplete="off" />
+        </article>
+
+    </section>
+
+    <section class="d-flex gap-3 justify-content-start align-items-center w-100">
+        <article class="w-50">
+            <label for="country" class="mb-2 form-label">Pais</label>
+            <select class="form-select" id="country" name="country">
+                <option value="">Seleccionar Pais</option>
+                {% for country in country_list %}
+                <option value="{{ country.id }}">{{ country.name }}</option>
+                {% endfor %}
+            </select>
+        </article>
+
+        <article class="w-50">
+            <label for="city" class="mb-2 form-label">Ciudad</label>
+            <select disabled class="form-select" id="city" name="city">
+                <!-- <option value="" disabled>Seleccionar Ciudad</option> -->
+                {% for city in city_list %}
+                <option disabled value="{{ city.id }}">{{ city.name }}</option>
+                {% endfor %}
+            </select>
+        </article>
+    </section>
+
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="email" class="mb-2 form-label">Correo Electronico</label>
+            <input class="form-control" id="email" type="text" name="email" autocomplete="off" />
+        </article>
+    </section>
+
+
+    <section class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary">Registrar</button>
+    </section>
+</form>
+{% endblock %}

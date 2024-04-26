@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from .models import Subject
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.db.models import Q
+from django.http import HttpResponseRedirect
 # Create your views here.
 
 def registrar_materia(request):
@@ -131,4 +132,7 @@ def eliminar_materia(request, id):
     subject = get_object_or_404(Subject, id=id)
     subject.active = False
     subject.save()
-    return render(request, 'subjects/subject_list.html')
+    # return render(request, 'subjects/subject_list.html')
+    return HttpResponseRedirect('/listado_materias')
+
+
