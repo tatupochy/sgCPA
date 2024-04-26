@@ -196,7 +196,7 @@ def registrar_curso(request):
             # Si falta algún campo requerido, mostrar un mensaje de error o realizar alguna otra acción
             return HttpResponse("Faltan campos requeridos")
     else:
-        subject_list = Subject.objects.all()
+        subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
         return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list})
     
 def detalle_curso(request, id):
@@ -235,7 +235,7 @@ def editar_curso(request, id):
     else:
         CHOICE_SHIFTS = Course.CHOICE_SHIFTS
         CHOICES_SECTIONS = Course.CHOICES_SECTIONS
-        subject_list = Subject.objects.all()
+        subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
