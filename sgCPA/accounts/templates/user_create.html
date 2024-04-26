@@ -8,7 +8,11 @@
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
     <h1>Crear usuario:</h1>
-    <p>Nota: la contraseña debe cambiarse obligatoriamente una vez realizado el primer inicio de sesión.</p>
+    <div class="alert alert-warning" style="align-self: center; width: 85%;">  
+        <p>Nota: la contraseña debe cambiarse obligatoriamente una vez realizado el primer inicio de sesión. El nombre de usuario 
+            y la contraseña se generan automáticamente a partir del nombre y apellido de la persona. La contraseña 
+            generada se proveerá al usuario por medio de un mensaje de correo electrónico.</p>
+    </div>
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
@@ -24,13 +28,9 @@
             <label for="id_username" class="form-label">Nombre de usuario:</label>
             <input type="text" class="form-control" id="id_username" name="username" readonly>
         </div>
-        <div class="form-group">
+        <div class="form-group" style="display: none;">
             <label for="id_password" class="form-label">Contraseña:</label>
             <input type="text" class="form-control" id="id_password" name="password" readonly>
-        </div>
-        <div class="form-group">
-            <label for="id_password2" class="form-label">Confirmar contraseña:</label>
-            <input type="text" class="form-control" id="id_password2" name="password2" readonly>
         </div>
         <!-- Agregar campos del formulario UserRolesForm -->
         <div class="form-group">
@@ -87,7 +87,6 @@
     
                 var password = names[0].charAt(0) + names[1] + '123';
                 $('#id_password').val(password.toLowerCase());
-                $('#id_password2').val(password.toLowerCase());
             }
         });
     

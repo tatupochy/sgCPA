@@ -14,7 +14,7 @@
         <div class="col">
             <form method="post" class="form">
                 {% csrf_token %}
-                <div class="form-group">
+                {% comment %} <div class="form-group">
                     <label for="id_username" class="form-label">Nombre de usuario:</label>
                     <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}">
                 </div>
@@ -29,7 +29,7 @@
                 <div class="form-group">
                     <label for="id_last_name" class="form-label">Apellido:</label>
                     <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}">
-                </div>
+                </div> {% endcomment %}
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="is_active" id="is_active" {% if user.is_active %} checked {% endif %}>
                     <label class="form-check-label" for="is_active">Activo</label>

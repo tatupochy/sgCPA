@@ -13,21 +13,24 @@
   </div>
 
   <div class="row">
-      <div class="col">
-          <div class="form-group">
-              <label for="id_name" class="form-label">Nombre:</label>
-              <input type="text" class="form-control" id="id_name" name="name" value="{{ role.name }}" disabled readonly >
-          </div>
-          <div class="form-group">
-              <label for="id_permissions" class="form-label">Permisos:</label>
-              <ul style="text-align: left;">
-                  {% for permission in permissions %}
-                      <li>{{ permission.name }}</li>
-                  {% endfor %}
-              </ul>
-          </div>
-      </div>
-  </div>
+    <div class="col">
+        <div class="form-group">
+            <label for="id_name" class="form-label">Nombre:</label>
+            <input type="text" class="form-control" id="id_name" name="name" value="{{ role.name }}" disabled readonly>
+        </div>
+        {% for model_name, model_permissions in permissions_by_model.items %}
+        <div class="form-group">
+            <label class="form-label">{{ model_name }}</label>
+            <ul style="text-align: left;">
+                {% for permission in model_permissions %}
+                <li>{{ permission.name }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
   <div class="row">
       <div class="col">
           <a class="btn btn-primary" href="{% url 'role_edit' role.pk %}" role="button">Editar</a>

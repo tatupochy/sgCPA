@@ -1,5 +1,8 @@
+import os
 from django.db import models
 from django.contrib.auth.models import User, Group
+from django.dispatch import receiver
+from django.db.models.signals import post_migrate
 
 # Create your models here.
 
@@ -43,16 +46,23 @@ class UserLogin(models.Model):
 #     def __str__(self):
 #         return self.name
 
-# @receiver(post_migrate)
-# def create_roles(sender, **kwargs):
-#     if not os.environ.get('ROLES_CREATED'):
-#         if not Role.objects.filter(name='admin').exists():
-#             Role.objects.create(name='admin', description='Administrador')
+@receiver(post_migrate)
+def create_groups(sender, **kwargs):
+    if not os.environ.get('GROUPS_CREATED'):
+        if not Group.objects.filter(name='Administrador').exists():
+            Group.objects.create(name='Administrador')
 
-#         if not Role.objects.filter(name='user').exists():
-#             Role.objects.create(name='user', description='Usuario')
+        if not Group.objects.filter(name='Usuario').exists():
+            Group.objects.create(name='Usuario')
         
-#         os.environ['ROLES_CREATED'] = 'True'
+        os.environ['GROUPS_CREATED'] = 'True'
+
+    # if user is superuser, add to admin group
+    if User.objects.filter(is_superuser=True).exists():
+        user = User.objects.get(is_superuser=True)
+        admin_group = Group.objects.get(name='Administrador')
+        user.groups.add(admin_group)
+        user.save()
 
 # class UserRoles(models.Model):
 #     # only one role per user

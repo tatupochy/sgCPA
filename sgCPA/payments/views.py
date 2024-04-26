@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 from students.models import Student
-from .models import Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2
+from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import redirect,get_object_or_404
@@ -270,3 +270,45 @@ def payment_method_delete(request, payment_method_id):
         payment_method.delete()
         return redirect('payment_method_list')  # Redirect to the payment method list after deletion
     return render(request, 'payment_method_delete.html', {'payment_method': payment_method})
+
+def concept_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        Concept.objects.create(name=name, description=description)
+        return redirect('concept_list')
+    return render(request, 'concept_create.html')
+
+def concept_list(request):
+    concepts = Concept.objects.all()
+    return render(request, 'concepts.html', {'concepts': concepts})
+
+def concept_edit(request, concept_id):
+    concept = get_object_or_404(Concept, id=concept_id)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        
+        # Actualizar los campos del concepto
+        concept.name = name
+        concept.description = description
+        
+        # Guardar los cambios en la base de datos
+        concept.save()
+        
+        return redirect('concept_list')  # Redireccionar a la lista de conceptos después de editar
+        
+    return render(request, 'concept_edit.html', {'concept': concept})
+
+def concept_delete(request, concept_id):
+    concept = get_object_or_404(Concept, id=concept_id)
+    if request.method == 'POST':
+        concept.delete()
+        return redirect('concepts')  # Redirect to the concept list after deletion
+    return render(request, 'concept_delete.html', {'concept': concept})
+
+def concept_detail(request, concept_id):
+    concept = Concept.objects.get(id=concept_id)
+    return render(request, 'concept_detail.html', {'concept': concept})
+

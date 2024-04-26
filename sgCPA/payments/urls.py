@@ -13,6 +13,11 @@ from .views import (
     create_fees,
     payment_method_create,
     payment_method_list,
+    concept_create,
+    concept_list,
+    concept_edit,
+    concept_delete,
+    concept_detail
 )
 
 
@@ -32,5 +37,11 @@ urlpatterns = [
     path('payment_methods/', views.payment_method_list, name='payment_method_list'),
     path('edit_payment_methods/<int:payment_method_id>', views.payment_method_edit, name='payment_method_edit'),
     path('delete_payment_methods/<int:payment_method_id>', views.payment_method_delete, name='payment_method_delete'),
+    ########
+    path('concepts/create/', views.concept_create, name='concept_create'),
+    path('concepts/', views.concept_list, name='concept_list'),
+    path('concepts/<int:concept_id>/', views.concept_detail, name='concept_detail'),
+    path('concepts/<int:concept_id>/edit', views.concept_edit, name='concept_edit'),
+    path('concept/<int:concept_id>/delete', views.concept_delete, name='concept_delete'),
 
 ]

@@ -29,12 +29,22 @@
             <input type="text" class="form-control" id="id_address" name="address">
         </div>
         <div class="form-group">
-            <label for="id_city" class="form-label">Ciudad:</label>
-            <input type="text" class="form-control" id="id_city" name="city">
+            <label for="id_country" class="form-label">País:</label>
+            <select class="form-select" id="id_country" name="country" style="width: 40%">
+                <option value="" selected>---------</option>
+                {% for country in countries %}
+                    <option value="{{ country.id }}">{{ country.name }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-group">
-            <label for="id_country" class="form-label">País:</label>
-            <input type="text" class="form-control" id="id_country" name="country">
+            <label for="id_city" class="form-label">Ciudad:</label>
+            <select class="form-select" id="id_city" name="city" style="width: 40%">
+                <option value="" selected>---------</option>
+                {% for city in cities %}
+                    <option value="{{ city.id }}">{{ city.name }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-group">
             <label for="id_postal_code" class="form-label">Código postal:</label>
@@ -44,15 +54,6 @@
             <label for="id_birth_date" class="form-label">Fecha de nacimiento:</label>
             <input type="date" class="form-control" id="id_birth_date" name="birth_date">
         </div>
-        {% comment %} <div class="form-group">
-            <label for="id_user" class="form-label">Usuario:</label>
-            <select class="form-control" id="id_user" name="user" style="width: 40%">
-                <option value="" selected>---------</option>
-                {% for user in users %}
-                    <option value="{{ user.id }}">{{ user.username }}</option>
-                {% endfor %}
-            </select>
-        </div> {% endcomment %}
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         {% if form.errors %}
             <div class="alert alert-danger mt-3">

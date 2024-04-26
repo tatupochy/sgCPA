@@ -19,17 +19,19 @@
                     <input type="text" class="form-control" id="id_name" name="name" value="{{ role.name }}">
                 </div>
                 <div class="form-group">
-                    <label for="id_permissions" class="form-label">Permisos:</label>
+                    {% for model_name, permissions in permissions_by_model.items %}
+                    <label class="form-label">{{ model_name }}</label>
                     <div class="checkbox-group" style="text-align: left;">
                         {% for permission in permissions %}
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" name="permission_{{ permission.id }}" value="{{ permission.id }}"
-                                       {% if permission in role_permissions %} checked {% endif %}>
-                                <label class="form-check-label" for="permission_{{ permission.id }}">{{ permission.name }}</label>
-                            </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="permission_{{ permission.id }}" value="{{ permission.id }}"
+                                {% if permission in role_permissions %} checked {% endif %}>
+                            <label class="form-check-label" for="permission_{{ permission.id }}">{{ permission.name }}</label>
+                        </div>
                         {% endfor %}
                     </div>
-                </div>
+                    {% endfor %}
+                </div>                
                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
             </form>
             

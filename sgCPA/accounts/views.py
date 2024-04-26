@@ -4,10 +4,16 @@ from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
 from django.views.generic import RedirectView
 from django.contrib.auth.models import Group, Permission, User
+
+from cities.models import Cities
+from countries.models import Country
 from .models import User, Person, UserLogin
 from .decorators import attribute_required, login_required_custom
 from django.urls import reverse_lazy
-
+from django.conf import settings
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # Create your views here.
 
@@ -23,14 +29,6 @@ class CustomLoginView(LoginView):
             # De lo contrario, redirige a la URL personalizada después del inicio de sesión
             return reverse_lazy('listado_alumnos')
         
-class LogoutView(RedirectView):
-    url = reverse_lazy('login')  # Redirige a la página de inicio de sesión después de cerrar sesión
-
-    def get(self, request, *args, **kwargs):
-        logout(request)
-        return super().get(request, *args, **kwargs)
-
-
     def form_valid(self, form):
         print('Valid login attempt')
 
@@ -73,6 +71,14 @@ class LogoutView(RedirectView):
         print('Invalid login attempt')
         return super().form_invalid(form)
 
+        
+class LogoutView(RedirectView):
+    url = reverse_lazy('login')  # Redirige a la página de inicio de sesión después de cerrar sesión
+
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return super().get(request, *args, **kwargs)
+
 
 @login_required_custom
 def persons_view(request):
@@ -86,8 +92,10 @@ def person_create_view(request):
     if request.method == "GET":
         
         users = User.objects.all()
+        countries = Country.objects.all()
+        cities = Cities.objects.all()
 
-        return render(request, "person_create.html", {'users': users})
+        return render(request, "person_create.html", {'users': users, 'countries': countries, 'cities': cities})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
@@ -120,10 +128,12 @@ def person_detail_view(request, pk):
 @login_required_custom
 def person_edit_view(request, pk):
     person = get_object_or_404(Person, pk=pk)
+    countries = Country.objects.all()
+    cities = Cities.objects.all()
     if request.method == "GET":
         # print json of person
         print("person", person.__dict__)
-        return render(request, "person_edit.html", {'person': person})
+        return render(request, "person_edit.html", {'person': person, 'countries': countries, 'cities': cities})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
@@ -137,6 +147,14 @@ def person_edit_view(request, pk):
         person.country = form_data['country']
         person.postal_code = form_data['postal_code']
         person.birth_date = form_data['birth_date']
+
+        if person.user is not None:
+            user = person.user
+            user.email = form_data['email']
+            user.first_name = form_data['name']
+            user.last_name = form_data['last_name']
+            user.save()
+
         person.save()
         return redirect('person_detail', pk=person.pk)
 
@@ -180,10 +198,10 @@ def user_edit_view(request, pk):
         print('form_data', form_data)
 
         # update user
-        user.username = form_data['username']
-        user.email = form_data['email']
-        user.first_name = form_data['first_name']
-        user.last_name = form_data['last_name']
+        # user.username = form_data['username']
+        # user.email = form_data['email']
+        # user.first_name = form_data['first_name']
+        # user.last_name = form_data['last_name']
 
         if 'is_active' in form_data:
             if form_data['is_active'] == 'on':
@@ -215,28 +233,45 @@ def user_create_view(request):
         print('form_data', form_data)
 
         password = form_data['password']
-        confirm_password = form_data['password2']
 
-        if password != confirm_password:
-            return render(request, "user_create.html", {'roles': roles, 'error': 'Las contraseñas no coinciden', 'persons': persons})
-        else:
-            # create user with person data
-            person = Person.objects.get(pk=form_data['person'])
-            if person.user:
-                return render(request, "user_create.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'persons': persons})
-            username = form_data['username']
-            email = person.email
-            first_name = person.name
-            last_name = person.last_name
-            password = form_data['password']
-            user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password)
-            person.user = user
-            person.save()
-            # asign group to user
-            group = form_data['group']
-            user.groups.add(group)
+        # create user with person data
+        person = Person.objects.get(pk=form_data['person'])
+        if person.user:
+            return render(request, "user_create.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'persons': persons})
+        username = form_data['username']
+        email = person.email
+        first_name = person.name
+        last_name = person.last_name
+        password = form_data['password']
+        user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
+
+        # send email to user
+        # send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
+
+        person.user = user
+        person.save()
+        # asign group to user
+        group = form_data['group']
+        user.groups.add(group)
 
         return redirect('user_detail', pk=user.pk)
+    
+# def send_mail(subject, message, from_email, recipient_list):
+
+#     msg = MIMEMultipart()
+#     msg['From'] = from_email
+#     msg['To'] = ', '.join(recipient_list)
+#     msg['Subject'] = subject
+
+#     msg.attach(MIMEText(message, 'plain'))
+
+#     server = smtplib.SMTP('smtp.gmail.com', 587)
+#     server.starttls()
+#     server.login(from_email, 'password')
+#     text = msg.as_string()
+#     server.sendmail(from_email, recipient_list, text)
+#     server.quit()
+#     print('Email sent')
 
 
 @attribute_required
@@ -283,7 +318,15 @@ def roles_view(request):
 def role_detail_view(request, pk):
     role = get_object_or_404(Group, pk=pk)
     permissions = role.permissions.all()
-    return render(request, "role_detail.html", {'role': role, 'permissions': permissions})
+
+    permissions_by_model = {}
+    for permission in permissions:
+        model_name = permission.content_type.model
+        if model_name not in permissions_by_model:
+            permissions_by_model[model_name] = []
+        permissions_by_model[model_name].append(permission)
+
+    return render(request, "role_detail.html", {'role': role, 'permissions': permissions, 'permissions_by_model': permissions_by_model})
 
 
 @attribute_required
@@ -308,8 +351,19 @@ def role_edit_view(request, pk):
     role_permissions = role.permissions.all()
     # filter all permissions that start with 'xyz_'
     permissions = Permission.objects.filter(codename__startswith='xyz_')
+
+    # group permissions by model
+    permissions_by_model = {}
+    for permission in permissions:
+        model_name = permission.content_type.model
+        if model_name not in permissions_by_model:
+            permissions_by_model[model_name] = []
+        permissions_by_model[model_name].append(permission)
+
+    # print('permissions_by_model', permissions_by_model)
+
     if request.method == "GET":
-        return render(request, "role_edit.html", {'role': role, 'role_permissions': role_permissions, 'permissions': permissions})
+        return render(request, "role_edit.html", {'role': role, 'role_permissions': role_permissions, 'permissions': permissions, 'permissions_by_model': permissions_by_model})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
