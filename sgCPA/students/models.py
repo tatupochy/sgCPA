@@ -1,5 +1,7 @@
 from django.db import models
 
+from cities.models import Cities
+from countries.models import Country
 from subjects.models import Subject
 
 # Create your models here.
@@ -48,15 +50,14 @@ class Student(models.Model):
     lastName = models.CharField(max_length=100)
     email = models.CharField(max_length=100, null=True, default=None)
     birthDate = models.DateField()
-    # inscriptionDate = models.DateField()
     ciNumber = models.CharField(max_length=20)
     phone = models.CharField(max_length=20)
-    city = models.CharField(max_length=100)
     fatherPhone = models.CharField(max_length=20)
     motherPhone = models.CharField(max_length=20)
     active = models.BooleanField(null=True, default=True)
-    # course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, default=None, blank=True)
-    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True, default=None, blank=True)
+    
+    city = models.ForeignKey(Cities, on_delete=models.SET_NULL, null=True)
+    country = models.ForeignKey(Country, on_delete=models.SET_NULL, null=True)
     class Meta:
         permissions = [
             ('xyz_puede_ver_estudiantes', 'Puede ver estudiantes'),
