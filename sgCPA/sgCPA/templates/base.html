@@ -101,17 +101,42 @@
                     </a>
                     <ul id="pagos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Regitrar pago cuota</a>
+                            <a href="/payments" class="sidebar-link">Listar pagos</a>
                         </li>
                         <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Registrar pago matricula</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="#" class="sidebar-link">Anular pago</a>
+                            <a href="/payments/create" class="sidebar-link">Regitrar pago</a>
                         </li>
                     </ul>
                 </li>
 
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#cuotas" aria-expanded="false" aria-controls="cuotas">
+                        <i class="lni lni-library"></i>
+                        <span>Cuotas</span>
+                    </a>
+                    <ul id="cuotas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="/fees" class="sidebar-link">Listar cuotas</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                        data-bs-target="#matriculas" aria-expanded="false" aria-controls="matriculas">
+                        <i class="lni lni-license"></i>
+                        <span>Matriculas</span>
+                    </a>
+                    <ul id="matriculas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="/enrollments" class="sidebar-link">Listar matriculas</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/enrollments/create" class="sidebar-link">Registrar matricula</a>
+                        </li>
+                    </ul>
+                </li>
 
                 <li class="sidebar-item">
                     <a href="#" class="sidebar-link">
@@ -135,7 +160,7 @@
                 </li>
             </ul>
             <div class="sidebar-footer">
-                <a href="#" class="sidebar-link">
+                <a href="{% url 'logout' %}" class="sidebar-link">
                     <i class="lni lni-exit"></i>
                     <span>Salir</span>
                 </a>

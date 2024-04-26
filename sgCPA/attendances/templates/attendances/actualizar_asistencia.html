@@ -1,0 +1,88 @@
+<!-- attendances/templates/attendances/actualizar_asistencia.html -->
+
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Actualizar Asistencia</h1>
+    <form action="{% url 'actualizar_asistencia' attendance.id %}" method="post" class="mt-4">
+        {% csrf_token %}
+    
+        <div class="row mb-3">
+            <label for="fecha" class="col-sm-2 col-form-label">Fecha:</label>
+            <div class="col-sm-4">
+                <!-- <input type="date" id="fecha" name="fecha" class="form-control" value="{{ attendance.date }}"> -->
+                <input type="date" id="fecha" name="fecha" class="form-control" value="{% if attendance.date %}{{ attendance.date|date:'Y-m-d' }}{% endif %}">
+
+            </div>
+        </div>
+    
+        <div class="row mb-3">
+            <label for="curso" class="col-sm-2 col-form-label">Curso:</label>
+            <div class="col-sm-4">
+                <!-- <select id="curso" name="curso" class="form-select">
+                    {% for curso in cursos %}
+                    <option value="{{ curso.id }}" {% if curso.id == attendance.course.id %}selected{% endif %}>{{ attendance.course.name }}</option>
+                    {% endfor %}
+                </select> -->
+                <select id="curso" name="curso" class="form-select">
+                    <option value="{{ attendance.course.id }}">{{ attendance.course.name }}</option>
+                </select>
+            </div>
+        </div>
+    
+
+        <div class="table-responsive" id="tabla-asistencia-container">
+            <table class="table table-bordered table-striped text-center" id="tabla-asistencia1">
+                <thead>
+                    <tr>
+                        <th>Nombres</th>
+                        <th>Apellidos</th>
+                        <th>Cédula</th>
+                        <th>Asistencia</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-asistencia">
+                    <tr>
+                        <td>{{ attendance.student.name }}</td>
+                        <td>{{ attendance.student.lastName }}</td>
+                        <td>{{ attendance.student.ciNumber }}</td>
+                        <td>
+                            <input type="checkbox" name="present" value="true" {% if attendance.present %}checked{% endif %}>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <br>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Actualizar</button>
+        </div>
+    </form>
+
+
+      <div id="mensaje-confirmacion" class="alert alert-success" role="alert" style="display: none; position: fixed; top: 10px; right: 10px; z-index: 9999;">
+        Actualizado correctamente!
+      </div>
+
+      <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Muestra el mensaje de confirmación si el parámetro 'registrado' está presente en la URL
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.has('registrado')) {
+            mostrarMensaje();
+          }
+        });
+      
+        function mostrarMensaje() {
+          const mensajeConfirmacion = document.getElementById('mensaje-confirmacion');
+          mensajeConfirmacion.style.display = 'block';
+          setTimeout(function() {
+            mensajeConfirmacion.style.display = 'none';
+          }, 3000); // Ocultar el mensaje después de 3 segundos (3000 milisegundos)
+        }
+      </script>
+</div>
+{% endblock %}

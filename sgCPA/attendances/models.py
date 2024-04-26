@@ -7,3 +7,11 @@ class Attendance(models.Model):
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     present = models.BooleanField()
+
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_asistencias', 'Puede ver asistencias'),
+            ('xyz_puede_crear_asistencias', 'Puede crear asistencias'),
+            ('xyz_puede_modificar_asistencias', 'Puede modificar asistencias'),
+            ('xyz_puede_eliminar_asistencias', 'Puede eliminar asistencias'),
+        ]

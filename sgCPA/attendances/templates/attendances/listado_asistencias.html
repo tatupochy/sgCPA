@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mt-5">Listado de Asistencias</h1>
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <label for="curso" class="col-sm-2 col-form-label">Curso:</label>
+            <div class="col-sm-4">
+                <select id="curso" name="curso_id" class="form-select">
+                    <option value="">Seleccione un curso</option>
+                    {% for curso in cursos %}
+                    <option value="{{ curso.id }}">{{ curso.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-sm-2">
+                <button type="submit" class="btn btn-primary">Filtrar</button>
+            </div>
+        </div>
+    </form>
+
+    {% if alumnos %}
+    <div class="table-responsive mt-4">
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Cédula</th>
+                    <th>Fecha</th>
+                    <th>Asistencia</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asistencia in asistencias %}
+                <tr>
+                    <td>{{ asistencia.student.name }}</td>
+                    <td>{{ asistencia.student.lastName }}</td>
+                    <td>{{ asistencia.student.ciNumber }}</td>
+                    <td>{{ asistencia.date }}</td>
+                    <td>
+                        {% if asistencia.present %}
+                            P
+                        {% else %}
+                            A
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'actualizar_asistencia' asistencia.id %}">Actualizar</a>
+                        <!-- <a href="{% url 'eliminar_asistencia' asistencia.id %}">Eliminar</a> -->
+                        <!-- <a href="#" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Eliminar</a> -->
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ asistencia.id }}">Eliminar</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+    </div>
+    {% endif %}
+
+    <!-- Modal de confirmación de eliminación -->
+    {% for asistencia in asistencias %}
+    <div class="modal fade" id="confirmDeleteModal{{ asistencia.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="confirmDeleteModalLabel">Confirmar eliminación</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    ¿Estás seguro de que quieres eliminar esta asistencia?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger delete-button" data-asistencia-id="{{ asistencia.id }}">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <div id="mensaje-confirmacion" class="alert alert-success" role="alert" style="display: none; position: fixed; top: 10px; right: 10px; z-index: 9999;">
+        Asistencia eliminada!
+    </div>
+
+    <script src="{% static 'scripts/eliminar_asistencia.js' %}"></script>
+
+</div>
+{% endblock %}

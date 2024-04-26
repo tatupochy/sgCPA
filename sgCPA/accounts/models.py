@@ -16,6 +16,14 @@ class Person(models.Model):
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     birth_date = models.DateField(blank=True , null=True)
 
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_personas', 'Puede ver personas'),
+            ('xyz_puede_agregar_personas', 'Puede agregar personas'),
+            ('xyz_puede_modificar_personas', 'Puede modificar personas'),
+            ('xyz_puede_eliminar_personas', 'Puede eliminar personas'),
+        ]
+        
 
 class UserLogin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)

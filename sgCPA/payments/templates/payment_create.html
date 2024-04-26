@@ -46,8 +46,8 @@
                     <option value="{{ payment_type.id }}">{{ payment_type.description }}</option>
                 {% endfor %}
             </select>
-        </div> 
-        <div class="form-group">
+        </div>
+        <div class="form-group" id="fee_field" style="display: none;">
             <label for="id_fee" class="form-label">Cuota:</label>
             <select class="form-select" id="id_fee" name="fee" style="width: 40%">
                 <option value="" selected>---------</option>
@@ -55,8 +55,9 @@
                     <option value="{{ fee.id }}">{{ fee.id }}</option>
                 {% endfor %}
             </select>
-        </div> 
-        <div class="form-group">
+        </div>
+
+        <div class="form-group" id="enrollment_field" style="display: none;">
             <label for="id_enrollment" class="form-label">Matrícula:</label>
             <select class="form-select" id="id_enrollment" name="enrollment" style="width: 40%">
                 <option value="" selected>---------</option>
@@ -64,7 +65,7 @@
                     <option value="{{ enrollment.id }}">{{ enrollment.id }}</option>
                 {% endfor %}
             </select>
-        </div> 
+        </div>
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         {% if form.errors %}
             <div class="alert alert-danger mt-3">
@@ -79,4 +80,36 @@
         {% endif %}
     </form>
 </div>
+
+<script>
+    window.onload = function() {
+        toggleFields();
+    };
+
+    function toggleFields() {
+        var paymentType = document.getElementById('id_payment_type');
+        var paymentTypeText = paymentType.options[paymentType.selectedIndex].text;
+        var feeField = document.getElementById('fee_field');
+        var enrollmentField = document.getElementById('enrollment_field');
+
+        if (paymentTypeText == "Matrícula") {
+            enrollmentField.style.display = "block";
+        } else {
+            enrollmentField.style.display = "none";
+        }
+
+        if (paymentTypeText == "Cuota") {
+            feeField.style.display = "block";
+        } else {
+            feeField.style.display = "none";
+        }
+    }
+</script>
+
+<script>
+    document.getElementById('id_payment_type').onchange = function() {
+        toggleFields();
+    };
+</script>
+
 {% endblock %}

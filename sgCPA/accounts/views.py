@@ -143,9 +143,16 @@ def person_edit_view(request, pk):
 
 @login_required_custom
 def users_view(request):
-    users = User.objects.all()
+    # Obtén todos los usuarios activos por defecto
+    users = User.objects.filter(is_active=True)
+
+    # Verifica si el parámetro GET show_inactive_users está presente y es igual a "true"
+    if request.GET.get('show_inactive_users') == 'true':
+        # Si el filtro está activado, obtén todos los usuarios (activos e inactivos)
+        users = User.objects.all()
 
     return render(request, "users.html", {'users': users})
+
 
 
 @login_required_custom
@@ -239,7 +246,8 @@ def user_delete_view(request, pk):
     if user == request.user:
         return render(request, "user_delete_error.html")
     else:
-        user.delete()
+        user.is_active = False
+        user.save()
     return redirect('users')
 
 
@@ -298,7 +306,8 @@ def role_create_view(request):
 def role_edit_view(request, pk):
     role = get_object_or_404(Group, pk=pk)
     role_permissions = role.permissions.all()
-    permissions = Permission.objects.all()
+    # filter all permissions that start with 'xyz_'
+    permissions = Permission.objects.filter(codename__startswith='xyz_')
     if request.method == "GET":
         return render(request, "role_edit.html", {'role': role, 'role_permissions': role_permissions, 'permissions': permissions})
     else:
