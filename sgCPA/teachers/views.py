@@ -3,6 +3,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Teacher
 from django.http import JsonResponse
+from cities.models import Cities
+from countries.models import Country
 
 def teacher_list(request):
     teachers = Teacher.objects.all()
@@ -36,6 +38,12 @@ def teacher_create(request):
             country_id=country_id
         )
         return JsonResponse({'success': True, 'redirect_url': teacher.get_absolute_url()})
+    else:
+        city_list = Cities.objects.all()
+        country_list = Country.objects.all()
+
+        return render(request, 'teachers/teacher_form.html', {'city_list': city_list, 'country_list': country_list})
+
     return render(request, 'teachers/teacher_form.html')
 
 def teacher_update(request, pk):
