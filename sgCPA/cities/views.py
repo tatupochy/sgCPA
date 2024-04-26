@@ -79,7 +79,8 @@ def editar_ciudad(request, id):
         return HttpResponseRedirect('/listado_ciudades')
     
 def obtener_ciudades_por_pais(request, id):
-    ciudades = Cities.objects.filter(country_id=id)
+    ciudades = Cities.objects.filter(country_id=id, active=True)
+
 
     # Crear una lista para almacenar los datos de las ciudades
     ciudades_data = []
