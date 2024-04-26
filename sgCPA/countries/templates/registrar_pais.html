@@ -1,0 +1,32 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+
+{% block content%}
+
+<form class="mt-4 d-flex flex-column justify-content-center  w-50 mx-auto p-5 gap-3" method="POST">
+    {% csrf_token %}
+    <legend class="text-center">
+        {% if country %}
+        Editar Pais
+        {% else %}
+        Registrar Pais
+        {% endif %}
+    </legend>
+
+    <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="name" class="mb-2 form-label">Nombre</label>
+            <input value="{{country.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
+        </article>
+      
+    </section>
+
+    <section class="d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary">Registrar</button>
+    </section>
+</div>
+
+</form>
+
+{% endblock %}

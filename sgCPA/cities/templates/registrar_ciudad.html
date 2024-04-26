@@ -1,0 +1,51 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+
+{% block content%}
+
+<form class="mt-4 d-flex flex-column justify-content-center  w-50 mx-auto p-5 gap-3" method="POST">
+    {% csrf_token %}
+    <legend class="text-center">
+        {% if city %}
+        Editar Ciudad
+        {% else %}
+        Registrar Ciudad
+        {% endif %}
+    </legend>
+
+    <section class="d-flex gap-3 justify-content-center align-items-end border w-100">
+        <article class="w-50 border">
+            <label for="name" class="mb-2 form-label">Nombre</label>
+            <input value="{{city.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
+        </article>
+        <article class="w-50 border">
+            <select class="form-select" id="section" name="country">
+                <option value="{{country_id}}">Seleccionar Pais</option>
+                {% for country in country_list %}
+                {% if country.id == country_id %}
+                    <option value="{{ country.id }}" selected>{{ country.name }}</option>
+                {% else %}
+                    <option value="{{ country.id }}">{{ country.name }}</option>
+                {% endif %}
+            {% endfor %}
+            </select>
+        </article>
+      
+    </section>
+
+    <section class="d-flex justify-content-center gap-2">
+        <button type="submit" class="btn btn-primary">
+            {% if city %}
+            Editar
+            {% else %}
+            Registrar
+            {% endif %}
+        </button>
+        <a class="btn btn-secondary" href="/listado_ciudades">Cancelar</a>
+    </section>
+</div>
+
+</form>
+
+{% endblock %}

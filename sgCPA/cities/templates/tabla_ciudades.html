@@ -1,0 +1,32 @@
+<div class="table-container">
+    <table class="table table-hover table-bordered" id="table">
+        <thead class="fixed-head">
+            <tr>
+                <th>
+                    Acciones
+                </th>
+                <th>Nombre</th>
+            </tr>
+        </thead>
+        <tbody id="tbody" class="scrollable-body">
+            {% for student in entity %}
+            <tr id={{student.id}}>
+                <td class="acciones-container">
+                    <div class="acciones">
+                        <button class="btn btn-primary editar" data-id={{student.id}}>
+                            <i class="fa-solid fa-pencil editar" data-id={{student.id}}></i>
+                        </button>
+                        <button data-id={{student.id}} type="button" class="btn btn-danger delete">
+                            <i class="fa-solid fa-trash-can" data-id={{student.id}}></i>
+                        </button>
+                    </div>
+                </td>
+                <td>{{ student.name }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div>
+    {% include './pagination.html' %}
+</div>
