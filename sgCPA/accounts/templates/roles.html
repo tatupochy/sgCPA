@@ -17,7 +17,7 @@
             {% for rol in roles %}
             <tr>
                 <td onclick= "window.location.href = '/accounts/roles/{{ rol.id }}'" style="cursor: pointer;">{{ rol.name }}</td>
-                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-toggle="modal" data-target="#deleteModal" data-rol-id="{{ rol.id }}"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/roles/{{ rol.id }}/edit'"><i class="fa fa-pencil"></i></button></td>
+                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-role-id="{{ rol.id }}"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/roles/{{ rol.id }}/edit'"><i class="fa fa-pencil"></i></button></td>
             </tr>
             {%  endfor %}
         </tbody>
@@ -30,15 +30,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         ¿Estás seguro de que deseas eliminar este rol?
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
         <a id="deleteButton" class="btn btn-danger">Eliminar</a>
       </div>
     </div>
@@ -46,12 +44,16 @@
 </div>
 
 <script>
-    $('#deleteModal').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var rolId = button.data('rol-id');
-        var modal = $(this);
-        modal.find('#deleteButton').attr('href', '/accounts/roles/' + rolId + '/delete');
-    });
+  var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), {
+    keyboard: false
+  });
+
+  $('#deleteModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var roleId = button.data('role-id');
+    var modal = $(this);
+    modal.find('#deleteButton').attr('href', '/accounts/roles/' + roleId + '/delete');
+  });
 </script>
 
 {% endblock %}

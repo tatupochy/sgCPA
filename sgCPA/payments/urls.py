@@ -42,6 +42,6 @@ urlpatterns = [
     path('concepts/', views.concept_list, name='concept_list'),
     path('concepts/<int:concept_id>/', views.concept_detail, name='concept_detail'),
     path('concepts/<int:concept_id>/edit', views.concept_edit, name='concept_edit'),
-    path('concept/<int:concept_id>/delete', views.concept_delete, name='concept_delete'),
+    path('concepts/<int:concept_id>/delete', views.concept_delete, name='concept_delete'),
 
 ]

@@ -306,7 +306,7 @@ def concept_delete(request, concept_id):
     if request.method == 'POST':
         concept.delete()
         return redirect('concepts')  # Redirect to the concept list after deletion
-    return render(request, 'concept_delete.html', {'concept': concept})
+    return render(request, 'concepts.html', {'concept': concept})
 
 def concept_detail(request, concept_id):
     concept = Concept.objects.get(id=concept_id)
