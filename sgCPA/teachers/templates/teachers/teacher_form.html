@@ -43,7 +43,7 @@
         <article class="w-50">
             <label for="country" class="mb-2 form-label">Pais</label>
             <select class="form-select" id="country" name="country">
-                <option value="">Seleccionar Pais</option>
+                <option value="" selected>Seleccionar Pais</option>
                 {% for country in country_list %}
                 <option value="{{ country.id }}">{{ country.name }}</option>
                 {% endfor %}
@@ -52,10 +52,10 @@
 
         <article class="w-50">
             <label for="city" class="mb-2 form-label">Ciudad</label>
-            <select disabled class="form-select" id="city" name="city">
-                <!-- <option value="" disabled>Seleccionar Ciudad</option> -->
+            <select class="form-select" id="city" name="city">
+                <option value="" selected>Seleccionar Ciudad</option>
                 {% for city in city_list %}
-                <option disabled value="{{ city.id }}">{{ city.name }}</option>
+                    <option value="{{ city.id }}">{{ city.name }}</option>
                 {% endfor %}
             </select>
         </article>
