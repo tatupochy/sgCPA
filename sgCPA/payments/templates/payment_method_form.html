@@ -1,0 +1,75 @@
+<!-- sgCPA\payments\templates\payment_method_form.html -->
+{% extends 'base.html' %}
+
+{% block title %} Método de Pago {% endblock %}
+
+{% block content %}
+
+<form id="payment_method_form" method="POST" class="mt-4 d-flex flex-column justify-content-center w-50 mx-auto p-5 gap-3">
+  {% csrf_token %}
+
+  <legend class="text-center">
+    Registrar Método de Pago
+  </legend>
+
+  <section class="d-flex gap-3 justify-content-center w-100">
+    <article class="w-50">
+      <label for="payment_method_select" class="mb-2 form-label">Método de Pago:</label>
+
+      <select id="payment_method_select" name="name" class="form-select" onchange="toggleCustomNameField()">
+        <option value="">Seleccione un método de pago</option>
+        <option value="Efectivo">Efectivo</option>
+        <option value="Tarjeta de crédito">Tarjeta de crédito</option>
+        <option value="Tarjeta de débito">Tarjeta de débito</option>
+        <option value="Transferencia">Transferencia</option>
+        <option value="Depósito">Depósito</option>
+        <option value="custom">Otro</option>
+      </select>
+      
+    </article>
+  </section>
+
+  <section class="d-flex gap-3 justify-content-center w-100">
+    <article class="w-50">
+      <label for="custom_name_field" class="mb-2 form-label">Otro:</label>
+      <input type="text" id="custom_name_field" name="name" placeholder="Ingrese un nuevo método de pago" style="width: 100%;" disabled>
+    </article>
+  </section>
+
+  <section class="d-flex gap-3 justify-content-center w-100">
+    <article class="w-100">
+      <label for="id_description" class="mb-2 form-label">Descripción:</label>
+      <textarea id="id_description" name="description" class="form-control"></textarea>
+    </article>
+  </section>
+
+  <section class="d-flex gap-3 justify-content-center w-100">
+    <article class="d-flex align-items-center">
+      <label for="id_status" class="me-2 form-label">Estado activo?:</label>
+      <input type="checkbox" id="id_status" name="status" checked>
+    </article>
+  </section>
+
+  <section class="d-flex justify-content-center">
+    <button type="submit" class="btn btn-primary">Guardar</button>
+  </section>
+
+</form>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    function toggleCustomNameField() {
+      // Obtener el valor seleccionado del select
+      var selectedValue = $("#payment_method_select").val();
+      
+      // Limpiar el valor del campo custom_name si no se selecciona "Otro"
+      if (selectedValue !== "custom") {
+        $("#custom_name_field").val("");
+      }
+      
+      // Habilitar o deshabilitar el campo custom_name según la selección
+      $("#custom_name_field").prop("disabled", selectedValue !== "custom");
+    }
+    </script>
+{% endblock %}

@@ -1,9 +1,10 @@
 from django.shortcuts import render
 
 from students.models import Student
-from .models import Payment, PaymentMethod, PaymentType, State, Fee, Enrollment
+from .models import Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2
 import calendar
 from dateutil.relativedelta import relativedelta
+from django.shortcuts import redirect,get_object_or_404
 
 # Create your views here.
 
@@ -227,3 +228,45 @@ def state_detail(request, state_id):
     return render(request, 'state_detail.html', {'state': state})
 
 
+####################################################
+
+def payment_method_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        if name == 'custom':
+            name = request.POST.get('custom_name')
+        description = request.POST.get('description')
+        PaymentMethod2.objects.create(name=name, description=description)
+        return redirect('payment_method_list')
+    return render(request, 'payment_method_form.html')
+
+def payment_method_list(request):
+    payment_methods = PaymentMethod2.objects.all()
+    return render(request, 'payment_method_list.html', {'payment_methods': payment_methods})
+
+def payment_method_edit(request, payment_method_id):
+    payment_method = get_object_or_404(PaymentMethod2, id=payment_method_id)
+    
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        status = request.POST.get('status')
+        
+        # Actualizar los campos del método de pago
+        payment_method.name = name
+        payment_method.description = description
+        payment_method.status = bool(status)  # Convertir a booleano
+        
+        # Guardar los cambios en la base de datos
+        payment_method.save()
+        
+        return redirect('payment_method_list')  # Redireccionar a la lista de métodos de pago después de editar
+        
+    return render(request, 'payment_method_edit.html', {'payment_method': payment_method})
+
+def payment_method_delete(request, payment_method_id):
+    payment_method = get_object_or_404(PaymentMethod2, id=payment_method_id)
+    if request.method == 'POST':
+        payment_method.delete()
+        return redirect('payment_method_list')  # Redirect to the payment method list after deletion
+    return render(request, 'payment_method_delete.html', {'payment_method': payment_method})

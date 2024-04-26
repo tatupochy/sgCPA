@@ -10,7 +10,9 @@ from .views import (
     enrollments,
     enrollment_detail,
     enrollment_create,
-    create_fees
+    create_fees,
+    payment_method_create,
+    payment_method_list,
 )
 
 
@@ -25,4 +27,10 @@ urlpatterns = [
     path('enrollments/', enrollments, name='enrollments'),
     path('enrollments/<int:enrollment_id>/', enrollment_detail, name='enrollment_detail'),
     path('enrollments/create/', enrollment_create, name='enrollment_create'),
+    ########
+    path('payment_methods/create/', views.payment_method_create, name='payment_method_create'),
+    path('payment_methods/', views.payment_method_list, name='payment_method_list'),
+    path('edit_payment_methods/<int:payment_method_id>', views.payment_method_edit, name='payment_method_edit'),
+    path('delete_payment_methods/<int:payment_method_id>', views.payment_method_delete, name='payment_method_delete'),
+
 ]

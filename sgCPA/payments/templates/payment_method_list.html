@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2 class="mt-4 mb-3">Listado de Métodos de Pago</h2>
+
+<table class="table table-bordered">
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Estado</th>
+      <th>Fecha de Creación</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for method in payment_methods %}
+    <tr>
+      <td>{{ method.id }}</td>
+      <td>{{ method.name }}</td>
+      <td>{{ method.description }}</td>
+      <td>{{ method.status }}</td>
+      <td>{{ method.created_at }}</td>
+      <td>
+        <a href="{% url 'payment_method_edit' method.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-fill"></i> Editar</a>
+        <a href="{% url 'payment_method_delete' method.id %}" class="btn btn-danger btn-sm"><i class="bi bi-trash-fill"></i> Borrar</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

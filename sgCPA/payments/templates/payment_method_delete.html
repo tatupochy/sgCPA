@@ -1,0 +1,16 @@
+<!-- sgCPA\payments\templates\payment_method_delete.html -->
+{% extends 'base.html' %}
+
+{% block title %} Confirmar Eliminación {% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+  <h2 class="mb-4">Eliminar Método de Pago</h2>
+  <p>¿Estás seguro que deseas eliminar el método de pago '{{ payment_method2.name }}'? </p>
+  <form action="{% url 'payment_method_delete' payment_method.id %}" method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+    <a href="{% url 'payment_method_list' %}" class="btn btn-secondary">Cancelar</a>
+  </form>
+</div>
+{% endblock %}
