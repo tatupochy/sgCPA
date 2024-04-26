@@ -1,0 +1,22 @@
+{% extends 'layout/base.html' %}
+{% load static %}
+
+
+{% block content%}
+
+<form class="mt-4 d-flex flex-column justify-content-center  w-50 mx-auto p-5 gap-3" method="POST">
+    {% csrf_token %}
+    <legend class="text-center">
+        Esta seguro que quiere innabilitar el siguiente pais: {{country.name}}
+    </legend>
+
+
+    <section class="d-flex justify-content-center gap-2">
+        <button type="submit" class="btn btn-primary">Innabilitar </button>
+        <a href="/listado_paises" type="button" class="btn btn-secondary">Cancelar</a>
+    </section>
+</div>
+
+</form>
+
+{% endblock %}

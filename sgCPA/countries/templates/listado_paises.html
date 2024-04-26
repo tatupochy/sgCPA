@@ -1,0 +1,36 @@
+{% extends 'layout/layout_pais.html' %}
+{% load static %}
+
+{% block content %}
+<div class="heading d-flex align-items-center justify-content-center">
+    <h1>Listado de Paises</h1>
+    <div class="d-flex align-items-center justify-content-center">
+        <div class="input-group  buscar">
+            <input value="{{param}}" type="text" class="form-control" id="searchInput" placeholder="Nombre"
+                autocomplete="off">
+            <button class="input-group-text" id="searchButton"><i class="fa-solid fa-magnifying-glass"></i></button>
+        </div>
+        <div class="">
+            <a href="/registrar_pais" class="border mb-3" id="add">
+                Crear Pais
+            </a>
+        </div>
+    </div>
+</div>
+
+<div id="tableContainer">
+    {% if has_results %}
+    {% include './country_table.html' %}
+    {% else %}
+    <p>No se encontraron resultado</p>
+    {% endif %}
+</div>
+
+
+
+
+
+
+
+
+{% endblock %}

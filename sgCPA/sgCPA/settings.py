@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'students',
     'payments',
     'subjects',
-    'attendances'
+    'attendances',
+    'countries'
 ]
 
 MIDDLEWARE = [
@@ -65,6 +66,7 @@ TEMPLATES = [
             os.path.join(BASE_DIR, 'students', 'templates'),
             os.path.join(BASE_DIR, 'subjects', 'templates'),
             os.path.join(BASE_DIR, 'attendances', 'templates'),
+            os.path.join(BASE_DIR, 'countries', 'templates')
             ],
         'APP_DIRS': True,
         'OPTIONS': {
