@@ -1,6 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404, Http404
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse
+from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, HttpResponseRedirect
+
+from countries.models import Country
+from cities.models import Cities
 from .models import Student, Course
 from subjects.models import Subject
 from django.db.models import Q
@@ -10,28 +13,26 @@ import datetime
 
 def registrar_alumno(request):
     if request.method == "GET":
-        cursos = Course.objects.all()
-        data = {
-            'cursos': cursos 
-        }
-        return render(request, 'students/registrar_alumno.html', data)
+        country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
+        return render(request, 'students/registrar_alumno.html', {'country_list': country_list})
     
     form_data = request.POST.dict()
-    curso = Course.objects.get(pk=form_data.get('course'))
 
-
+    
+    city = Cities.objects.get(pk=form_data.get('city'))
+    country = Country.objects.get(pk=form_data.get('country'))
+    
     student = Student(
         name=form_data.get('name'),
         lastName=form_data.get('lastName'),
         email=form_data.get('email'),
         birthDate=form_data.get('birthDate'),
-        inscriptionDate=form_data.get('inscriptionDate'),
         ciNumber=form_data.get('ciNumber'),
         phone=form_data.get('phone'),
-        city=form_data.get('city'),
+        city=city,
+        country=country,
         fatherPhone=form_data.get('fatherPhone'),
         motherPhone=form_data.get('motherPhone'),
-        course=curso
     )
     
     try:
@@ -41,7 +42,7 @@ def registrar_alumno(request):
         return HttpResponseBadRequest("Error en la validación: {}".format(errors))
 
     student.save()
-    return HttpResponse("Enviado correctamente")
+    return HttpResponseRedirect('/listado_alumnos')
 
 
 def editar_alumno(request, id):
@@ -50,56 +51,30 @@ def editar_alumno(request, id):
     if request.method == "GET":
         
         student = get_object_or_404(Student, id=id)
-        
-        cursos = Course.objects.all()
+        country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
+        city_list = Cities.objects.filter(country_id=id)
         data = {
-            'cursos': cursos ,
-            'student': student
+            'student': student,
+            'country_list': country_list,
+            'city_list': city_list
         }
-    
-    # Convertir la fecha de nacimiento al formato adecuado
-        if student.birthDate:
-            student.birthDate = student.birthDate.strftime("%Y-%m-%d")
-    
-    # Convertir la fecha de inscripción al formato adecuado
-        if student.inscriptionDate:
-            student.inscriptionDate = student.inscriptionDate.strftime("%Y-%m-%d")
-    
+        print(student.city.id)
         return render(request, 'students/editar_alumno.html', data)
-    
     else:
        student = get_object_or_404(Student, id=id)
        form_data = request.POST
        
-       try:
-            course_id = form_data.get('course')
-            if course_id:
-             course = Course.objects.get(pk=course_id)
-            else:
-             course = None
-       except Course.DoesNotExist:
-          course = None
-       
-        
-        # Actualizar los campos del estudiante con los datos recibidos
-       student.name = form_data.get('name')
-       student.lastName = form_data.get('lastName')
        student.email = form_data.get('email')
-       student.birthDate = form_data.get('birthDate')
-       student.inscriptionDate = form_data.get('inscriptionDate')
-       student.ciNumber = form_data.get('ciNumber')
        student.phone = form_data.get('phone')
-       student.city = form_data.get('city')
        student.fatherPhone = form_data.get('fatherPhone')
        student.motherPhone = form_data.get('motherPhone')
-       student.course = course
        
        
         
        try:
           student.full_clean()
           student.save()  # Guardar los cambios en la base de datos
-          return HttpResponse("Estudiante actualizado correctamente")
+          return HttpResponseRedirect('/listado_alumnos')
        except ValidationError as e:
              errors = e.message_dict
              return HttpResponseBadRequest("Error en la validación: {}".format(errors))

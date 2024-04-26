@@ -3,6 +3,7 @@ from django.db.models import Q
 from countries.models import Country
 from .models import Cities
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -76,4 +77,22 @@ def editar_ciudad(request, id):
         city.country = country
         city.save()
         return HttpResponseRedirect('/listado_ciudades')
+    
+def obtener_ciudades_por_pais(request, id):
+    ciudades = Cities.objects.filter(country_id=id)
+
+    # Crear una lista para almacenar los datos de las ciudades
+    ciudades_data = []
+
+    # Iterar sobre las ciudades obtenidas y agregar sus datos a la lista
+    for ciudad in ciudades:
+        ciudad_data = {
+            "id": ciudad.id,
+            "name": ciudad.name,
+            # Puedes agregar más campos si los necesitas
+        }
+        ciudades_data.append(ciudad_data)
+
+    # Devolver la lista de datos de ciudades como una respuesta JSON
+    return JsonResponse({"ciudades": ciudades_data})
         
