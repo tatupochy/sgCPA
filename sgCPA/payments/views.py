@@ -302,11 +302,11 @@ def concept_edit(request, concept_id):
     return render(request, 'concept_edit.html', {'concept': concept})
 
 def concept_delete(request, concept_id):
-    concept = get_object_or_404(Concept, id=concept_id)
-    if request.method == 'POST':
-        concept.delete()
-        return redirect('concepts')  # Redirect to the concept list after deletion
-    return render(request, 'concepts.html', {'concept': concept})
+    concept = get_object_or_404(Concept, pk=concept_id)
+    
+    concept.delete()
+
+    return redirect('concepts_list')
 
 def concept_detail(request, concept_id):
     concept = Concept.objects.get(id=concept_id)
