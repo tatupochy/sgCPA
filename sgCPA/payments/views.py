@@ -306,7 +306,7 @@ def concept_delete(request, concept_id):
     
     concept.delete()
 
-    return redirect('concepts_list')
+    return redirect('concept_list')
 
 def concept_detail(request, concept_id):
     concept = Concept.objects.get(id=concept_id)
