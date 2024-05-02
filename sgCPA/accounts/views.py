@@ -1,10 +1,10 @@
+from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, redirect, render
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
 from django.views.generic import RedirectView
 from django.contrib.auth.models import Group, Permission, User
-
+from django.contrib.auth import login as auth_login
 from cities.models import Cities
 from countries.models import Country
 from .models import User, Person, UserLogin
@@ -17,13 +17,17 @@ from email.mime.text import MIMEText
 
 # Create your views here.
 
+
 class CustomLoginView(LoginView):
     template_name = 'login.html'
 
     def get_success_url(self):
         user = self.request.user
-        if user.last_login is None:
+        user_logins = UserLogin.objects.filter(user=user).first()
+        if user_logins.first_login:
             # Si es el primer inicio de sesión, redirige a la página de cambio de contraseña
+            user_logins.first_login = False
+            user_logins.save()
             return reverse_lazy('change_password', kwargs={'pk': user.pk})
         else:
             # De lo contrario, redirige a la URL personalizada después del inicio de sesión
@@ -33,6 +37,13 @@ class CustomLoginView(LoginView):
         print('Valid login attempt')
 
         user = User.objects.get(username=form.data['username'])
+
+        if user.is_superuser:
+            # add user to admin group
+            group = Group.objects.get(name='Administrador')
+            user.groups.add(group)
+            user.save()
+
         user_logins = UserLogin.objects.filter(user=user)
 
         if user_logins.exists():
@@ -43,8 +54,9 @@ class CustomLoginView(LoginView):
         else:
             user_login = UserLogin(user=user, attempts=0)
             user_login.save()
-            
-        return super().form_valid(form)
+
+        auth_login(self.request, form.get_user())
+        return HttpResponseRedirect(self.get_success_url())
 
     def form_invalid(self, form):
 
@@ -170,7 +182,6 @@ def users_view(request):
         users = User.objects.all()
 
     return render(request, "users.html", {'users': users})
-
 
 
 @login_required_custom
