@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %} Turnos {% endblock %}
+
+{% block content %}
+<!-- Main jumbotron for a primary marketing message or call to action -->
+<div class="container">
+    <h1>Turnos</h1>
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Descripción</th>
+                <th scope="col">Activo</th>
+                <th scope="col" class="col-md-2 text-center"><button class="btn btn-primary" onclick= "window.location.href = '/shifts/create'"><i class="fa fa-plus"></i></button></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for shift in shifts %}
+            <tr>
+                <td onclick= "window.location.href = '/shifts/{{ shift.id }}'" style="cursor: pointer;">{{ shift.name }}</td>
+                <td onclick= "window.location.href = '/shifts/{{ shift.id }}'" style="cursor: pointer;">{{ shift.description }}</td>
+                {% if shift.active %}
+                <td onclick= "window.location.href = '/shifts/{{ shift.id }}'" style="cursor: pointer;">Sí</td>
+                {% else %}
+                <td onclick= "window.location.href = '/shifts/{{ shift.id }}'" style="cursor: pointer;">No</td>
+                {% endif %}
+                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-shift-id="{{ shift.id }}"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/shifts/{{ shift.id }}/edit'"><i class="fa fa-pencil"></i></button></td>
+            </tr>
+            {%  endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteModalLabel">Confirmar eliminación</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        ¿Estás seguro de que deseas eliminar esta turno?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <a id="deleteButton" class="btn btn-danger">Eliminar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'), {
+    keyboard: false
+  });
+
+  $('#deleteModal').on('show.bs.modal', function (event) {
+    var button = $(event.relatedTarget);
+    var shiftId = button.data('shift-id');
+    var modal = $(this);
+    modal.find('#deleteButton').attr('href', '/shifts/' + shiftId + '/delete');
+  });
+</script>
+
+{% endblock %}

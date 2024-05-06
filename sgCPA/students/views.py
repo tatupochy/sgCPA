@@ -301,6 +301,7 @@ def section_list(request):
 
 def section_detail(request, id):
     section = get_object_or_404(Section, pk=id)
+    print('section_detail', section)
     return render(request, 'sections/section_detail.html', {'section': section})
 
 
