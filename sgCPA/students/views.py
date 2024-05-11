@@ -58,7 +58,6 @@ def editar_alumno(request, id):
             'country_list': country_list,
             'city_list': city_list
         }
-        print(student.city.id)
         return render(request, 'students/editar_alumno.html', data)
     else:
        student = get_object_or_404(Student, id=id)
