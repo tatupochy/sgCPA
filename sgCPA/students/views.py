@@ -4,7 +4,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, Http
 
 from countries.models import Country
 from cities.models import Cities
-from .models import Student, Course
+from .models import Student, Course, Shift, Section
 from subjects.models import Subject
 from django.db.models import Q
 from datetime import datetime
@@ -250,3 +250,86 @@ def borrar_curso(request, id):
 def listar_curso(request):
     cursos = Course.objects.all()
     return render(request, 'courses/listar_curso.html', {'cursos': cursos})
+
+
+def shift_list(request):
+    shifts = Shift.objects.all()
+    return render(request, 'shifts/shifts.html', {'shifts': shifts})
+
+
+def shift_detail(request, id):
+    shift = get_object_or_404(Shift, pk=id)
+    return render(request, 'shifts/shift_detail.html', {'shift': shift})
+
+
+def shift_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        active = request.POST.get('active') == 'on'
+        description = request.POST.get('description')
+        shift = Shift(name=name, active=active, description=description)
+        shift.save()
+        return redirect('shift_detail', id=shift.id)
+    return render(request, 'shifts/shift_create.html')
+
+
+def shift_edit(request, id):
+    shift = get_object_or_404(Shift, pk=id)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        active = request.POST.get('active') == 'on'
+        description = request.POST.get('description')
+        shift.name = name
+        shift.active = active
+        shift.description = description
+        shift.save()
+        return redirect('shift_detail', id=shift.id)
+    return render(request, 'shifts/shift_edit.html', {'shift': shift})
+
+
+def shift_delete(request, id):
+    shift = get_object_or_404(Shift, pk=id)
+    shift.delete()
+    return redirect('shift_list')
+
+
+def section_list(request):
+    sections = Section.objects.all()
+    return render(request, 'sections/sections.html', {'sections': sections})
+
+
+def section_detail(request, id):
+    section = get_object_or_404(Section, pk=id)
+    print('section_detail', section)
+    return render(request, 'sections/section_detail.html', {'section': section})
+
+
+def section_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        active = request.POST.get('active') == 'on'
+        description = request.POST.get('description')
+        section = Section(name=name, active=active, description=description)
+        section.save()
+        return redirect('section_detail', id=section.id)
+    return render(request, 'sections/section_create.html')
+
+
+def section_edit(request, id):
+    section = get_object_or_404(Section, pk=id)
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        active = request.POST.get('active') == 'on'
+        description = request.POST.get('description')
+        section.name = name
+        section.active = active
+        section.description = description
+        section.save()
+        return redirect('section_detail', id=section.id)
+    return render(request, 'sections/section_edit.html', {'section': section})
+
+
+def section_delete(request, id):
+    section = get_object_or_404(Section, pk=id)
+    section.delete()
+    return redirect('section_list')

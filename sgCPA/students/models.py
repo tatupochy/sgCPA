@@ -9,20 +9,10 @@ from subjects.models import Subject
 
 ###### Cursos disponibles ######
 class Course(models.Model):
-    CHOICE_SHIFTS = [
-        ('M', 'Mañana'),
-        ('T', 'Tarde'),
-        ('S', 'Sábado'),
-    ]
-
-    CHOICES_SECTIONS = [
-        ('1', '1'),
-        ('2', '2'),
-    ]
 
     name = models.CharField(max_length=100)
-    shift = models.CharField(max_length=1, choices=CHOICE_SHIFTS)
-    section = models.CharField(max_length=1, choices=CHOICES_SECTIONS, blank=True)
+    shift = models.ForeignKey('Shift', on_delete=models.CASCADE)
+    section = models.ForeignKey('Section', on_delete=models.CASCADE, null=True, blank=True)
     active = models.BooleanField(default=True)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -44,6 +34,41 @@ class Course(models.Model):
             ('xyz_puede_modificar_cursos', 'Puede modificar cursos'),
             ('xyz_puede_eliminar_cursos', 'Puede eliminar cursos'),
         ]
+
+
+class Shift(models.Model):
+    name = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_turnos', 'Puede ver turnos'),
+            ('xyz_puede_crear_turnos', 'Puede crear turnos'),
+            ('xyz_puede_modificar_turnos', 'Puede modificar turnos'),
+            ('xyz_puede_eliminar_turnos', 'Puede eliminar turnos'),
+        ]
+
+
+class Section(models.Model):
+    name = models.CharField(max_length=100)
+    active = models.BooleanField(default=True)
+    description = models.TextField()
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        permissions = [
+            ('xyz_puede_ver_secciones', 'Puede ver secciones'),
+            ('xyz_puede_crear_secciones', 'Puede crear secciones'),
+            ('xyz_puede_modificar_secciones', 'Puede modificar secciones'),
+            ('xyz_puede_eliminar_secciones', 'Puede eliminar secciones'),
+        ]
+
         
 class Student(models.Model):
     name = models.CharField(max_length=100)

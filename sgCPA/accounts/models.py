@@ -30,6 +30,7 @@ class Person(models.Model):
 
 class UserLogin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    first_login = models.BooleanField(default=True)
     last_login = models.DateTimeField(auto_now=True)
     last_logout = models.DateTimeField(auto_now=True)
     attempts = models.IntegerField(default=0)
