@@ -20,7 +20,7 @@ d.addEventListener('DOMContentLoaded', () => {
     buttons.forEach(button => {
         button.addEventListener('click', (e) => {
             const id = e.target.dataset.id
-            window.location.href = `/borrar_pais/${id}`
+            window.location.href = `/inhabilitar_pais/${id}`
         })
     })
 

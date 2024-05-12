@@ -1,4 +1,4 @@
-{% extends './layout/students_base.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 
@@ -95,4 +95,8 @@
 
 
 </form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'scripts/registrar_alumno.js' %}" type="module"></script>
 {% endblock %}

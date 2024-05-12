@@ -1,4 +1,4 @@
-{% extends 'layout/base_cities.html' %}
+{% extends 'base.html' %}
 {% load static %}
 
 {% block content %}
@@ -26,11 +26,8 @@
     {% endif %}
 </div>
 
+{% endblock %}
 
-
-
-
-
-
-
+{% block scripts %}
+    <script src="{% static '../../static/scripts/listado_ciudades.js' %}" type="module"></script>
 {% endblock %}

@@ -1,7 +1,12 @@
 {% extends 'base.html' %}
+{% load static %}
+
+
+{% block styles %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@3.0.1/dist/css/multi-select-tag.css">
+{% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@2.0.1/dist/css/multi-select-tag.css">
 <form action="{% url 'editar_curso' curso.id %}" class="mt-4 d-flex flex-column justify-content-center border w-50 mx-auto p-5 gap-3" method="post"> 
     {% csrf_token %}
     <legend class="text-center">
@@ -43,7 +48,7 @@
             <select class="form-select" id="shift" name="shift">
                 <option value="">Seleccionar turno</option>
                 {% for choice in CHOICE_SHIFTS %}
-                    <option value="{{ choice.0 }}" {% if choice.0 == curso.shift %} selected {% endif %}>{{ choice.1 }}</option>
+                    <option value="{{ choice.id }}" {% if choice.id == curso.shift %} selected {% endif %}>{{ choice.name }}</option>
                 {% endfor %}
             </select>
         </article>
@@ -52,7 +57,7 @@
             <select class="form-select" id="section" name="section">
                 <option value="">Seleccionar sección</option>
                 {% for choice in CHOICES_SECTIONS %}
-                    <option value="{{ choice.0 }}" {% if choice.0 == curso.section %} selected {% endif %}>{{ choice.1 }}</option>
+                    <option value="{{ choice.id }}" {% if choice.id == curso.section %} selected {% endif %}>{{ choice.name }}</option>
                 {% endfor %}
             </select>
         </article>
@@ -66,7 +71,7 @@
 
         <article class="w-50">
             <label for="active" class="mb-2 form-check-label">Materias</label>
-            <select  class="form-select" name="subjects" id="subjects" multiple>
+            <select  class="form-select" name="subjects" id="subjectsSelect" multiple>
                 {% for subject in subject_list %}
                     <option value="{{subject.id}}"{% if subject.id in ids_de_materias %}selected{% endif %} >{{subject.name}}</option>
                 {% endfor %}
@@ -78,16 +83,9 @@
         <button type="submit" class="btn btn-primary">Guardar Cambios</button>
     </section>
 </form>
-<script src="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@2.0.1/dist/js/multi-select-tag.js"></script>
-    <script>
-        new MultiSelectTag('subjects', {
-            placeholder: 'Buscar materia',
-            rounded: false,
-            tagColor: {
-                bgColor: 'white',
-                textColor: 'black',
-                borderColor: 'black'
-            }
-        })
-    </script>
+{% endblock %}
+
+{% block scripts %}
+
+<script type="module" src="{% static 'scripts/multipleSelect.js' %}"></script>
 {% endblock %}

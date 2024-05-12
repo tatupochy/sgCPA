@@ -159,19 +159,20 @@ def buscar(request, id):
 
 ###### Cursos ######   
 def registrar_curso(request):
-    CHOICE_SHIFTS = Course.CHOICE_SHIFTS
-    CHOICES_SECTIONS = Course.CHOICES_SECTIONS
+    CHOICE_SHIFTS = Shift.objects.all()
+    CHOICES_SECTIONS = Section.objects.all()
 
     if request.method == 'POST':
         subjects_ids = request.POST.getlist('subjects')
         name = request.POST.get('name')
-        shift = request.POST.get('shift')
-        section = request.POST.get('section')
+        shift = Shift.objects.get(pk=request.POST.get('shift')) 
+        section = Section.objects.get(pk=request.POST.get('section'))
         active =  request.POST.get('active') == 'on'  # Convertir a booleano
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         fee_amount = request.POST.get('fee_amount')
         days_per_week = request.POST.get('days_per_week')
+        
 
         # Verificar si todos los campos requeridos están presentes
         if name and shift and start_date and end_date and fee_amount and days_per_week:
@@ -185,10 +186,11 @@ def registrar_curso(request):
                 end_date=end_date,
                 fee_amount=fee_amount,
                 days_per_week=days_per_week,
-                year=datetime.datetime.now().year
+                year=datetime.datetime.now().year,
             )
             # Guardar el curso en la base de datos
             curso.save()
+            print(request.POST.getlist('subjects'))
             curso.subjects.add(*subjects_ids)
             return redirect('detalle_curso', id=curso.id)
         else:
@@ -205,6 +207,8 @@ def detalle_curso(request, id):
 
 def editar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)
+    CHOICE_SHIFTS = Shift.objects.all()
+    CHOICES_SECTIONS = Section.objects.all()
     if request.method == 'POST':
         subjects_ids = request.POST.getlist('subjects')
         name = request.POST.get('name')
@@ -232,12 +236,13 @@ def editar_curso(request, id):
         else:
             return HttpResponse("Faltan campos requeridos")
     else:
-        CHOICE_SHIFTS = Course.CHOICE_SHIFTS
-        CHOICES_SECTIONS = Course.CHOICES_SECTIONS
+        
         subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
+        print(curso.subjects.values_list('id', flat=True))
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
+        print(ids_de_materias)
         return render(request, 'courses/editar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'curso': curso, 'subject_list': subject_list, 'ids_de_materias': ids_de_materias})
     
 def borrar_curso(request, id):
@@ -252,6 +257,8 @@ def listar_curso(request):
     return render(request, 'courses/listar_curso.html', {'cursos': cursos})
 
 
+
+###### Turnos ######   
 def shift_list(request):
     shifts = Shift.objects.all()
     return render(request, 'shifts/shifts.html', {'shifts': shifts})

@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block styles %}
+<link rel="stylesheet" href="{% static 'styles/subject_list.css' %}" />
+{% endblock %}
+
 {% block content %}
 <div class="heading">
     <h1>Listado de Materias</h1>
