@@ -114,6 +114,9 @@ a.sidebar-link:hover {
     padding: 0;
     min-width: 15rem;
     display: none;
+    transition: max-height 0.2s ease-out;
+    max-height: 0;
+    overflow: hidden;
 }
 
 #sidebar:not(.expand) .sidebar-item:hover .has-dropdown+.sidebar-dropdown {

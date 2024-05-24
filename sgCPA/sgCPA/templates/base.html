@@ -18,7 +18,6 @@
     {% block styles %} {% endblock %}
     <!-- <link href="{% static 'styles/students.css' %}" rel="stylesheet" /> -->
     <!-- <link rel="stylesheet" href="{% static 'styles/students.css' %}"> -->
- 
 
 
 </head>
@@ -41,6 +40,7 @@
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#students" aria-expanded="false" aria-controls="students">
                         <i class="lni lni-users"></i>
+                        <span>Alumnos</span>
                     </a>
                     <ul id="students" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                         <li class="sidebar-item">
@@ -57,6 +57,7 @@
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
                         <i class="lni lni-agenda"></i>
+                        <span>Cursos</span>
                     </a>
 
                     <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
@@ -74,6 +75,7 @@
                     <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                     data-bs-target="#subjects" aria-expanded="false" aria-controls="subjects">
                         <i class="lni lni-agenda"></i>
+                        <span>Materias</span>
                     </a>
 
                     <ul id="subjects" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
@@ -234,7 +236,9 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
 
-    {% block scripts  %} {% endblock %}
+    {% block scripts  %}
+        <script src="{% static 'scripts/script.js' %}"></script>
+    {% endblock %}
 </body>
 
 </html>
