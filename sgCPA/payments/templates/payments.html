@@ -19,7 +19,7 @@
         </thead>
         <tbody>
             {% for payment in payments %}
-            <tr>
+            <tr onclick="window.location.href='/payments/{{ payment.id }}';" style="cursor: pointer;">
                 <td>{{ payment.student }}</td>
                 <td>{{ payment.year }}</td>
                 <td>{{ payment.payment_date }}</td>

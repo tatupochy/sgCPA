@@ -1,6 +1,6 @@
 from django.shortcuts import render
 
-from students.models import Student
+from students.models import Student, Course
 from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2
 import calendar
 from dateutil.relativedelta import relativedelta
@@ -21,12 +21,12 @@ def payment_detail(request, payment_id):
 
 def payment_create(request):
     if request.method == 'POST':
-        student_id = request.POST['student']
+        student_id = int(request.POST['student'])
         year = request.POST['year']
         payment_date = request.POST['payment_date']
-        payment_method_id = request.POST['payment_method']
-        payment_type_id = request.POST['payment_type']
-        amount = request.POST['amount']
+        payment_method_id = int(request.POST['payment_method'])
+        payment_type_id = int(request.POST['payment_type'])
+        payment_amount = int(request.POST['payment_amount'])
 
         payment = Payment()
         payment.student_id = student_id
@@ -34,10 +34,36 @@ def payment_create(request):
         payment.payment_date = payment_date
         payment.payment_method_id = payment_method_id
         payment.payment_type_id = payment_type_id
-        payment.amount = amount
+        payment.payment_amount = payment_amount
         payment.save()
 
-        return render(request, 'payment_created.html', {'payment': payment})
+        if payment.payment_type_id == 1:
+            enrollment_id = int(request.POST['enrollment'])
+            enrollment = Enrollment.objects.get(id=enrollment_id)
+            enrollment.enrollment_paid_amount = enrollment.enrollment_paid_amount + payment_amount
+            if enrollment.enrollment_paid_amount == enrollment.enrollment_amount and enrollment.enrollment_paid_amount != 0:
+                enrollment.state_id = State.objects.get(name='paid')
+            elif enrollment.enrollment_amount > enrollment.enrollment_paid_amount and enrollment.enrollment_paid_amount != 0:
+                enrollment.state_id = State.objects.get(name='partial')
+            elif enrollment.enrollment_paid_amount == 0:
+                enrollment.state_id = State.objects.get(name='pending')
+
+            enrollment.save()
+
+        elif payment.payment_type_id == 2:
+            fee_id = int(request.POST['fee'])
+            fee = Fee.objects.get(id=fee_id)
+            fee.fee_paid_amount = fee.fee_paid_amount + payment_amount
+            if fee.fee_paid_amount == fee.fee_amount and fee.fee_paid_amount != 0:
+                fee.state_id = State.objects.get(name='paid')
+            elif fee.fee_amount > fee.fee_paid_amount and fee.fee_paid_amount != 0:
+                fee.state_id = State.objects.get(name='partial')
+            elif fee.fee_paid_amount == 0:
+                fee.state_id = State.objects.get(name='pending')
+
+            fee.save()
+
+        return render(request, 'payments.html', {'payments': Payment.objects.all()})
     else:
         payment_methods = PaymentMethod.objects.all()
         payment_types = PaymentType.objects.all()
@@ -81,6 +107,12 @@ def fee_create(request):
         return render(request, 'fee_create.html', {'states': states})
     
 
+def calculate_fees_quantity(start_date, end_date):
+    difference = relativedelta(end_date, start_date)
+    total_months = difference.years * 12 + difference.months + 1
+    return total_months
+
+
 def create_fees(request, student_id):
     enrollment = Enrollment.objects.get(student_id=student_id)
     course = enrollment.course
@@ -90,44 +122,24 @@ def create_fees(request, student_id):
 
     fees_quantity = calculate_fees_quantity(start_date, end_date)
 
-    fee_amount = enrollment.enrollment_amount
+    fee_amount = enrollment.course.fee_amount
 
     for i in range(fees_quantity):
         fee = Fee()
         fee.student_id = student_id
         fee.year = course.year
         fee.fee_date = start_date
-        fee.expiration_date = start_date
+        fee.expiration_date = start_date + relativedelta(months=1)
         fee.fee_amount = fee_amount
-        fee.state = State.objects.get(name='pending').id
+        fee.state = State.objects.get(name='pending')
         fee.save()
 
         start_date = start_date + relativedelta(months=1)
 
-    return render(request, 'fees.html')
+    fees = Fee.objects.all()
 
+    return render(request, 'fees.html', {'fees': fees})
 
-def calculate_fees_quantity(start_date, end_date):
-
-    start_year, month_start = start_date.year, start_date.month
-    end_year, month_end = end_date.year, end_date.month
-
-    difference = (end_year - start_year) * 12 + (month_end - month_start) + 1
-
-    quantity = 0
-
-    for i in range(difference):
-        last_day = calendar.monthrange(start_year, month_start)[1]
-
-        if start_date.day == last_day:
-            quantity += 1
-
-        month_start += 1
-        if month_start > 12:
-            month_start = 1
-            start_year += 1
-
-    return quantity
 
 def enrollments(request):
     enrollments = Enrollment.objects.all()
@@ -148,12 +160,14 @@ def enrollment_create(request):
         states = State.objects.all()
 
         student_id = form_data['student']
+        course_id = form_data['course']
         year = form_data['year']
         enrollment_date = form_data['enrollment_date']
         amount = form_data['enrollment_amount']
 
         enrollment = Enrollment()
         enrollment.student_id = student_id
+        enrollment.course_id = course_id
         enrollment.year = year
         enrollment.enrollment_date = enrollment_date
         print('amount', amount)
@@ -161,11 +175,12 @@ def enrollment_create(request):
         enrollment.state_id = states.get(name='pending').id
         enrollment.save()
 
-        return render(request, 'enrollments.html', {'enrollment': enrollment})
+        return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
     else:
         states = State.objects.all()
         students = Student.objects.all()
-        return render(request, 'enrollment_create.html', {'states': states, 'students': students})
+        courses = Course.objects.all()
+        return render(request, 'enrollment_create.html', {'states': states, 'students': students, 'courses': courses})
     
 
 def payment_methods(request):

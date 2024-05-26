@@ -16,7 +16,16 @@
                     <option value="{{ student.id }}">{{ student.ciNumber }} - {{ student.lastName }}</option>
                 {% endfor %}
             </select>
-        </div> 
+        </div>
+        <div class="form-group">
+            <label for="id_course" class="form-label">Curso:</label>
+            <select class="form-select" id="id_course" name="course" style="width: 40%">
+                <option value="" selected>---------</option>
+                {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
         <div class="form-group">
             <label for="id_year" class="form-label">Año:</label>
             <input type="number" class="form-control" id="id_year" name="year">
