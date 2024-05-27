@@ -5,12 +5,12 @@
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments'" style="cursor: pointer;"></i>
-    <h1>Crear pago: </h1>
+    <h1>Detalles del pago: </h1>
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
             <label for="id_student" class="form-label">Estudiante:</label>
-            <input type="text" class="form-control" id="id_student" name="student" value="{{ payment.student }}" disabled readonly>
+            <input type="text" class="form-control" id="id_student" name="student" value="{{ payment.student.lastName }}" disabled readonly>
         </div>
         <div class="form-group">
             <label for="id_year" class="form-label">Año:</label>
@@ -22,15 +22,15 @@
         </div>
         <div class="form-group">
             <label for="id_payment_amount" class="form-label">Monto:</label>
-            <input type="number" class="form-control" id="id_payment_amount" value="{{ payment.payment_amount }}" name="payment_amount" disabled readonly>
+            <input type="text" class="form-control" id="id_payment_amount" value="{{ payment.payment_amount }}" name="payment_amount" disabled readonly>
         </div>
         <div class="form-group">
             <label for="id_payment_method" class="form-label">Método:</label>
-            <input type="text" class="form-control" id="id_payment_method" value="{{ payment.payment_type }}" name="payment_method" disabled readonly>
+            <input type="text" class="form-control" id="id_payment_method" value="{{ payment.payment_method.description }}" name="payment_method" disabled readonly>
         </div>
         <div class="form-group">
             <label for="id_payment_type" class="form-label">Tipo:</label>
-            <input type="text" class="form-control" id="id_payment_type" value="{{ payment.fee }}" name="payment_type" disabled readonly>
+            <input type="text" class="form-control" id="id_payment_type" value="{{ payment.payment_type.description }}" name="payment_type" disabled readonly>
         </div>
     </form>
 </div>

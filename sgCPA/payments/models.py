@@ -5,6 +5,7 @@ from students.models import Student, Course
 
 # Create your models here.
 
+
 class State(models.Model):
     STATE_CHOICES = (
         ('pending', 'Pendiente'),
@@ -14,6 +15,7 @@ class State(models.Model):
 
     name = models.CharField(max_length=20, choices=STATE_CHOICES, default='pending')
     description = models.CharField(max_length=100, blank=True, null=True)
+
 
 @receiver(post_migrate)
 def create_state(sender, **kwargs):
@@ -58,6 +60,7 @@ class Enrollment(models.Model):
             ('xyz_puede_eliminar_matriculas', 'Puede eliminar matrículas'),
         ]
 
+
 class PaymentMethod(models.Model):
     PAYMENT_METHOD_CHOICES = (
         ('cash', 'Efectivo'),
@@ -69,6 +72,7 @@ class PaymentMethod(models.Model):
 
     name = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES, default='cash')
     description = models.CharField(max_length=100, blank=True, null=True)
+
 
 @receiver(post_migrate)
 def create_payment_method(sender, **kwargs):
@@ -89,11 +93,13 @@ class PaymentType(models.Model):
     name = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default='enrollment')
     description = models.CharField(max_length=100, blank=True, null=True)
 
+
 @receiver(post_migrate)
 def create_payment_type(sender, **kwargs):
     if sender.name == 'payments':
         PaymentType.objects.get_or_create(name='enrollment', description='Matrícula')
         PaymentType.objects.get_or_create(name='fee', description='Cuota')
+
 
 class Payment(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)

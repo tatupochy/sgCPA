@@ -16,6 +16,8 @@ def payments(request):
 
 def payment_detail(request, payment_id):
     payment = Payment.objects.get(id=payment_id)
+    formated_payment_date = payment.payment_date.strftime('%Y-%m-%d')
+    payment.payment_date = formated_payment_date
     return render(request, 'payment_detail.html', {'payment': payment})
 
 

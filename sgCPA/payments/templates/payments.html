@@ -20,12 +20,12 @@
         <tbody>
             {% for payment in payments %}
             <tr onclick="window.location.href='/payments/{{ payment.id }}';" style="cursor: pointer;">
-                <td>{{ payment.student }}</td>
+                <td>{{ payment.student.lastName }}</td>
                 <td>{{ payment.year }}</td>
                 <td>{{ payment.payment_date }}</td>
                 <td>{{ payment.payment_amount }}</td>
-                <td>{{ payment.payment_method }}</td>
-                <td>{{ payment.payment_type }}</td>
+                <td>{{ payment.payment_method.description }}</td>
+                <td>{{ payment.payment_type.description }}</td>
             </tr>    
             {%  endfor %}
         </tbody>
