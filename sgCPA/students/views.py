@@ -39,7 +39,11 @@ def registrar_alumno(request):
         student.full_clean()
     except ValidationError as e:
         errors = e.message_dict
-        return HttpResponseBadRequest("Error en la validación: {}".format(errors))
+        data = {
+            'country_list': country_list,
+            'errors': errors
+        }
+        return render(request, 'students/registrar_alumno.html', data)
 
     student.save()
     return HttpResponseRedirect('/listado_alumnos')
