@@ -13,9 +13,31 @@ def registrar_pais(request):
     if(request.method == 'POST'):
 
         name = request.POST.get('name')
+        code = request.POST.get('code')
+        errors = {}
+        values = {}
+        
+        # Verificar si ya existe un país con el mismo nombre o código
+        if Country.objects.filter(name=name).exists():
+            errors['country'] = 'El nombre del pais ya existe'
+            values['country'] = name
+        
+        # if Country.objects.filter(code=code).exists():
+        #     errors['code'] = 'El codigo ya existe'
+        #     values['code'] = code
+        
+        if errors:            
+            data = {
+                'errors': errors,
+                'values': values
+            }
+            return render(request, 'registrar_pais.html', data)
+        
+        
 
         newCountry = Country(
             name=name,
+            code=code
         )
 
         newCountry.save()

@@ -15,17 +15,29 @@
     </legend>
 
     <section class="d-flex gap-3 justify-content-center w-100">
+
         <article class="w-50">
             <label for="name" class="mb-2 form-label">Nombre</label>
-            <input value="{{country.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
+            <input value="{{values.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
+            {% if errors.country %}
+            <div class="alert alert-danger mt-2">{{errors.country}}</div>
+            {% endif %}
         </article>
-      
+
+        <article class="w-50">
+            <label for="code" class="mb-2 form-label">Código</label>
+            <input value="{{country.code}}" class="form-control" id="code" name="code" type="text" autocomplete="off" />
+            {% if errors.code %}
+            <div class="alert alert-danger mt-2">{{errors.code}}</div>
+            {% endif %}
+        </article>
+
     </section>
 
     <section class="d-flex justify-content-center">
         <button type="submit" class="btn btn-primary">Registrar</button>
     </section>
-</div>
+    </div>
 
 </form>
 
