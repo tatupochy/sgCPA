@@ -1,4 +1,9 @@
 <!-- templates/teachers/teacher_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %} Docentes {% endblock %}
+
+{% block content %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -15,3 +20,5 @@
     <a href="{% url 'teacher_delete' teacher.pk %}">Delete</a>
 </body>
 </html>
+
+
