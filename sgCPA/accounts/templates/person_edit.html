@@ -16,39 +16,39 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_name" class="form-label">Nombre:</label>
-                    <input type="text" class="form-control" id="id_name" name="name" value="{{ person.name }}">
+                    <input type="text" class="form-control" id="id_name" name="name" value="{{ person.name }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_last_name" class="form-label">Apellido:</label>
-                    <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ person.last_name }}">
+                    <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ person.last_name }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_email" class="form-label">Correo electrónico:</label>
-                    <input type="email" class="form-control" id="id_email" name="email" value="{{ person.email }}">
+                    <input type="email" class="form-control" id="id_email" name="email" value="{{ person.email }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_phone" class="form-label">Teléfono:</label>
-                    <input type="text" class="form-control" id="id_phone" name="phone" value="{{ person.phone }}">
+                    <input type="text" class="form-control" id="id_phone" name="phone" value="{{ person.phone }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_address" class="form-label">Dirección:</label>
-                    <input type="text" class="form-control" id="id_address" name="address" value="{{ person.address }}">
+                    <input type="text" class="form-control" id="id_address" name="address" value="{{ person.address }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_birth_date" class="form-label">Fecha de nacimiento:</label>
-                    <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ person.birth_date }}">
+                    <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ person.birth_date }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_city" class="form-label">Ciudad:</label>
-                    <input type="text" class="form-control" id="id_city" name="city" value="{{ person.city }}">
+                    <input type="text" class="form-control" id="id_city" name="city" value="{{ person.city }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_country" class="form-label">País:</label>
-                    <input type="text" class="form-control" id="id_country" name="country" value="{{ person.country }}">
+                    <input type="text" class="form-control" id="id_country" name="country" value="{{ person.country }}" required>
                 </div>
                 <div class="form-group">
                     <label for="id_postal_code" class="form-label">Código postal:</label>
-                    <input type="text" class="form-control" id="id_postal_code" name="postal_code" value="{{ person.postal_code }}">
+                    <input type="text" class="form-control" id="id_postal_code" name="postal_code" value="{{ person.postal_code }}" required>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
                 {% if form.errors %}

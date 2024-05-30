@@ -16,7 +16,7 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="id_name" class="form-label">Nombre:</label>
-                    <input type="text" class="form-control" id="id_name" name="name" value="{{ role.name }}">
+                    <input type="text" class="form-control" id="id_name" name="name" value="{{ role.name }}" required>
                 </div>
                 <div class="form-group">
                     {% for model_name, permissions in permissions_by_model.items %}

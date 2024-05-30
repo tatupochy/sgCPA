@@ -4,17 +4,17 @@
 
 {% block content %}
 <div class="container card" style="padding: 1%;">
-    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/students/sections'" style="cursor: pointer;"></i>
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/sections'" style="cursor: pointer;"></i>
     <h1>Crear Sección:</h1>
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
             <label for="id_name" class="form-label">Nombre de la Sección:</label>
-            <input type="text" class="form-control" id="id_name" name="name">
+            <input type="text" class="form-control" id="id_name" name="name" required>
         </div>
         <div class="form-group">
             <label for="id_description" class="form-label">Descripción de la Sección:</label>
-            <input type="text" class="form-control" id="id_description" name="description">
+            <input type="text" class="form-control" id="id_description" name="description" required>
         </div>
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         {% if form.errors %}

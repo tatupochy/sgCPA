@@ -9,6 +9,7 @@
     <table class="table table-hover table-bordered table-striped">
         <thead>
             <tr>
+                <th scope="col">Matricula</th>
                 <th scope="col">Estudiante</th>
                 <th scope="col">Año</th>
                 <th scope="col">Fecha</th>
@@ -19,7 +20,8 @@
         <tbody>
             {% for enrollment in enrollments %}
             <tr onclick="window.location.href='/enrollments/{{ enrollment.id }}';" style="cursor: pointer;">
-                <td>{{ enrollment.student.name }} - {{ enrollment.student.ciNumber }}</td>
+                <td>{{ enrollment.name }}</td>
+                <td>{{ enrollment.student.name }} {{ enrollment.student.lastName }}</td>
                 <td>{{ enrollment.year }}</td>
                 <td>{{ enrollment.enrollment_date }}</td>
                 <td>{{ enrollment.enrollment_amount }}</td>

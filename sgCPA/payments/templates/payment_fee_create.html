@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block title %} Crear Pago {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments'" style="cursor: pointer;"></i>
+    <h1>Crear pago de cuota: </h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_student" class="form-label">Estudiante:</label>
+            <select class="form-select" id="id_student" name="student" style="width: 40%" aria-readonly="true" required>
+                <option value="{{ student.id }}" selected>{{ student.name }} {{ student.LastName }}</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_year" class="form-label">Año:</label>
+            <input type="number" class="form-control" id="id_year" name="year" required>
+        </div>
+        <div class="form-group">
+            <label for="id_payment_date" class="form-label">Fecha:</label>
+            <input type="date" class="form-control" id="id_payment_date" name="payment_date" required>
+        </div>
+        <div class="form-group">
+            <label for="id_payment_amount" class="form-label">Monto:</label>
+            <input type="number" class="form-control" id="id_payment_amount" name="payment_amount" required>
+        </div>
+        <div class="form-group">
+            <label for="id_payment_method" class="form-label">Método:</label>
+            <select class="form-select" id="id_payment_method" name="payment_method" style="width: 40%" required>
+                <option value="" selected>Seleccionar metodo de pago</option>
+                {% for payment_method in payment_methods %}
+                    <option value="{{ payment_method.id }}">{{ payment_method.description }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_fee" class="form-label">Cuota:</label>
+            <input type="text" class="form-control" id="id_fee" name="fee" value="{{ fee.name }}" readonly required>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+
+{% endblock %}
