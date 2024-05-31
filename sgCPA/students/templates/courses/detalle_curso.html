@@ -20,6 +20,7 @@
       <th>Nombre del Curso</th>
       <th>Turno</th>
       <th>Sección</th>
+        <th>Profesor</th>
       <th>Fecha de Inicio</th>
     </tr>
   </thead>
@@ -30,6 +31,7 @@
       <td>{{ curso.name }}</td>
       <td>{{ curso.shift }}</td>
       <td>{{ curso.section }}</td>
+        <td>{{ curso.teacher.name }} {{ curso.teacher.lastName }}</td>
       <td>{{ curso.start_date }}</td>
       <td>
         <a href="{% url 'editar_curso' curso.id %}" class="btn btn-primary btn-sm"><i class="bi bi-pencil-fill"></i> Editar</a>
