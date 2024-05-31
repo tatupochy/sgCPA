@@ -51,8 +51,6 @@
                     </td>
                     <td>
                         <a href="{% url 'actualizar_asistencia' asistencia.id %}">Actualizar</a>
-                        <!-- <a href="{% url 'eliminar_asistencia' asistencia.id %}">Eliminar</a> -->
-                        <!-- <a href="#" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal">Eliminar</a> -->
                         <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ asistencia.id }}">Eliminar</button>
                     </td>
                 </tr>
@@ -63,7 +61,6 @@
     </div>
     {% endif %}
 
-    <!-- Modal de confirmación de eliminación -->
     {% for asistencia in asistencias %}
     <div class="modal fade" id="confirmDeleteModal{{ asistencia.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -89,6 +86,5 @@
     </div>
 
     <script src="{% static 'scripts/eliminar_asistencia.js' %}"></script>
-
 </div>
 {% endblock %}
