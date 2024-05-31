@@ -121,7 +121,9 @@ def listado_asistencias(request):
         curso_id = request.POST.get('curso_id')
         if curso_id:
             curso = Course.objects.get(pk=curso_id)
-            alumnos = Student.objects.filter(course=curso)
+            #alumnos = Student.objects.filter(course=curso)
+            enrollments = Enrollment.objects.filter(course=curso).select_related('student')
+            alumnos = [enrollment.student for enrollment in enrollments]
             asistencias = Attendance.objects.filter(course=curso).order_by('date')
             #fechas = Attendance.objects.filter(course=curso).order_by('date').values_list('date', flat=True).distinct()
     return render(request, 'attendances/listado_asistencias.html', {'cursos': cursos, 'alumnos': alumnos, 'asistencias': asistencias})
