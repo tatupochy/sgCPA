@@ -9,16 +9,36 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Teacher List</title>
+    <title>Docentes</title>
 </head>
 <body>
-    <h1>Teacher List</h1>
-    <ul>
-        {% for teacher in teachers %}
-            <li><a href="{% url 'teacher_detail' teacher.pk %}">{{ teacher.name }}</a></li>
-        {% endfor %}
-    </ul>
-    <a href="{% url 'teacher_create' %}">Add Teacher</a>
+    <h1>Profesores</h1>
+     <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Nombre</th>
+                <th scope="col">Apellido</th>
+                <th scope="col">CI</th>
+                <th scope="col">Estado</th>
+                <th scope="col" class="col-md-2 text-center"><button class="btn btn-primary" onclick= "window.location.href = '/teachers/create'"><i class="fa fa-plus"></i></button></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td onclick= "window.location.href = '/teachers/{{ teacher.id }}'" style="cursor: pointer;">{{ teacher.name }}</td>
+                <td>{{ teacher.lastName }}</td>
+                <td>{{ teacher.ciNumber }}</td>
+                {% if teacher.active %}
+                    <td>Activo</td>
+                {% else %}
+                    <td>Inactivo</td>
+                {% endif %}
+                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-teacher-id="{{ teacher.id }}"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/edit_teachers/{{ teacher.id }}'"><i class="fa fa-pencil"></i></button></td>
+            </tr>
+            {%  endfor %}
+        </tbody>
+    </table>
 </body>
 </html>
 

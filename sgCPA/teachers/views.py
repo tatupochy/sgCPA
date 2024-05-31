@@ -26,18 +26,9 @@ def teacher_create(request):
         city_id = request.POST.get('city_id')
         country_id = request.POST.get('country_id')
 
-        teacher = Teacher.objects.create(
-            name=name,
-            lastName=lastName,
-            email=email,
-            birthDate=birthDate,
-            ciNumber=ciNumber,
-            phone=phone,
-            active=active,
-            city_id=city_id,
-            country_id=country_id
-        )
-        return JsonResponse({'success': True, 'redirect_url': teacher.get_absolute_url()})
+        teacher = Teacher(name=name, lastName=lastName, email=email, birthDate=birthDate, ciNumber=ciNumber, phone=phone, active=active, city_id=city_id, country_id=country_id)
+        teacher.save()
+        return redirect('teacher_list')
     else:
         city_list = Cities.objects.all()
         country_list = Country.objects.all()
@@ -60,7 +51,7 @@ def teacher_update(request, pk):
         teacher.country_id = request.POST.get('country')
         teacher.save()
         return JsonResponse({'success': True, 'redirect_url': teacher.get_absolute_url()})
-    return render(request, 'teachers/teacher_form.html', {'teacher': teacher})
+    return render(request, 'teachers/teacher_edit.html', {'teacher': teacher})
 
 def teacher_delete(request, pk):
     teacher = get_object_or_404(Teacher, pk=pk)

@@ -5,41 +5,42 @@
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/teachers'" style="cursor: pointer;"></i>
-    <h1>Detalles del profesor: {{ teacher.name }} {{ teacher.lastName }}</h1>
+    <h1>Editar profesor: {{ teacher.name }} {{ teacher.lastName }}</h1>
     <form method="POST" class="form">
         {% csrf_token %}
         <div class="form-group">
             <label for="name" class="mb-2 form-label">Nombres</label>
-            <input class="form-control" id="name" name="name" type="text" value="{{ teacher.name }}" readonly/>
+            <input class="form-control" id="name" name="name" type="text" value="{{ teacher.name }}" />
         </div>
         <div class="form-group">
             <label for="lastName" class="mb-2 form-label">Apellidos</label>
-            <input class="form-control" id="lastName" name="lastName" type="text" value="{{ teacher.lastName }}" readonly/>
+            <input class="form-control" id="lastName" name="lastName" type="text" value="{{ teacher.lastName }}" />
         </div>
         <div class="form-group">
             <label for="birthDate" class="mb-2 form-label">Fecha de nacimiento</label>
-            <input class="form-control" id="birthDate" type="date" name="birthDate" value="{{ teacher.birthDate }}" readonly/>
+            <input class="form-control" id="birthDate" type="date" name="birthDate" value="{{ teacher.birthDate }}" />
         </div>
         <div class="form-group">
             <label for="ciNumber" class="mb-2 form-label">Numero de cedula</label>
-            <input class="form-control" id="ciNumber" type="text" name="ciNumber" value="{{ teacher.ciNumber }}" readonly/>
+            <input class="form-control" id="ciNumber" type="text" name="ciNumber" value="{{ teacher.ciNumber }}" />
         </div>
         <div class="form-group">
             <label for="phone" class="mb-2 form-label">Celular Profesor</label>
-            <input class="form-control" id="phone" type="text" name="phone" value="{{ teacher.phone }}" readonly/>
+            <input class="form-control" id="phone" type="text" name="phone" value="{{ teacher.phone }}" />
         </div>
         <div class="form-group">
             <label for="country" class="mb-2 form-label">País</label>
-            <input class="form-control" id="country" type="text" name="country" value="{{ teacher.country.name }}" readonly/>
+            <input class="form-control" id="country" type="text" name="country" value="{{ teacher.country.name }}" />
         </div>
         <div class="form-group">
             <label for="city" class="mb-2 form-label">Ciudad</label>
-            <input class="form-control" id="city" type="text" name="city" value="{{ teacher.city.name }}" readonly/>
+            <input class="form-control" id="city" type="text" name="city" value="{{ teacher.city.name }}" />
         </div>
         <div class="form-group">
             <label for="email" class="mb-2 form-label">Correo Electronico</label>
-            <input class="form-control" id="email" type="text" name="email" value="{{ teacher.email }}" readonly/>
+            <input class="form-control" id="email" type="text" name="email" value="{{ teacher.email }}" />
         </div>
+        <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
 </div>
 {% endblock %}
