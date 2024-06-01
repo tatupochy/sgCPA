@@ -28,7 +28,7 @@
                     <i class="fa-solid fa-bars"></i>
                 </button>
                 <div class="sidebar-logo">
-                    <a href="#">sgCPA</a>
+                    <a href="/listado_alumnos">sgCPA</a>
                 </div>
             </div>
             <div class="items-container">
@@ -241,6 +241,37 @@
                             </li>
                         </ul>
                     </li>
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#countries" aria-expanded="false" aria-controls="countries">
+                        <i class="lni lni-home"></i>
+                        <span>Paises</span>
+                    </a>
+                    <ul id="countries" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="/listado_paises" class="sidebar-link">Listar paises</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/registrar_pais" class="sidebar-link">Registrar pais</a>
+                        </li>
+                    </ul>
+                </li>
+
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#teachers" aria-expanded="false" aria-controls="teachers">
+                        <i class="lni lni-graduation"></i>
+                        <span>Profesores</span>
+                    </a>
+                    <ul id="teachers" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="/teachers" class="sidebar-link">Listar profesores</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/teachers/create/" class="sidebar-link">Registrar profesor</a>
+                        </li>
+                    </ul>
+                </li>
 
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/enrollments'" style="cursor: pointer;"></i>
-    <h1>Matrícula: {{ enrollment.student.ciNumber }} </h1>
+    <h1>Matrícula: {{ enrollment.name }} </h1>
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
@@ -29,6 +29,7 @@
             <input type="text" class="form-control" id="id_state" value="{{ enrollment.state.description }}" name="id_state" disabled readonly>
         </div>
         <button type="button" class="btn btn-primary" onclick= "window.location.href = '/fees/create_fees/{{ enrollment.student.id }}'">Crear cuotas</button>
+        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/payments/create/enrollment/{{ enrollment.id }}'">Pagar matrícula</button>
     </form>
 </div>
 {% endblock %}

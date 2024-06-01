@@ -73,10 +73,94 @@ def payment_create(request):
         fees = Fee.objects.all()
         enrollments = Enrollment.objects.all()
         return render(request, 'payment_create.html', {'payment_methods': payment_methods, 'payment_types': payment_types, 'students': students, 'fees': fees, 'enrollments': enrollments})
-    
+
+
+def payment_fee_create(request, pk):
+    if request.method == 'POST':
+        student_id = int(request.POST['student'])
+        year = request.POST['year']
+        payment_date = request.POST['payment_date']
+        payment_method_id = int(request.POST['payment_method'])
+        payment_type_id = PaymentType.objects.get(name='fee').id
+        payment_amount = int(request.POST['payment_amount'])
+
+        payment = Payment()
+        payment.student_id = student_id
+        payment.year = year
+        payment.payment_date = payment_date
+        payment.payment_method_id = payment_method_id
+        payment.payment_type_id = payment_type_id
+        payment.payment_amount = payment_amount
+        payment.save()
+
+        fee = Fee.objects.get(id=pk)
+        fee.fee_paid_amount = fee.fee_paid_amount + payment_amount
+        if fee.fee_paid_amount == fee.fee_amount and fee.fee_paid_amount != 0:
+            fee.state_id = State.objects.get(name='paid')
+        elif fee.fee_amount > fee.fee_paid_amount and fee.fee_paid_amount != 0:
+            fee.state_id = State.objects.get(name='partial')
+        elif fee.fee_paid_amount == 0:
+            fee.state_id = State.objects.get(name='pending')
+
+        fee.save()
+
+        return render(request, 'payments.html', {'payments': Payment.objects.all()})
+    else:
+        fee = Fee.objects.get(id=pk)
+        student = Student.objects.get(id=fee.student_id)
+        payment_methods = PaymentMethod.objects.all()
+        payment_types = PaymentType.objects.all()
+        students = Student.objects.all()
+        fee = Fee.objects.get(id=pk)
+        return render(request, 'payment_fee_create.html', {'payment_methods': payment_methods, 'payment_types': payment_types, 'student': student, 'fee': fee})
+
+
+def payment_enrollment_create(request, pk):
+    if request.method == 'POST':
+        student_id = int(request.POST['student'])
+        year = request.POST['year']
+        payment_date = request.POST['payment_date']
+        payment_method_id = int(request.POST['payment_method'])
+        payment_type_id = PaymentType.objects.get(name='enrollment').id
+        payment_amount = int(request.POST['payment_amount'])
+
+        payment = Payment()
+        payment.student_id = student_id
+        payment.year = year
+        payment.payment_date = payment_date
+        payment.payment_method_id = payment_method_id
+        payment.payment_type_id = payment_type_id
+        payment.payment_amount = payment_amount
+        payment.save()
+
+        enrollment = Enrollment.objects.get(id=pk)
+        enrollment.enrollment_paid_amount = enrollment.enrollment_paid_amount + payment_amount
+        if enrollment.enrollment_paid_amount == enrollment.enrollment_amount and enrollment.enrollment_paid_amount != 0:
+            enrollment.state_id = State.objects.get(name='paid')
+        elif enrollment.enrollment_amount > enrollment.enrollment_paid_amount and enrollment.enrollment_paid_amount != 0:
+            enrollment.state_id = State.objects.get(name='partial')
+        elif enrollment.enrollment_paid_amount == 0:
+            enrollment.state_id = State.objects.get(name='pending')
+
+        enrollment.save()
+
+        return render(request, 'payments.html', {'payments': Payment.objects.all()})
+    else:
+        enrollment = Enrollment.objects.get(id=pk)
+        student = Student.objects.get(id=enrollment.student_id)
+        payment_methods = PaymentMethod.objects.all()
+        payment_types = PaymentType.objects.all()
+        students = Student.objects.all()
+        enrollment = Enrollment.objects.get(id=pk)
+        return render(request, 'payment_enrollment_create.html', {'payment_methods': payment_methods, 'payment_types': payment_types, 'student': student, 'enrollment': enrollment})
+
 
 def fees(request):
     fees = Fee.objects.all()
+    for fee in fees:
+        if fee.is_overdue():
+            fee.state = State.objects.get(name='overdue')
+            fee.save()
     return render(request, 'fees.html', {'fees': fees})
 
 
@@ -118,7 +202,7 @@ def calculate_fees_quantity(start_date, end_date):
 def create_fees(request, student_id):
     enrollment = Enrollment.objects.get(student_id=student_id)
     course = enrollment.course
-
+    student = Student.objects.get(id=student_id)
     start_date = enrollment.enrollment_date
     end_date = course.end_date
 
@@ -134,6 +218,7 @@ def create_fees(request, student_id):
         fee.expiration_date = start_date + relativedelta(months=1)
         fee.fee_amount = fee_amount
         fee.state = State.objects.get(name='pending')
+        fee.name = 'Cuota' + '/' + str(i + 1) + '/' + student.ciNumber
         fee.save()
 
         start_date = start_date + relativedelta(months=1)
@@ -161,11 +246,15 @@ def enrollment_create(request):
 
         states = State.objects.all()
 
-        student_id = form_data['student']
+        student_ci = form_data['student']
         course_id = form_data['course']
         year = form_data['year']
         enrollment_date = form_data['enrollment_date']
         amount = form_data['enrollment_amount']
+
+        student = Student.objects.get(ciNumber=student_ci)
+        student_id = student.id
+        course = Course.objects.get(id=course_id)
 
         enrollment = Enrollment()
         enrollment.student_id = student_id
@@ -175,6 +264,7 @@ def enrollment_create(request):
         print('amount', amount)
         enrollment.enrollment_amount = amount
         enrollment.state_id = states.get(name='pending').id
+        enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
         enrollment.save()
 
         return render(request, 'enrollment_detail.html', {'enrollment': enrollment})

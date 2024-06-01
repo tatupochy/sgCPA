@@ -3,6 +3,7 @@ from django.db import models
 from cities.models import Cities
 from countries.models import Country
 from subjects.models import Subject
+from teachers.models import Teacher
 
 # Create your models here.
 
@@ -20,6 +21,7 @@ class Course(models.Model):
     days_per_week = models.IntegerField()
     year = models.IntegerField()
     subjects = models.ManyToManyField(Subject, blank=True)
+    teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         if self.section:

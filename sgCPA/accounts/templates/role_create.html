@@ -10,7 +10,7 @@
         {% csrf_token %}
         <div class="form-group">
             <label for="id_name" class="form-label">Nombre del rol:</label>
-            <input type="text" class="form-control" id="id_name" name="name">
+            <input type="text" class="form-control" id="id_name" name="name" required>
         </div>
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         {% if form.errors %}

@@ -11,6 +11,9 @@ from datetime import datetime
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 import datetime
 
+from teachers.models import Teacher
+
+
 def registrar_alumno(request):
     if request.method == "GET":
         country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
@@ -176,6 +179,7 @@ def registrar_curso(request):
         end_date = request.POST.get('end_date')
         fee_amount = request.POST.get('fee_amount')
         days_per_week = request.POST.get('days_per_week')
+        teacher = request.POST.get('teacher')
         
 
         # Verificar si todos los campos requeridos están presentes
@@ -191,6 +195,7 @@ def registrar_curso(request):
                 fee_amount=fee_amount,
                 days_per_week=days_per_week,
                 year=datetime.datetime.now().year,
+                teacher=teacher
             )
             # Guardar el curso en la base de datos
             curso.save()
@@ -202,7 +207,8 @@ def registrar_curso(request):
             return HttpResponse("Faltan campos requeridos")
     else:
         subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
-        return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list})
+        teachers = Teacher.objects.filter(Q(active=True) | Q(active__isnull=True))
+        return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list, 'teachers': teachers})
     
 def detalle_curso(request, id):
     curso = get_object_or_404(Course, pk= id)
@@ -216,13 +222,14 @@ def editar_curso(request, id):
     if request.method == 'POST':
         subjects_ids = request.POST.getlist('subjects')
         name = request.POST.get('name')
-        shift = request.POST.get('shift')
-        section = request.POST.get('section')
+        shift = Shift.objects.get(pk=request.POST.get('shift'))
+        section = Section.objects.get(pk=request.POST.get('section'))
         active = request.POST.get('active') == 'on'
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
         fee_amount = request.POST.get('fee_amount')
         days_per_week = request.POST.get('days_per_week')
+        teacher = Teacher.objects.get(pk=request.POST.get('teacher'))
 
         if name and shift and start_date and end_date and fee_amount and days_per_week:
             # Actualizar los campos del curso con los nuevos valores
@@ -235,6 +242,7 @@ def editar_curso(request, id):
             curso.fee_amount = fee_amount
             curso.days_per_week = days_per_week
             curso.subjects.set(subjects_ids)
+            curso.teacher = teacher
             curso.save()
             return redirect('detalle_curso', id=curso.id)
         else:
@@ -242,12 +250,13 @@ def editar_curso(request, id):
     else:
         
         subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
+        teachers = Teacher.objects.filter(Q(active=True) | Q(active__isnull=True))
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
         print(curso.subjects.values_list('id', flat=True))
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
         print(ids_de_materias)
-        return render(request, 'courses/editar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'curso': curso, 'subject_list': subject_list, 'ids_de_materias': ids_de_materias})
+        return render(request, 'courses/editar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'curso': curso, 'subject_list': subject_list, 'ids_de_materias': ids_de_materias, 'teachers': teachers})
     
 def borrar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)

@@ -3,6 +3,7 @@ from django.views.generic import CreateView, ListView, DetailView
 from django.shortcuts import render, get_object_or_404,redirect
 from django.http import JsonResponse
 from students.models import Course,Student
+from payments.models import Enrollment
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from django.http import HttpResponseBadRequest
 from .models import Attendance
@@ -11,10 +12,12 @@ from django.views.generic import DetailView
 from django.urls import reverse_lazy
 from collections import defaultdict
 
+
 # sgCPA\attendances\views.py
 def registrar_asistencia(request):
     if request.method == 'POST':
-        fecha = request.POST['fecha']
+        #fecha = request.POST['fecha']
+        fecha = request.POST.get('fecha')
         curso_id = request.POST['curso']
         curso = Course.objects.get(pk=curso_id)
         
@@ -35,9 +38,14 @@ def registrar_asistencia(request):
         return render(request, 'attendances/registrar_asistencia.html', {'cursos': cursos})
 
 
+# def alumnos_por_curso(request, course_id):
+#     alumnos = Student.objects.filter(course_id=course_id)
+#     data = [{'id': alumno.id, 'nombre': alumno.name, 'apellido': alumno.lastName, 'ci': alumno.ciNumber} for alumno in alumnos]
+#     return JsonResponse(data, safe=False)
+
 def alumnos_por_curso(request, course_id):
-    alumnos = Student.objects.filter(course_id=course_id)
-    data = [{'id': alumno.id, 'nombre': alumno.name, 'apellido': alumno.lastName, 'ci': alumno.ciNumber} for alumno in alumnos]
+    enrollments = Enrollment.objects.filter(course_id=course_id).select_related('student')
+    data = [{'id': enrollment.student.id, 'nombre': enrollment.student.name, 'apellido': enrollment.student.lastName, 'ci': enrollment.student.ciNumber} for enrollment in enrollments]
     return JsonResponse(data, safe=False)
 
 
@@ -49,8 +57,10 @@ def ver_asistencias(request, course_id):
     fechas = Attendance.objects.filter(course=curso).order_by('date').values_list('date', flat=True).distinct()
 
     # Obtener todos los estudiantes asociados al curso
-    alumnos = curso.student_set.all()
-
+    #alumnos = curso.student_set.all()
+    enrollments = Enrollment.objects.filter(course=curso).select_related('student')
+    alumnos = [enrollment.student for enrollment in enrollments]
+    
     # Crear una lista de asistencias por estudiantes
     lista_asistencias = []
     for alumno in alumnos:
@@ -111,7 +121,9 @@ def listado_asistencias(request):
         curso_id = request.POST.get('curso_id')
         if curso_id:
             curso = Course.objects.get(pk=curso_id)
-            alumnos = Student.objects.filter(course=curso)
+            #alumnos = Student.objects.filter(course=curso)
+            enrollments = Enrollment.objects.filter(course=curso).select_related('student')
+            alumnos = [enrollment.student for enrollment in enrollments]
             asistencias = Attendance.objects.filter(course=curso).order_by('date')
             #fechas = Attendance.objects.filter(course=curso).order_by('date').values_list('date', flat=True).distinct()
     return render(request, 'attendances/listado_asistencias.html', {'cursos': cursos, 'alumnos': alumnos, 'asistencias': asistencias})

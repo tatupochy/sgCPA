@@ -10,28 +10,28 @@
         {% csrf_token %}
         <div class="form-group">
             <label for="id_name" class="form-label">Nombre:</label>
-            <input type="text" class="form-control" id="id_name" name="name">
+            <input type="text" class="form-control" id="id_name" name="name" required>
         </div>
         <div class="form-group">
             <label for="id_last_name" class="form-label">Apellido:</label>
-            <input type="text" class="form-control" id="id_last_name" name="last_name">
+            <input type="text" class="form-control" id="id_last_name" name="last_name" required>
         </div>
         <div class="form-group">
             <label for="id_email" class="form-label">Correo:</label>
-            <input type="email" class="form-control" id="id_email" name="email">
+            <input type="email" class="form-control" id="id_email" name="email" required>
         </div>
         <div class="form-group">
             <label for="id_phone" class="form-label">Teléfono:</label>
-            <input type="text" class="form-control" id="id_phone" name="phone">
+            <input type="text" class="form-control" id="id_phone" name="phone" required>
         </div>
         <div class="form-group">
             <label for="id_address" class="form-label">Dirección:</label>
-            <input type="text" class="form-control" id="id_address" name="address">
+            <input type="text" class="form-control" id="id_address" name="address" required>
         </div>
         <div class="form-group">
             <label for="id_country" class="form-label">País:</label>
-            <select class="form-select" id="id_country" name="country" style="width: 40%">
-                <option value="" selected>---------</option>
+            <select class="form-select" id="id_country" name="country" style="width: 40%" required>
+                <option value="" selected>Seleccionar pais</option>
                 {% for country in countries %}
                     <option value="{{ country.id }}">{{ country.name }}</option>
                 {% endfor %}
@@ -39,8 +39,8 @@
         </div>
         <div class="form-group">
             <label for="id_city" class="form-label">Ciudad:</label>
-            <select class="form-select" id="id_city" name="city" style="width: 40%">
-                <option value="" selected>---------</option>
+            <select class="form-select" id="id_city" name="city" style="width: 40%" required>
+                <option value="" selected>Seleccionar ciudad</option>
                 {% for city in cities %}
                     <option value="{{ city.id }}">{{ city.name }}</option>
                 {% endfor %}
@@ -48,11 +48,11 @@
         </div>
         <div class="form-group">
             <label for="id_postal_code" class="form-label">Código postal:</label>
-            <input type="text" class="form-control" id="id_postal_code" name="postal_code">
+            <input type="text" class="form-control" id="id_postal_code" name="postal_code" required>
         </div>
         <div class="form-group">
             <label for="id_birth_date" class="form-label">Fecha de nacimiento:</label>
-            <input type="date" class="form-control" id="id_birth_date" name="birth_date">
+            <input type="date" class="form-control" id="id_birth_date" name="birth_date" required>
         </div>
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         {% if form.errors %}

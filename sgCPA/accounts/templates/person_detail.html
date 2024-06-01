@@ -45,7 +45,7 @@
             <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ person.birth_date }}" disabled readonly >
         </div>
         {% if not person.user %}
-            <button type="button" class="btn btn-primary" onclick="window.location.href = '/accounts/users/create'">Crear usuario</button>
+            <button type="button" class="btn btn-primary" onclick="window.location.href = '/accounts/users/create_by_person/{{ person.id }}'">Crear usuario</button>
         {% else %}
             <button type="button" class="btn btn-primary" onclick="window.location.href = '/accounts/users/{{ person.user.id }}'">Ver usuario</button>
         {% endif %}

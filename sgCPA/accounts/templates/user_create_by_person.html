@@ -17,25 +17,22 @@
         {% csrf_token %}
         <div class="form-group">
             <label for="id_person" class="form-label">Persona:</label>
-            <select class="form-select" id="id_person" name="person" style="width: 40%" required>
-                <option value="" selected>Seleccionar persona</option>
-                {% for person in persons %}
-                    <option value="{{ person.id }}">{{ person.name }} {{ person.last_name }}</option>
-                {% endfor %}
+            <select class="form-select" id="id_person" name="person" style="width: 40%" aria-readonly="true">
+                <option value="{{ person.id }}" selected>{{ person.name }} {{ person.last_name }}</option>
             </select>
         </div>
         <div class="form-group">
             <label for="id_username" class="form-label">Nombre de usuario:</label>
-            <input type="text" class="form-control" id="id_username" name="username" readonly required>
+            <input type="text" class="form-control" id="id_username" name="username" readonly>
         </div>
         <div class="form-group" style="display: none;">
             <label for="id_password" class="form-label">Contraseña:</label>
-            <input type="text" class="form-control" id="id_password" name="password" readonly required>
+            <input type="text" class="form-control" id="id_password" name="password" readonly>
         </div>
         <!-- Agregar campos del formulario UserRolesForm -->
         <div class="form-group">
             <label for="id_group" class="form-label">Rol:</label>
-            <select class="form-select" id="id_group" name="group" style="width: 40%" required>
+            <select class="form-select" id="id_group" name="group" style="width: 40%">
                 {% for group in groups %}
                     <option value="{{ group.id }}">{{ group.name }}</option>
                 {% endfor %}

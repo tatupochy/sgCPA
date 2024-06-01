@@ -287,6 +287,41 @@ def user_create_view(request):
 
 @attribute_required
 @login_required_custom
+def user_create_by_person_view(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+    roles = Group.objects.all()
+    if request.method == "GET":
+        return render(request, "user_create_by_person.html", {'person': person, 'groups': roles})
+    else:
+        form_data = request.POST.dict()
+        print('form_data', form_data)
+
+        password = form_data['password']
+
+        # create user with person data
+        person = Person.objects.get(pk=pk)
+        if person.user:
+            return render(request, "user_create_by_person.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'person': person})
+        username = form_data['username']
+        email = person.email
+        first_name = person.name
+        last_name = person.last_name
+        password = form_data['password']
+        user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
+
+        # send email to user
+        # send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
+
+        person.user = user
+        person.save()
+        # asign group to user
+        group = form_data['group']
+        user.groups.add(group)
+
+        return redirect('user_detail', pk=user.pk)
+
+@attribute_required
+@login_required_custom
 def user_delete_view(request, pk):
     user = get_object_or_404(User, pk=pk)
     if user == request.user:

@@ -26,6 +26,7 @@ def create_state(sender, **kwargs):
     
 
 class Fee(models.Model):
+    name = models.CharField(max_length=255, blank=True, null=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     year = models.IntegerField()
     fee_date = models.DateField()
@@ -33,6 +34,10 @@ class Fee(models.Model):
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
     fee_paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
+
+    def is_overdue(self):
+        return self.expiration_date < self.fee_date
+    
 
     class Meta:
         permissions = [
@@ -44,6 +49,7 @@ class Fee(models.Model):
 
 
 class Enrollment(models.Model):
+    name = models.CharField(max_length=255, blank=True, null=True)
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
     year = models.IntegerField()
     enrollment_date = models.DateField()
