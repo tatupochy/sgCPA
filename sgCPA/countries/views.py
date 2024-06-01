@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, Http404
 from .models import Country
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
@@ -50,9 +50,23 @@ def registrar_pais(request):
 def listado_paises(request):
 
     country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
-
-    paginator = Paginator(country_list, 10)
-
+    page = request.GET.get('page', 1)
+    
+    has_results = country_list.exists()
+    
+    if not has_results:
+        
+        data = {
+            'has_results': False,
+            'param': id
+        }
+        return render(request, 'listado_paises.html', data)
+    
+    try:
+        paginator = Paginator(country_list, 10)
+        country_list = paginator.page(page)
+    except:
+        raise Http404
 
     data = {
         'entity': country_list,
@@ -62,6 +76,39 @@ def listado_paises(request):
 
     return render(request, 'listado_paises.html', data)
 
+def buscar(request, name):
+    
+    country_list = Country.objects.filter(name__icontains=name, isActive=True)
+
+    has_results = country_list.exists()
+    
+    if not has_results:
+    
+        data = {
+            'has_results': False,
+            'param': name
+        }
+        return render(request, 'listado_paises.html', data)
+    
+    
+    page = request.GET.get('page', 1)
+    paginator = Paginator(country_list, 10)
+    
+    try:
+        countries = paginator.page(page)
+    except PageNotAnInteger:
+        countries = paginator.page(1)
+    except EmptyPage:
+        countries = paginator.page(paginator.num_pages)
+    
+    data = {
+        'entity': countries,
+        'paginator': paginator,
+        'param': id,
+        'has_results': True
+    }
+    
+    return render(request, 'listado_paises.html', data)
 
 
 def borrar_pais(request, id):

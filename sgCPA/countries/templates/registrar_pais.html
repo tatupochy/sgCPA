@@ -18,7 +18,7 @@
 
         <article class="w-50">
             <label for="name" class="mb-2 form-label">Nombre</label>
-            <input value="{{values.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
+            <input value="{% if country.name %}{{ country.name }}{% elif values.name %}{{ values.name }}{% endif %}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
             {% if errors.country %}
             <div class="alert alert-danger mt-2">{{errors.country}}</div>
             {% endif %}
@@ -26,7 +26,7 @@
 
         <article class="w-50">
             <label for="code" class="mb-2 form-label">Código</label>
-            <input value="{{country.code}}" class="form-control" id="code" name="code" type="text" autocomplete="off" />
+            <input value="{% if country.code %}{{ country.code }}{% elif values.code %}{{ values.code }}{% endif %}" class="form-control" id="code" name="code" type="text" autocomplete="off" />
             {% if errors.code %}
             <div class="alert alert-danger mt-2">{{errors.code}}</div>
             {% endif %}

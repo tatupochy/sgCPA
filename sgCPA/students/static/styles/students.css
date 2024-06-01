@@ -31,8 +31,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    /* height: 100%; */
-    /* flex: 1; */
     cursor: pointer;
 }
 
@@ -41,14 +39,14 @@
 }
 
 .table-container {
-    height: calc(100vh - 150px);
-    margin-bottom: .6rem;
+    height: 100%;
     width: 100%;
     overflow-y: auto;
+    color: white;
 }
-
-.table-container table {
-    height: auto;
+.table-container .table {
     width: 100%;
+    color: white;
+    height: calc(100vh - 110px);
 }
 

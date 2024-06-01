@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+/* @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
 
 ::after,
 ::before {
@@ -139,4 +139,4 @@ a.sidebar-link:hover {
 #sidebar.expand .sidebar-link[data-bs-toggle="collapse"].collapsed::after {
     transform: rotate(45deg);
     transition: all .2s ease-out;
-}
+} */

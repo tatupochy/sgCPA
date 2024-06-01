@@ -24,8 +24,20 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
+
+td, 
+th{
+    color: white;
+}
+
 .wrapper {
     display: flex;
+    background-color: #0e2238;
+}
+
+.sidebar{
+    max-height: 100vh;
+    position: relative;
 }
 
 .main {
@@ -33,22 +45,32 @@ body {
     width: 100%;
     overflow: hidden;
     transition: all 0.35s ease-in-out;
-    background-color: #fafbfe;
+    color: white;
 }
 
 #sidebar {
-    width: 70px;
-    min-width: 70px;
-    z-index: 1000;
-    transition: all .25s ease-in-out;
-    background-color: #0e2238;
+    transition: all .25s ease-in-out;    
     display: flex;
     flex-direction: column;
+    width: 0px;
+}
+
+#sidebar .items-container {
+    display: none;
 }
 
 #sidebar.expand {
     width: 260px;
-    min-width: 260px;
+}
+
+#sidebar.expand .items-container {
+    display: block;
+}
+
+.items-container{
+    max-height: 100vh;
+    overflow: auto;
+    z-index: 10000;
 }
 
 .toggle-btn {

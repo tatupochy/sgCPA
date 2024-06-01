@@ -16,271 +16,272 @@
     <link rel="stylesheet" href="{% static 'styles/styles.css' %}">
 
     {% block styles %} {% endblock %}
-    <!-- <link href="{% static 'styles/students.css' %}" rel="stylesheet" /> -->
-    <!-- <link rel="stylesheet" href="{% static 'styles/students.css' %}"> -->
 
 
 </head>
 
 <body>
     <div class="wrapper">
-        <aside id="sidebar">
-            <div class="d-flex">
+        <aside id="sidebar" class="sidebar">
+            <div class="d-flex p-2">
                 <button class="toggle-btn" type="button">
-                    <i class="lni lni-grid-alt"></i>
+                    <i class="fa-solid fa-bars"></i>
                 </button>
                 <div class="sidebar-logo">
                     <a href="#">sgCPA</a>
                 </div>
             </div>
-            <ul class="sidebar-nav">
+            <div class="items-container">
 
                 <!-- Alumnos -->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#students" aria-expanded="false" aria-controls="students">
-                        <i class="lni lni-users"></i>
-                        <span>Alumnos</span>
-                    </a>
-                    <ul id="students" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/listado_alumnos" class="sidebar-link">Listar Alumnos</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/registrar_alumno" class="sidebar-link">Registrar Alumno</a>
-                        </li>
-                    </ul>
-                </li>
+                <ul class="sidebar-nav">
 
-                <!-- Cursos -->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
-                        <i class="lni lni-agenda"></i>
-                        <span>Cursos</span>
-                    </a>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#students" aria-expanded="false" aria-controls="students">
+                            <i class="lni lni-users"></i>
+                            <span>Alumnos</span>
+                        </a>
+                        <ul id="students" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listado_alumnos" class="sidebar-link">Listar Alumnos</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_alumno" class="sidebar-link">Registrar Alumno</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                    <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/listar_curso" class="sidebar-link">Listar Cursos</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/registrar_curso" class="sidebar-link">Registrar Curso</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Cursos -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
+                            <i class="lni lni-agenda"></i>
+                            <span>Cursos</span>
+                        </a>
 
-                <!-- Materias -->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#subjects" aria-expanded="false" aria-controls="subjects">
-                        <i class="lni lni-agenda"></i>
-                        <span>Materias</span>
-                    </a>
+                        <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listar_curso" class="sidebar-link">Listar Cursos</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_curso" class="sidebar-link">Registrar Curso</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                    <ul id="subjects" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/listado_materias" class="sidebar-link">Listar Materias</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/registrar_materia" class="sidebar-link">Registrar Materia</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Materias -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#subjects" aria-expanded="false" aria-controls="subjects">
+                            <i class="lni lni-agenda"></i>
+                            <span>Materias</span>
+                        </a>
 
-                <!-- Usuarios -->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
-                        <i class="lni lni-protection"></i>
-                        <span>Usuarios</span>
-                    </a>
-                    <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/accounts/users" class="sidebar-link">Listar</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/accounts/users/create" class="sidebar-link">Registrar</a>
-                        </li>
-                    </ul>
-                </li>
+                        <ul id="subjects" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listado_materias" class="sidebar-link">Listar Materias</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_materia" class="sidebar-link">Registrar Materia</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <!-- Personas -->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#persons" aria-expanded="false" aria-controls="persons">
-                        <i class="lni lni-user"></i>
-                        <span>Personas</span>
-                    </a>
-                    <ul id="persons" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/accounts/persons" class="sidebar-link">Listar</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/accounts/persons/create" class="sidebar-link">Registrar</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Usuarios -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#auth" aria-expanded="false" aria-controls="auth">
+                            <i class="lni lni-protection"></i>
+                            <span>Usuarios</span>
+                        </a>
+                        <ul id="auth" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/accounts/users" class="sidebar-link">Listar</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/accounts/users/create" class="sidebar-link">Registrar</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <!-- Roles -->
+                    <!-- Personas -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#persons" aria-expanded="false" aria-controls="persons">
+                            <i class="lni lni-user"></i>
+                            <span>Personas</span>
+                        </a>
+                        <ul id="persons" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/accounts/persons" class="sidebar-link">Listar</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/accounts/persons/create" class="sidebar-link">Registrar</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#roles" aria-expanded="false" aria-controls="roles">
-                        <i class="lni lni-check-box"></i>
-                        <span>Roles</span>
-                    </a>
-                    <ul id="roles" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/accounts/roles" class="sidebar-link">Listar</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/accounts/roles/create" class="sidebar-link">Registrar</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Roles -->
 
-                <!-- Pagos -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#roles" aria-expanded="false" aria-controls="roles">
+                            <i class="lni lni-check-box"></i>
+                            <span>Roles</span>
+                        </a>
+                        <ul id="roles" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/accounts/roles" class="sidebar-link">Listar</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/accounts/roles/create" class="sidebar-link">Registrar</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#pagos" aria-expanded="false" aria-controls="pagos">
-                        <i class="lni lni-coin"></i>
-                        <span>Pagos</span>
-                    </a>
-                    <ul id="pagos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/payments" class="sidebar-link">Listar pagos</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/payments/create" class="sidebar-link">Regitrar pago</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Pagos -->
 
-                <!-- Coutas -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#pagos" aria-expanded="false" aria-controls="pagos">
+                            <i class="lni lni-coin"></i>
+                            <span>Pagos</span>
+                        </a>
+                        <ul id="pagos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/payments" class="sidebar-link">Listar pagos</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/payments/create" class="sidebar-link">Regitrar pago</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#cuotas" aria-expanded="false" aria-controls="cuotas">
-                        <i class="lni lni-library"></i>
-                        <span>Cuotas</span>
-                    </a>
-                    <ul id="cuotas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/fees" class="sidebar-link">Listar cuotas</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Coutas -->
 
-                <!-- Matriculas -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#cuotas" aria-expanded="false" aria-controls="cuotas">
+                            <i class="lni lni-library"></i>
+                            <span>Cuotas</span>
+                        </a>
+                        <ul id="cuotas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/fees" class="sidebar-link">Listar cuotas</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#matriculas" aria-expanded="false" aria-controls="matriculas">
-                        <i class="lni lni-license"></i>
-                        <span>Matriculas</span>
-                    </a>
-                    <ul id="matriculas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/enrollments" class="sidebar-link">Listar matriculas</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/enrollments/create" class="sidebar-link">Registrar matricula</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Matriculas -->
 
-                <!-- Asistencias -->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#asistencias" aria-expanded="false" aria-controls="asistencias">
-                        <i class="lni lni-license"></i>
-                        <span>Asistencias</span>
-                    </a>
-                    <ul id="asistencias" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/ver_asistencias/" class="sidebar-link">Listar asistencias</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/registrar_asistencia" class="sidebar-link">Registrar asistencia</a>
-                        </li>
-                    </ul>
-                </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#matriculas" aria-expanded="false" aria-controls="matriculas">
+                            <i class="lni lni-license"></i>
+                            <span>Matriculas</span>
+                        </a>
+                        <ul id="matriculas" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/enrollments" class="sidebar-link">Listar matriculas</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/enrollments/create" class="sidebar-link">Registrar matricula</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <!-- Secciones-->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#secciones" aria-expanded="false" aria-controls="secciones">
-                        <i class="lni lni-license"></i>
-                        <span>Secciones</span>
-                    </a>
-                    <ul id="secciones" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/sections/" class="sidebar-link">Listar secciones</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/sections/create/" class="sidebar-link">Registrar sección</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Asistencias -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#asistencias" aria-expanded="false" aria-controls="asistencias">
+                            <i class="lni lni-license"></i>
+                            <span>Asistencias</span>
+                        </a>
+                        <ul id="asistencias" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/ver_asistencias/" class="sidebar-link">Listar asistencias</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_asistencia" class="sidebar-link">Registrar asistencia</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <!-- Turnos-->
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                        data-bs-target="#turnos" aria-expanded="false" aria-controls="turnos">
-                        <i class="lni lni-license"></i>
-                        <span>Turnos</span>
-                    </a>
-                    <ul id="turnos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/shifts/" class="sidebar-link">Listar turnos</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/shifts/create/" class="sidebar-link">Registrar turnos</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Secciones-->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#secciones" aria-expanded="false" aria-controls="secciones">
+                            <i class="lni lni-license"></i>
+                            <span>Secciones</span>
+                        </a>
+                        <ul id="secciones" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/sections/" class="sidebar-link">Listar secciones</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/sections/create/" class="sidebar-link">Registrar sección</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                    data-bs-target="#countries" aria-expanded="false" aria-controls="countries">
-                        <i class="lni lni-users"></i>
-                        <span>Paises</span>
-                    </a>
-                    <ul id="countries" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
-                        <li class="sidebar-item">
-                            <a href="/listado_paises" class="sidebar-link">Listar Paises</a>
-                        </li>
-                        <li class="sidebar-item">
-                            <a href="/registrar_pais" class="sidebar-link">Registrar Pais</a>
-                        </li>
-                    </ul>
-                </li>
+                    <!-- Turnos-->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#turnos" aria-expanded="false" aria-controls="turnos">
+                            <i class="lni lni-license"></i>
+                            <span>Turnos</span>
+                        </a>
+                        <ul id="turnos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/shifts/" class="sidebar-link">Listar turnos</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/shifts/create/" class="sidebar-link">Registrar turnos</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <!-- Reportes -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#countries" aria-expanded="false" aria-controls="countries">
+                            <i class="lni lni-users"></i>
+                            <span>Paises</span>
+                        </a>
+                        <ul id="countries" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listado_paises" class="sidebar-link">Listar Paises</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_pais" class="sidebar-link">Registrar Pais</a>
+                            </li>
+                        </ul>
+                    </li>
 
-                <li class="sidebar-item">
-                    <a href="#" class="sidebar-link">
-                        <i class="lni lni-stats-up"></i>
-                        <span>Reportes</span>
-                    </a>
-                </li>
+                    <!-- Reportes -->
 
-            </ul>
-            <div class="sidebar-footer">
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-popup"></i>
-                    <span>Notificaciones</span>
-                </a>
-                <a href="#" class="sidebar-link">
-                    <i class="lni lni-cog"></i>
-                    <span>Configuracion</span>
-                </a>
-                <a href="{% url 'logout' %}" class="sidebar-link">
-                    <i class="lni lni-exit"></i>
-                    <span>Salir</span>
-                </a>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">
+                            <i class="lni lni-stats-up"></i>
+                            <span>Reportes</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-footer">
+                        <a href="#" class="sidebar-link">
+                            <i class="lni lni-popup"></i>
+                            <span>Notificaciones</span>
+                        </a>
+                        <a href="#" class="sidebar-link">
+                            <i class="lni lni-cog"></i>
+                            <span>Configuracion</span>
+                        </a>
+                        <a href="{% url 'logout' %}" class="sidebar-link">
+                            <i class="lni lni-exit"></i>
+                            <span>Salir</span>
+                        </a>
+                    </div>
+                </ul>
             </div>
         </aside>
         <div class="main p-3">
@@ -294,8 +295,8 @@
         integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe"
         crossorigin="anonymous"></script>
 
-    {% block scripts  %}
-        <script src="{% static 'scripts/script.js' %}"></script>
+    {% block scripts %}
+    <script src="{% static 'scripts/script.js' %}"></script>
     {% endblock %}
 </body>
 

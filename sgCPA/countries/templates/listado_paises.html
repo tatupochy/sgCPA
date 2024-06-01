@@ -1,7 +1,11 @@
 {% extends 'base.html' %}
 {% load static %}
 
+
+
 {% block content %}
+<script src="{% static '../../static/scripts/listado_paises.js' %}" type="module"></script>
+
 <div class="heading d-flex align-items-center justify-content-center">
     <h1>Listado de Paises</h1>
     <div class="d-flex align-items-center justify-content-center">
@@ -24,10 +28,9 @@
     {% else %}
     <p>No se encontraron resultado</p>
     {% endif %}
-</div>
+</div
+
 
 {% endblock %}
 
-{% block scripts  %}
-<script src="{% static '../../static/scripts/listado_paises.js' %}" type="module"></script>
-{% endblock %}
+

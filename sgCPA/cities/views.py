@@ -29,20 +29,6 @@ def registrar_ciudad(request):
         city.save()
         
         return HttpResponseRedirect('/listado_ciudades')
-    
-def listado_ciudades(request):
-    
-    city_list = Cities.objects.filter(Q(active=True) | Q(active__isnull=True))
-    
-    paginator = Paginator(city_list, 10)
-    
-    data = {
-        'entity': city_list,
-        'paginator': paginator,
-        'has_results': True
-    }
-    
-    return render(request, 'listado_ciudades.html', data)
 
 def borrar_ciudad(request, id):
     
@@ -96,4 +82,16 @@ def obtener_ciudades_por_pais(request, id):
 
     # Devolver la lista de datos de ciudades como una respuesta JSON
     return JsonResponse({"ciudades": ciudades_data})
-        
+
+def listado_ciudades(request):
+    city_list = Cities.objects.filter(Q(active=True) | Q(active__isnull=True))
+    
+    paginator = Paginator(city_list, 10)
+    
+    data = {
+        'entity': city_list,
+        'paginator': paginator,
+        'has_results': True
+    }
+    
+    return render(request, 'listado_ciudades.html', data)
