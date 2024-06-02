@@ -1,4 +1,6 @@
 from django.shortcuts import render, Http404
+
+from utils.utils import sendEmail
 from .models import Country
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage

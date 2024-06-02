@@ -1,3 +1,4 @@
 django
 psycopg
 python-dateutil
+python-decouple
