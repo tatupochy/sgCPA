@@ -256,8 +256,14 @@ def user_create_view(request):
         password = form_data['password']
         user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
 
+        subject = 'Bienvenido a sgCPA'
+        message = ("Tu usuario ha sido creado. \n" +
+                   "Usuario: " + username + "\n" +
+                   "Contraseña: " + password + "\n" +
+                   "Por favor, cambia tu contraseña en tu primer inicio de sesión.")
+
         # send email to user
-        send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
 
         person.user = user
         person.save()
@@ -309,8 +315,14 @@ def user_create_by_person_view(request, pk):
         password = form_data['password']
         user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
 
+        subject = 'Bienvenido a sgCPA'
+        message = ("Tu usuario ha sido creado. \n" +
+                "Usuario: " + username + "\n" +
+                "Contraseña: " + password + "\n" +
+                "Por favor, cambia tu contraseña en tu primer inicio de sesión.")
+
         # send email to user, bring .env variables
-        send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
 
         person.user = user
         person.save()
