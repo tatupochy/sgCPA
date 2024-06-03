@@ -257,7 +257,7 @@ def user_create_view(request):
         user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
 
         # send email to user
-        # send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
+        send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
 
         person.user = user
         person.save()
@@ -266,23 +266,23 @@ def user_create_view(request):
         user.groups.add(group)
 
         return redirect('user_detail', pk=user.pk)
-    
-# def send_mail(subject, message, from_email, recipient_list):
 
-#     msg = MIMEMultipart()
-#     msg['From'] = from_email
-#     msg['To'] = ', '.join(recipient_list)
-#     msg['Subject'] = subject
 
-#     msg.attach(MIMEText(message, 'plain'))
+def send_mail(subject, message, from_email, recipient_list):
 
-#     server = smtplib.SMTP('smtp.gmail.com', 587)
-#     server.starttls()
-#     server.login(from_email, 'password')
-#     text = msg.as_string()
-#     server.sendmail(from_email, recipient_list, text)
-#     server.quit()
-#     print('Email sent')
+    msg = MIMEMultipart()
+    msg['From'] = from_email
+    msg['To'] = ', '.join(recipient_list)
+    msg['Subject'] = subject
+
+    msg.attach(MIMEText(message, 'plain'))
+
+    server = smtplib.SMTP('smtp.gmail.com', 587)
+    server.starttls()
+    server.login(from_email, settings.EMAIL_HOST_PASSWORD)
+    text = msg.as_string()
+    server.sendmail(from_email, recipient_list, text)
+    server.quit()
 
 
 @attribute_required
@@ -309,8 +309,8 @@ def user_create_by_person_view(request, pk):
         password = form_data['password']
         user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
 
-        # send email to user
-        # send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
+        # send email to user, bring .env variables
+        send_mail('Bienvenido a sgCPA', 'Tu usuario ha sido creado', settings.EMAIL_HOST_USER, [email])
 
         person.user = user
         person.save()
