@@ -11,6 +11,10 @@ from django.urls import reverse
 from django.views.generic import DetailView
 from django.urls import reverse_lazy
 from collections import defaultdict
+from .utils import check_attendance,calcular_asistencia_mes,get_business_days,get_business_days_in_month,get_expected_attendance_days
+from calendar import monthrange, month_name
+from datetime import datetime, timedelta, date
+import calendar
 
 
 # sgCPA\attendances\views.py
@@ -112,18 +116,80 @@ def eliminar_asistencia(request, attendance_id):
         # Devolver un error si la solicitud no es DELETE
         return JsonResponse({'error': 'Método no permitido'}, status=405)
 
+# def listado_asistencias(request):
+#     cursos = Course.objects.all()
+#     alumnos = []
+#     asistencias = []
+
+#     if request.method == 'POST':
+#         curso_id = request.POST.get('curso_id')
+#         if curso_id:
+#             curso = Course.objects.get(pk=curso_id)
+#             #alumnos = Student.objects.filter(course=curso)
+#             enrollments = Enrollment.objects.filter(course=curso).select_related('student')
+#             alumnos = [enrollment.student for enrollment in enrollments]
+#             asistencias = Attendance.objects.filter(course=curso).order_by('date')
+#             #fechas = Attendance.objects.filter(course=curso).order_by('date').values_list('date', flat=True).distinct()
+#     return render(request, 'attendances/listado_asistencias.html', {'cursos': cursos, 'alumnos': alumnos, 'asistencias': asistencias})
+
 def listado_asistencias(request):
     cursos = Course.objects.all()
     alumnos = []
     asistencias = []
+    low_attendance_students = defaultdict(list)
+    meses_curso = []
+    selected_curso = None
+    selected_mes = None
 
     if request.method == 'POST':
         curso_id = request.POST.get('curso_id')
+        selected_mes = request.POST.get('mes')
+        if selected_mes:
+            selected_mes = int(selected_mes)
+
         if curso_id:
-            curso = Course.objects.get(pk=curso_id)
-            #alumnos = Student.objects.filter(course=curso)
-            enrollments = Enrollment.objects.filter(course=curso).select_related('student')
+            selected_curso = Course.objects.get(pk=curso_id)
+            enrollments = Enrollment.objects.filter(course=selected_curso).select_related('student')
             alumnos = [enrollment.student for enrollment in enrollments]
-            asistencias = Attendance.objects.filter(course=curso).order_by('date')
-            #fechas = Attendance.objects.filter(course=curso).order_by('date').values_list('date', flat=True).distinct()
-    return render(request, 'attendances/listado_asistencias.html', {'cursos': cursos, 'alumnos': alumnos, 'asistencias': asistencias})
+            asistencias = Attendance.objects.filter(course=selected_curso).order_by('date')
+
+            # Obtener los meses del rango del curso
+            start_month = selected_curso.start_date.month
+            end_month = selected_curso.end_date.month
+            meses_curso = [(m, month_name[m]) for m in range(start_month, end_month + 1)]
+
+            # Excluir el mes actual
+            current_year = date.today().year
+            current_month = date.today().month
+            if selected_mes and selected_mes <= current_month and selected_curso.end_date.year == current_year:
+                asistencias = asistencias.filter(date__month=selected_mes)
+            else:
+                asistencias = asistencias.none()  # No mostrar asistencias si el mes es el actual o futuro
+
+            for alumno in alumnos:
+                for month in range(start_month, end_month + 1):
+                    # Calcular solo para meses anteriores al mes actual
+                    if month < current_month or selected_curso.end_date.year < current_year:
+                        year = selected_curso.end_date.year
+                        dias_por_semana = selected_curso.days_per_week
+                        expected_classes = get_business_days_in_month(year, month, dias_por_semana)
+                        asistencia_mes = calcular_asistencia_mes(alumno.id, month, selected_curso)
+                        if asistencia_mes < 0.7 * expected_classes:
+                            low_attendance_students[alumno.id].append(month)
+
+    return render(request, 'attendances/listado_asistencias.html', {
+        'cursos': cursos,
+        'alumnos': alumnos,
+        'asistencias': asistencias,
+        'low_attendance_students': low_attendance_students,
+        'meses_curso': meses_curso,
+        'selected_curso': selected_curso,
+        'selected_mes': selected_mes,
+    })
+
+def obtener_meses_curso(request, curso_id):
+    curso = get_object_or_404(Course, pk=curso_id)
+    start_month = curso.start_date.month
+    end_month = curso.end_date.month
+    meses_curso = [(m, month_name[m]) for m in range(start_month, end_month + 1)]
+    return JsonResponse({'meses_curso': meses_curso})
