@@ -219,6 +219,7 @@ def create_fees(request, student_id):
         fee.fee_amount = fee_amount
         fee.state = State.objects.get(name='pending')
         fee.name = 'Cuota' + '/' + str(i + 1) + '/' + student.ciNumber
+        fee.enrollment = enrollment
         fee.save()
 
         start_date = start_date + relativedelta(months=1)
@@ -236,6 +237,13 @@ def enrollments(request):
 def enrollment_detail(request, enrollment_id):
     enrollment = Enrollment.objects.get(id=enrollment_id)
     return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
+
+
+# def enrollment_detail_payment(request, enrollment_id):
+#     enrollment = Enrollment.objects.get(id=enrollment_id)
+#     fees = Fee.objects.filter(enrollment = enrollment)
+#     if fees:
+#         return render(request, 'enrollment_detail_payment.html', {'enrollment': enrollment, 'fees': fees})
 
 
 def enrollment_create(request):
