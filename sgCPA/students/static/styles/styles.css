@@ -24,20 +24,8 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
-
-td, 
-th{
-    color: white;
-}
-
 .wrapper {
     display: flex;
-    background-color: #0e2238;
-}
-
-.sidebar{
-    max-height: 100vh;
-    position: relative;
 }
 
 .main {
@@ -45,32 +33,39 @@ th{
     width: 100%;
     overflow: hidden;
     transition: all 0.35s ease-in-out;
-    color: white;
+    background-color: #fafbfe;
 }
 
 #sidebar {
-    transition: all .25s ease-in-out;    
+    width: 85px;
+    min-width: 70px;
+    z-index: 1000;
+    transition: all .25s ease-in-out;
+    background-color: #0e2238;
     display: flex;
     flex-direction: column;
-    width: 0px;
+    height: 100vh; /* Fija la altura del sidebar */
+    overflow-y: auto; /* Añade el scroll vertical */
 }
 
-#sidebar .items-container {
-    display: none;
+/* Estilo para el scrollbar */
+#sidebar::-webkit-scrollbar {
+    width: 8px; /* Ancho del scrollbar */
+}
+
+#sidebar::-webkit-scrollbar-track {
+    background: #0e2238; /* Color de la pista del scrollbar */
+}
+
+#sidebar::-webkit-scrollbar-thumb {
+    background-color: #ffffff; /* Color de la "manija" del scrollbar */
+    border-radius: 10px; /* Radio del borde de la "manija" */
+    border: 2px solid #0e2238; /* Borde alrededor de la "manija" */
 }
 
 #sidebar.expand {
     width: 260px;
-}
-
-#sidebar.expand .items-container {
-    display: block;
-}
-
-.items-container{
-    max-height: 100vh;
-    overflow: auto;
-    z-index: 10000;
+    min-width: 260px;
 }
 
 .toggle-btn {

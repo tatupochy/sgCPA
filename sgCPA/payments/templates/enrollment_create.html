@@ -45,6 +45,13 @@
                 </ul>
             </div>
         {% endif %}
+        {% if error %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    <li>{{ error }}</li>
+                </ul>
+            </div>
+        {% endif %}
     </form>
 </div>
 {% endblock %}

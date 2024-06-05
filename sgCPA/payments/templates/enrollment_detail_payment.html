@@ -8,6 +8,33 @@
     <h1>Matrícula: {{ enrollment.name }} </h1>
     <form method="post" class="form">
         {% csrf_token %}
+        <p>Cuotas:</p>
+        <table class="table table-hover table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th scope="col">Cuota</th>
+                    <th scope="col">Estudiante</th>
+                    <th scope="col">Año</th>
+                    <th scope="col">Fecha</th>
+                    <th scope="col">Fecha de vencimiento</th>
+                    <th scope="col">Monto</th>
+                    <th scope="col">Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fee in fees %}
+                <tr onclick="window.location.href='/fees/{{ fee.id }}';" style="cursor: pointer;">
+                    <td>{{ fee.name }}</td>
+                    <td>{{ fee.student.name }} {{ fee.student.lastName }}</td>
+                    <td>{{ fee.year }}</td>
+                    <td>{{ fee.fee_date }}</td>
+                    <td>{{ fee.expiration_date }}</td>
+                    <td>{{ fee.fee_amount }}</td>
+                    <td>{{ fee.state.description }}</td>
+                </tr>
+                {%  endfor %}
+            </tbody>
+        </table>
         <div class="form-group">
             <label for="id_student" class="form-label">Estudiante:</label>
             <input type="text" class="form-control" id="id_student" name="student" value="{{ enrollment.student.ciNumber }}" disabled readonly>
@@ -25,18 +52,9 @@
             <input type="text" class="form-control" id="id_enrollment_amount" value="{{ enrollment.enrollment_amount }}" name="enrollment_amount" disabled readonly>
         </div>
         <div class="form-group">
-            <label for="id_enrollment_paid_amount" class="form-label">Monto pagado:</label>
-            <input type="text" class="form-control" id="id_enrollment_paid_amount" value="{{ enrollment.enrollment_paid_amount }}" name="enrollment_paid_amount" disabled readonly>
-        </div>
-        <div class="form-group">
             <label for="id_state" class="form-label">Estado:</label>
             <input type="text" class="form-control" id="id_state" value="{{ enrollment.state.description }}" name="id_state" disabled readonly>
         </div>
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/fees/create_fees/{{ enrollment.student.id }}'">Crear cuotas</button>
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/payments/create/enrollment/{{ enrollment.id }}'">Pagar matrícula</button>
-        {% if has_fees %}
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/enrollments/{{ enrollment.id }}/detail_payment'">Ver detalle de pago</button>
-        {% endif %}
     </form>
 </div>
 {% endblock %}

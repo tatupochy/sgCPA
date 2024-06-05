@@ -180,6 +180,8 @@ def registrar_curso(request):
         fee_amount = request.POST.get('fee_amount')
         days_per_week = request.POST.get('days_per_week')
         teacher = request.POST.get('teacher')
+
+        teacher = Teacher.objects.get(pk=teacher)
         
 
         # Verificar si todos los campos requeridos están presentes

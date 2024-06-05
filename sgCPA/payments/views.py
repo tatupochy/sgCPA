@@ -136,15 +136,13 @@ def payment_enrollment_create(request, pk):
         enrollment = Enrollment.objects.get(id=pk)
         enrollment.enrollment_paid_amount = enrollment.enrollment_paid_amount + payment_amount
         if enrollment.enrollment_paid_amount == enrollment.enrollment_amount and enrollment.enrollment_paid_amount != 0:
-            enrollment.state_id = State.objects.get(name='paid')
-        elif enrollment.enrollment_amount > enrollment.enrollment_paid_amount and enrollment.enrollment_paid_amount != 0:
-            enrollment.state_id = State.objects.get(name='partial')
-        elif enrollment.enrollment_paid_amount == 0:
-            enrollment.state_id = State.objects.get(name='pending')
+            enrollment.state = State.objects.get(name='paid')
+        else:
+            enrollment.state = State.objects.get(name='pending')
 
         enrollment.save()
 
-        return render(request, 'payments.html', {'payments': Payment.objects.all()})
+        return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
     else:
         enrollment = Enrollment.objects.get(id=pk)
         student = Student.objects.get(id=enrollment.student_id)
@@ -226,8 +224,7 @@ def create_fees(request, student_id):
 
     fees = Fee.objects.all()
 
-    return render(request, 'fees.html', {'fees': fees})
-
+    return render(request, 'enrollment_detail.html', {'enrollment': enrollment, 'fees': fees})
 
 def enrollments(request):
     enrollments = Enrollment.objects.all()
@@ -236,14 +233,17 @@ def enrollments(request):
 
 def enrollment_detail(request, enrollment_id):
     enrollment = Enrollment.objects.get(id=enrollment_id)
-    return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
+    has_fees = False
+    if Fee.objects.filter(enrollment=enrollment):
+        has_fees = True
+    return render(request, 'enrollment_detail.html', {'enrollment': enrollment, 'has_fees': has_fees})
 
 
-# def enrollment_detail_payment(request, enrollment_id):
-#     enrollment = Enrollment.objects.get(id=enrollment_id)
-#     fees = Fee.objects.filter(enrollment = enrollment)
-#     if fees:
-#         return render(request, 'enrollment_detail_payment.html', {'enrollment': enrollment, 'fees': fees})
+def enrollment_detail_payment(request, enrollment_id):
+    enrollment = Enrollment.objects.get(id=enrollment_id)
+    fees = Fee.objects.filter(enrollment = enrollment)
+    if fees:
+        return render(request, 'enrollment_detail_payment.html', {'enrollment': enrollment, 'fees': fees})
 
 
 def enrollment_create(request):
@@ -273,6 +273,15 @@ def enrollment_create(request):
         enrollment.enrollment_amount = amount
         enrollment.state_id = states.get(name='pending').id
         enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
+
+        # check if the student has an enrollment for the course
+        if Enrollment.objects.filter(student_id=student_id, course_id=course_id):
+            return render(request, 'enrollment_create.html', {'states': states, 'students': Student.objects.all(), 'courses': Course.objects.all(), 'error': 'El estudiante ya tiene una matrícula para el curso seleccionado'})
+
+        # check if student has unpaid fees
+        if Fee.objects.filter(student_id=student_id, state_id=states.get(name='pending').id):
+            return render(request, 'enrollment_create.html', {'states': states, 'students': Student.objects.all(), 'courses': Course.objects.all(), 'error': 'El estudiante tiene cuotas pendientes por pagar'})
+
         enrollment.save()
 
         return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
