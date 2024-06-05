@@ -3,7 +3,8 @@
 
 {% block content %}
 <div class="container">
-    <h1 class="mt-5">Listado de Asistencias</h1>
+    <h1>Listado de Asistencias</h1>
+
     <form method="post" class="mt-4">
         {% csrf_token %}
         <div class="row mb-3">
@@ -12,11 +13,29 @@
                 <select id="curso" name="curso_id" class="form-select">
                     <option value="">Seleccione un curso</option>
                     {% for curso in cursos %}
-                    <option value="{{ curso.id }}">{{ curso.name }}</option>
+                        <option value="{{ curso.id }}" {% if selected_curso and selected_curso.id == curso.id %}selected{% endif %}>{{ curso.name }}</option>
                     {% endfor %}
                 </select>
             </div>
-            <div class="col-sm-2">
+        </div>
+
+        {% if meses_curso %}
+        <div class="row mb-3" id="meses-container">
+            <label for="mes" class="col-sm-2 col-form-label">Mes:</label>
+            <div class="col-sm-4">
+                <select id="mes" name="mes" class="form-select">
+                    <option value="">Seleccione un mes</option>
+                    {% for mes, mes_nombre in meses_curso %}
+                        <option value="{{ mes }}" {% if selected_mes and selected_mes == mes %}selected{% endif %}>{{ mes_nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="row mb-3">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-4">
                 <button type="submit" class="btn btn-primary">Filtrar</button>
             </div>
         </div>
@@ -32,6 +51,7 @@
                     <th>Cédula</th>
                     <th>Fecha</th>
                     <th>Asistencia</th>
+                    <th>Advertencia</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -50,6 +70,13 @@
                         {% endif %}
                     </td>
                     <td>
+                        {% if asistencia.student.id in low_attendance_students %}
+                            <div class="alert alert-danger" role="alert">
+                                Alumno con menos del 70% de asistencia
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
                         <a href="{% url 'actualizar_asistencia' asistencia.id %}">Actualizar</a>
                         <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ asistencia.id }}">Eliminar</button>
                     </td>
@@ -57,7 +84,6 @@
                 {% endfor %}
             </tbody>
         </table>
-        
     </div>
     {% endif %}
 
@@ -86,5 +112,36 @@
     </div>
 
     <script src="{% static 'scripts/eliminar_asistencia.js' %}"></script>
-</div>
+    <script>
+        document.getElementById('curso').addEventListener('change', function() {
+            var cursoId = this.value;
+            var mesesContainer = document.getElementById('meses-container');
+            var mesSelect = document.getElementById('mes');
+
+            if (cursoId) {
+                fetch(`/obtener_meses_curso/${cursoId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        mesSelect.innerHTML = '<option value="">Seleccione un mes</option>';
+                        data.meses_curso.forEach(function(mes) {
+                            var option = document.createElement('option');
+                            option.value = mes[0];
+                            option.text = mes[1];
+                            mesSelect.appendChild(option);
+                        });
+                        mesesContainer.style.display = 'block';
+                    });
+            } else {
+                mesesContainer.style.display = 'none';
+            }
+        });
+
+        // Al cargar la página, mostrar el contenedor de meses si hay meses_curso
+        document.addEventListener('DOMContentLoaded', function() {
+            if (document.getElementById('mes').options.length > 1) {
+                document.getElementById('meses-container').style.display = 'block';
+            }
+        });
+    </script>
+</
 {% endblock %}
