@@ -42,11 +42,9 @@
     height: 100%;
     width: 100%;
     overflow-y: auto;
-    color: white;
 }
 .table-container .table {
     width: 100%;
-    color: white;
     height: calc(100vh - 110px);
 }
 
