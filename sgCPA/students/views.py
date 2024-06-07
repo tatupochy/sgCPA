@@ -253,12 +253,23 @@ def editar_curso(request, id):
         
         subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
         teachers = Teacher.objects.filter(Q(active=True) | Q(active__isnull=True))
+        teacherSelected = curso.teacher
+        
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
-        print(curso.subjects.values_list('id', flat=True))
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
-        print(ids_de_materias)
-        return render(request, 'courses/editar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'curso': curso, 'subject_list': subject_list, 'ids_de_materias': ids_de_materias, 'teachers': teachers})
+        
+        data = {
+            'CHOICE_SHIFTS': CHOICE_SHIFTS,
+            'CHOICES_SECTIONS': CHOICES_SECTIONS,
+            'curso': curso,
+            'subject_list': subject_list,
+            'ids_de_materias': ids_de_materias,
+            'teachers': teachers,
+            'teacherSelected': teacherSelected,
+        }
+        
+        return render(request, 'courses/editar_curso.html', data)
     
 def borrar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)

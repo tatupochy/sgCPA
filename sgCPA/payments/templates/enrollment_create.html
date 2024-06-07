@@ -8,13 +8,19 @@
     <h1>Crear matrícula: </h1>
     <form method="post" class="form">
         {% csrf_token %}
-        <div class="form-group">
-            <label for="id_student" class="form-label">Ci. estudiante:</label>
-            <input type="number" class="form-control" id="id_student" name="student" required>
+        <div class="form-group d-flex w-100 align-items-center justify-content-center mb-2 mt-2 flex-column">
+            <!-- <label for="id_student" class="form-label">Ci. estudiante:</label>
+            <input type="number" class="form-control" id="id_student" name="student" required> -->
+            <label for="id_student">Seleccionar estudiante</label>
+            <select id="id_student" class="form-control" name="student">
+                {% for student in students   %}
+                    <option value="{{student.ciNumber}}">{{student.name}}</option>
+                {% endfor %}
+            </select>
         </div>
-        <div class="form-group">
+        <div class="form-group w-100 d-flex align-items-center justify-content-center flex-column">
             <label for="id_course" class="form-label">Curso:</label>
-            <select class="form-select" id="id_course" name="course" style="width: 40%" required>
+            <select class="form-select w-100" id="id_course" name="course" style="width: 40%" required>
                 <option value="" selected>Seleccionar curso</option>
                 {% for course in courses %}
                     <option value="{{ course.id }}">{{ course.name }}</option>
@@ -30,10 +36,10 @@
             <input type="date" class="form-control" id="id_enrollment_date" name="enrollment_date" required>
         </div>
         <div class="form-group">
-            <label for="id_enrollment_amount" class="form-label">Monto:</label>
+            <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto:</label>
             <input type="number" class="form-control" id="id_enrollment_amount" name="enrollment_amount" required>
         </div>
-        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        <button type="submit" class="btn btn-primary mb-2 mt-2">Guardar cambios</button>
         {% if form.errors %}
             <div class="alert alert-danger mt-3">
                 <ul>

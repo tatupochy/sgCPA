@@ -8,23 +8,27 @@
   <form action="/registrar_asistencia/" method="post" class="mt-4">
       {% csrf_token %}
 
-      <div class="row mb-3">
-        <label for="fecha" class="col-sm-2 col-form-label">Fecha:</label>
-        <div class="col-sm-4">
-          <input type="date" id="fecha" name="fecha" class="form-control">
-        </div>
-      </div>
-
-      <div class="row mb-3">
+      <div class="row mb-3 d-flex align-items-center justify-content-center flex-column">
         <label for="curso" class="col-sm-2 col-form-label">Curso:</label>
-        <div class="col-sm-4">
+        <div class="col-sm-4 w-100 mb-4">
           <select id="curso" name="curso" class="form-select">
+            <option selected disabled>Seleccionar curso</option>
             {% for curso in cursos %}
               <option value="{{ curso.id }}">{{ curso.name }}</option>
             {% endfor %}
           </select>
         </div>
       </div>
+
+      <div class="row mb-3 d-flex w-100 align-items-center justify-content-center flex-column">
+        <label for="fecha" class="col-sm-2 col-form-label">Fecha:</label>
+        <div class="col-sm-4 w-100">
+          <span>{{curso.start_date}}</span>
+          <input type="date" disabled id="fecha" name="fecha" class="form-control" min="{{curso.start_date}}">
+        </div>
+      </div>
+
+     
 
       <!-- <h1> Listado de alumnos </h1> -->
       <div class="table-responsive" id="tabla-asistencia-container">

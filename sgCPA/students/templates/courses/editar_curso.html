@@ -48,7 +48,7 @@
             <select class="form-select" id="shift" name="shift">
                 <option value="">Seleccionar turno</option>
                 {% for choice in CHOICE_SHIFTS %}
-                    <option value="{{ choice.id }}" {% if choice.id == curso.shift %} selected {% endif %}>{{ choice.name }}</option>
+                    <option value="{{ choice.id }}" {% if choice.id == curso.shift.id %} selected {% endif %}>{{ choice.name }}</option>
                 {% endfor %}
             </select>
         </article>
@@ -57,7 +57,7 @@
             <select class="form-select" id="section" name="section">
                 <option value="">Seleccionar sección</option>
                 {% for choice in CHOICES_SECTIONS %}
-                    <option value="{{ choice.id }}" {% if choice.id == curso.section %} selected {% endif %}>{{ choice.name }}</option>
+                    <option value="{{ choice.id }}" {% if choice.id == curso.section.id %} selected {% endif %}>{{ choice.name }}</option>
                 {% endfor %}
             </select>
         </article>
@@ -79,12 +79,12 @@
         </article>
     </section>
 
-    <article class="w-50">
+    <article class="w-100">
             <label for="teacher" class="mb-2 form-label">Profesor</label>
             <select class="form-select" id="teacher" name="teacher">
                 <option value="">Seleccionar profesor</option>
                 {% for teacher in teachers %}
-                <option value="{{ teacher.id }}">{{ teacher.name }} {{ teacher.lastName }}</option>
+                <option {% if teacherSelected.id == teacher.id  %} selected {% endif %} value="{{ teacher.id }}">{{ teacher.name }} {{ teacher.lastName }}</option>
                 {% endfor %}
             </select>
         </article>

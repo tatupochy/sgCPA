@@ -15,6 +15,9 @@ from .utils import check_attendance,calcular_asistencia_mes,get_business_days,ge
 from calendar import monthrange, month_name
 from datetime import datetime, timedelta, date
 import calendar
+from django.forms.models import model_to_dict
+from django.utils import timezone
+
 
 
 # sgCPA\attendances\views.py
@@ -38,7 +41,9 @@ def registrar_asistencia(request):
         # Redirige a la vista que muestra las asistencias del curso
         return HttpResponseRedirect(reverse('ver_asistencias', kwargs={'course_id': curso_id}))
     else:
-        cursos = Course.objects.all()
+        now = timezone.now().date()
+        print(now)
+        cursos = Course.objects.filter(start_date__lte=now, end_date__gte=now)
         return render(request, 'attendances/registrar_asistencia.html', {'cursos': cursos})
 
 
@@ -152,6 +157,7 @@ def listado_asistencias(request):
             enrollments = Enrollment.objects.filter(course=selected_curso).select_related('student')
             alumnos = [enrollment.student for enrollment in enrollments]
             asistencias = Attendance.objects.filter(course=selected_curso).order_by('date')
+            print(asistencias[0])
 
             # Obtener los meses del rango del curso
             start_month = selected_curso.start_date.month
@@ -193,3 +199,25 @@ def obtener_meses_curso(request, curso_id):
     end_month = curso.end_date.month
     meses_curso = [(m, month_name[m]) for m in range(start_month, end_month + 1)]
     return JsonResponse({'meses_curso': meses_curso})
+
+def obtener_rango_curso(request, id):
+   curso = get_object_or_404(Course, pk=id)
+   curso_dict = model_to_dict(curso)
+    
+    # Convertir campos de fecha y hora a cadenas de texto
+   for key, value in curso_dict.items():
+        if isinstance(value, (date, datetime)):
+            curso_dict[key] = value.isoformat()
+
+    # Convertir objetos relacionados a sus identificadores
+   for field in curso._meta.get_fields():
+        if field.is_relation and field.many_to_one:
+            related_obj = getattr(curso, field.name)
+            if related_obj is not None:
+                curso_dict[field.name] = related_obj.pk
+                
+   range = {'inicio': curso_dict['start_date'], 'fin': curso_dict['end_date']}
+                
+   return JsonResponse({'rango':range})
+
+# def obtener_asistencia(request, )

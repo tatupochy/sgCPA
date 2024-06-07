@@ -49,3 +49,28 @@ $(document).ready(function() {
     var cursoId = $('#curso').val();
     actualizarListaAlumnos(cursoId);
 });
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const d = document;
+    const select = d.getElementById('curso')
+    const inputFecha = d.getElementById('fecha')
+
+    select.addEventListener('change', async(e) => {
+        const target = e.target.value;
+        const curso = await fetch(`/obtener_curso/${target}`)
+        const { rango } = await curso.json()
+        const inicio = rango.inicio
+        const fin = rango.fin
+        const today = new Date().toISOString().split('T')[0];
+        if(curso){
+            inputFecha.disabled = false
+            inputFecha.min = inicio;
+            inputFecha.max = fin;
+            inputFecha.value = today;
+        }else{
+            inputFecha.disabled = true
+        }
+
+    })
+})
