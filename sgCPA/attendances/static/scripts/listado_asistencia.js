@@ -51,10 +51,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const d = document;
     const fecha = d.getElementById('fecha')
     const curso = d.getElementById('curso')
+    const tabla_asistencias = d.getElementById('asistencias_body')
+
     curso.addEventListener('change', async(e) => {
         const curso = e.target.value;
         fecha.disabled = true;
         fecha.innerHTML = ''
+        tabla_asistencias.innerHTML = ''
         const response = await fetch(`/obtener_fechas_curso/${curso}`)
         const {fechas} = await response.json()
         if(fechas.length > 0){
@@ -90,7 +93,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         )
         const {asistencias} = await response.json()
-        const tabla_asistencias = d.getElementById('asistencias_body')
+        tabla_asistencias.innerHTML = ''
         const fragment = d.createDocumentFragment()
         if(asistencias.length > 0){
             asistencias.map(asistencia => { 
