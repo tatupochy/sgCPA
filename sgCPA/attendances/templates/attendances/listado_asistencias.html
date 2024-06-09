@@ -7,11 +7,12 @@
 
     <form method="post" class="mt-4">
         {% csrf_token %}
-        <div class="row mb-3 w-100">
+        <div class="w-100 mb-4">
             <!-- <label for="curso" class="col-sm-2 col-form-label">Curso:</label> -->
-            <div class="col-sm-4 w-100">
+            <div class="w-100">
                 <label for="curso_id">Seleccione un curso</label>
                 <select id="curso" name="curso_id" class="form-select">
+                    <option selected>Seleccione un curso</option>
                     {% for curso in cursos %}
                         <option value="{{ curso.id }}" {% if selected_curso and selected_curso.id == curso.id %}selected{% endif %}>{{ curso.name }}</option>
                     {% endfor %}
@@ -19,7 +20,7 @@
             </div>
         </div>
 
-        {% if meses_curso %}
+        <!-- {% if meses_curso %}
         <div class="row mb-3" id="meses-container">
             <label for="mes" class="col-sm-2 col-form-label">Mes:</label>
             <div class="col-sm-4 w-100">
@@ -31,17 +32,22 @@
                 </select>
             </div>
         </div>
-        {% endif %}
+        {% endif %} -->
+        <div>
+            <select id="fecha" class="form-control" disabled>
+                <option>Seleccionar fecha</option>
+                
+            </select>
+        </div>
 
-        <div class="row mb-3 w-100 text-center mt-2">
+        <!-- <div class="row mb-3 w-100 text-center mt-2"> -->
             <!-- <div class="col-sm-2"></div> -->
             <!-- <div class="col-sm-4"> -->
-                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <!-- <button type="submit" class="btn btn-primary">Filtrar</button> -->
             <!-- </div> -->
         <!-- </div> -->
     </form>
 
-    {% if alumnos %}
     <div class="table-responsive mt-4">
         <table class="table table-bordered">
             <thead>
@@ -49,14 +55,14 @@
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Cédula</th>
-                    <th>Fecha</th>
+                    <!-- <th>Fecha</th> -->
                     <th>Asistencia</th>
-                    <th>Advertencia</th>
-                    <th>Acciones</th>
+                    <!-- <th>Advertencia</th> -->
+                    <!-- <th>Acciones</th> -->
                 </tr>
             </thead>
-            <tbody>
-                {% for asistencia in asistencias %}
+            <tbody id="asistencias_body">
+                <!-- {% for asistencia in asistencias %}
                 <tr>
                     <td>{{ asistencia.student.name }}</td>
                     <td>{{ asistencia.student.lastName }}</td>
@@ -81,11 +87,11 @@
                         <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ asistencia.id }}">Eliminar</button>
                     </td>
                 </tr>
-                {% endfor %}
+                {% endfor %} -->
+                
             </tbody>
         </table>
     </div>
-    {% endif %}
 
     {% for asistencia in asistencias %}
     <div class="modal fade" id="confirmDeleteModal{{ asistencia.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">

@@ -2,7 +2,8 @@
 {% load static %}
 
 {% block styles %}
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@3.0.1/dist/css/multi-select-tag.css">
+<link rel="stylesheet"
+    href="https://cdn.jsdelivr.net/gh/habibmhamadi/multi-select-tag@3.0.1/dist/css/multi-select-tag.css">
 {% endblock %}
 
 {% block content %}
@@ -19,31 +20,35 @@
             <label for="name" class="mb-2 form-label"> Nombre del Curso </label>
             <input class="form-control" id="name" name="name" type="text" />
         </article>
-    </section>
-
-    <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="start_date" class="mb-2 form-label">Fecha de Inicio</label>
             <input class="form-control" id="start_date" type="date" name="start_date" />
         </article>
+    </section>
+
+    <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="end_date" class="mb-2 form-label">Fecha de Fin</label>
             <input class="form-control" id="end_date" type="date" name="end_date" />
         </article>
-    </section>
-
-    <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="fee_amount" class="mb-2 form-label">Monto Cuota Mensual</label>
             <input class="form-control" id="fee_amount" type="number" name="fee_amount" min="0" max="5000000" />
         </article>
-        <article class="w-50">
-            <label for="days_per_week" class="mb-2 form-label">Días por Semana</label>
-            <input class="form-control" id="days_per_week" type="number" name="days_per_week" min="1" max="7" />
-        </article>
     </section>
 
     <section class="d-flex gap-3 justify-content-center w-100">
+        <article class="w-50">
+            <label for="days_per_week" class="mb-2 form-label">Días por Semana</label>
+            <select multiple class="form-control" id="days_per_week" name="days_per_week">
+                <option value="1">Lunes</option>
+                <option value="2">Martes</option>
+                <option value="3">Miercoles</option>
+                <option value="4">Jueves</option>
+                <option value="5">Viernes</option>
+                <option value="6">Sabado</option>
+            </select>
+        </article>
         <article class="w-50">
             <label for="shift" class="mb-2 form-label">Turno</label>
             <select class="form-select" id="shift" name="shift">
@@ -53,6 +58,9 @@
                 {% endfor %}
             </select>
         </article>
+    </section>
+
+    <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="section" class="mb-2 form-label">Sección</label>
             <select class="form-select" id="section" name="section">
@@ -62,13 +70,13 @@
                 {% endfor %}
             </select>
         </article>
-    </section>
-
-    <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="active" class="mb-2 form-check-label">Curso activo?</label>
             <input class="form-check-input" id="active" type="checkbox" name="active" />
         </article>
+    </section>
+
+    <section class="d-flex gap-3 justify-content-center w-100">
 
         <article class="w-50">
             <label for="active" class="mb-2 form-check-label">Materias</label>
@@ -95,12 +103,9 @@
         <button type="submit" class="btn btn-primary">Guardar</button>
     </section>
 </form>
-
-{% endblock %}
-
-{% block scripts %}
-
-<script type="module" src="{% static 'scripts/multipleSelect.js' %}"></script>
+<!-- <script type="module" src="{% static 'scripts/multipleSelect.js' %}"></script> -->
 <script src="{% static 'scripts/script.js' %}"></script>
-{% endblock %}
+<script src="{% static 'scripts/registrar_curso.js' %}"></script>
 
+
+{% endblock %}

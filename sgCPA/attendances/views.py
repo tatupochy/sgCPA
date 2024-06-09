@@ -2,11 +2,12 @@
 from django.views.generic import CreateView, ListView, DetailView
 from django.shortcuts import render, get_object_or_404,redirect
 from django.http import JsonResponse
-from students.models import Course,Student
+from students.models import Course, CourseDates,Student
 from payments.models import Enrollment
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from django.http import HttpResponseBadRequest
-from .models import Attendance
+from .models import Attendance, AttendanceStudent
+# AttendanceRecord
 from django.urls import reverse
 from django.views.generic import DetailView
 from django.urls import reverse_lazy
@@ -17,32 +18,39 @@ from datetime import datetime, timedelta, date
 import calendar
 from django.forms.models import model_to_dict
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
+import json
 
 
 
 # sgCPA\attendances\views.py
 def registrar_asistencia(request):
     if request.method == 'POST':
-        #fecha = request.POST['fecha']
-        fecha = request.POST.get('fecha')
+        fecha_str = request.POST.get('fecha')
         curso_id = request.POST['curso']
         curso = Course.objects.get(pk=curso_id)
+        matriculaciones = Enrollment.objects.filter(course=curso)
         
-        # Recorre todas las claves del diccionario POST
-        for key, value in request.POST.items():
-            # Verifica si la clave comienza con 'presente_', indicando que es un checkbox de asistencia
-            if key.startswith('presente_'):
-                alumno_id = key.split('_')[1]  # Obtiene el ID del alumno de la clave
-                alumno = Student.objects.get(pk=alumno_id)
-                # Convierte el valor 'true'/'false' en un valor booleano
-                presente = value == 'true'
-                Attendance.objects.create(date=fecha, course=curso, student=alumno, present=presente)
-        #return HttpResponseRedirect(reverse('registrar_asistencia'))
-        # Redirige a la vista que muestra las asistencias del curso
-        return HttpResponseRedirect(reverse('ver_asistencias', kwargs={'course_id': curso_id}))
+        students = [matriculacion.student for matriculacion in matriculaciones]
+        fecha = datetime.strptime(fecha_str, "%d/%m/%Y").date()
+        
+        existing_attendances = Attendance.objects.filter(date=fecha, course=curso)
+        
+        if existing_attendances.exists():
+            # attendance = Attendance.objects.get(date=fecha, course=curso)
+            return render(request, 'attendances/registrar_asistencia.html', {'message': 'registro de asistencia ya generado anteriormente'})
+        # except ObjectDoesNotExist:
+        
+        attendance = Attendance.objects.create(date=fecha, course=curso)
+
+        
+        for student in students:
+            presente = request.POST.get(str(student.id)) is not None
+            AttendanceStudent.objects.create(attendance=attendance, student=student, present=presente)
+    
+        return render(request, 'attendances/registrar_asistencia.html', {'message': 'datos guardados correctamente'})
     else:
         now = timezone.now().date()
-        print(now)
         cursos = Course.objects.filter(start_date__lte=now, end_date__gte=now)
         return render(request, 'attendances/registrar_asistencia.html', {'cursos': cursos})
 
@@ -149,60 +157,93 @@ def listado_asistencias(request):
     if request.method == 'POST':
         curso_id = request.POST.get('curso_id')
         selected_mes = request.POST.get('mes')
-        if selected_mes:
-            selected_mes = int(selected_mes)
+        # if selected_mes:
+        #     selected_mes = int(selected_mes)
 
-        if curso_id:
-            selected_curso = Course.objects.get(pk=curso_id)
-            enrollments = Enrollment.objects.filter(course=selected_curso).select_related('student')
-            alumnos = [enrollment.student for enrollment in enrollments]
-            asistencias = Attendance.objects.filter(course=selected_curso).order_by('date')
-            print(asistencias[0])
+        # if curso_id:
+        #     selected_curso = Course.objects.get(pk=curso_id)
+        #     enrollments = Enrollment.objects.filter(course=selected_curso).select_related('student')
+        #     alumnos = [enrollment.student for enrollment in enrollments]
+        #     asistencias = Attendance.objects.filter(course=selected_curso).order_by('date')
 
-            # Obtener los meses del rango del curso
-            start_month = selected_curso.start_date.month
-            end_month = selected_curso.end_date.month
-            meses_curso = [(m, month_name[m]) for m in range(start_month, end_month + 1)]
+        #     # Obtener los meses del rango del curso
+        #     start_month = selected_curso.start_date.month
+        #     end_month = selected_curso.end_date.month
+        #     meses_curso = [(m, month_name[m]) for m in range(start_month, end_month + 1)]
 
-            # Excluir el mes actual
-            current_year = date.today().year
-            current_month = date.today().month
-            if selected_mes and selected_mes <= current_month and selected_curso.end_date.year == current_year:
-                asistencias = asistencias.filter(date__month=selected_mes)
-            else:
-                asistencias = asistencias.none()  # No mostrar asistencias si el mes es el actual o futuro
+        #     # Excluir el mes actual
+        #     current_year = date.today().year
+        #     current_month = date.today().month
+        #     if selected_mes and selected_mes <= current_month and selected_curso.end_date.year == current_year:
+        #         asistencias = asistencias.filter(date__month=selected_mes)
+        #     else:
+        #         asistencias = asistencias.none()  # No mostrar asistencias si el mes es el actual o futuro
 
-            for alumno in alumnos:
-                for month in range(start_month, end_month + 1):
-                    # Calcular solo para meses anteriores al mes actual
-                    if month < current_month or selected_curso.end_date.year < current_year:
-                        year = selected_curso.end_date.year
-                        dias_por_semana = selected_curso.days_per_week
-                        expected_classes = get_business_days_in_month(year, month, dias_por_semana)
-                        asistencia_mes = calcular_asistencia_mes(alumno.id, month, selected_curso)
-                        if asistencia_mes < 0.7 * expected_classes:
-                            low_attendance_students[alumno.id].append(month)
+        #     for alumno in alumnos:
+        #         for month in range(start_month, end_month + 1):
+        #             # Calcular solo para meses anteriores al mes actual
+        #             if month < current_month or selected_curso.end_date.year < current_year:
+        #                 year = selected_curso.end_date.year
+        #                 dias_por_semana = selected_curso.days_per_week
+        #                 expected_classes = get_business_days_in_month(year, month, dias_por_semana)
+        #                 asistencia_mes = calcular_asistencia_mes(alumno.id, month, selected_curso)
+        #                 if asistencia_mes < 0.7 * expected_classes:
+        #                     low_attendance_students[alumno.id].append(month)
+    else:
+        return render(request, 'attendances/listado_asistencias.html', {
+            'cursos': cursos,
+            # 'alumnos': alumnos,
+            # 'asistencias': asistencias,
+            # 'low_attendance_students': low_attendance_students,
+            # 'meses_curso': meses_curso,
+            # 'selected_curso': selected_curso,
+            # 'selected_mes': selected_mes,
+        })
 
-    return render(request, 'attendances/listado_asistencias.html', {
-        'cursos': cursos,
-        'alumnos': alumnos,
-        'asistencias': asistencias,
-        'low_attendance_students': low_attendance_students,
-        'meses_curso': meses_curso,
-        'selected_curso': selected_curso,
-        'selected_mes': selected_mes,
-    })
-
-def obtener_meses_curso(request, curso_id):
+def obtener_fechas_curso(request, curso_id):
     curso = get_object_or_404(Course, pk=curso_id)
-    start_month = curso.start_date.month
-    end_month = curso.end_date.month
-    meses_curso = [(m, month_name[m]) for m in range(start_month, end_month + 1)]
-    return JsonResponse({'meses_curso': meses_curso})
+    fechas = CourseDates.objects.filter(course=curso)
+    fechas_formateadas = [fecha.date.strftime("%d/%m/%Y") for fecha in fechas]
+        
+    return JsonResponse({'fechas': fechas_formateadas})
+
+def obtener_asistencias(request, id):
+    body = json.loads(request.body)
+    fecha_str = body.get('value')
+    fecha = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+    
+    course = get_object_or_404(Course, pk=id)
+    
+    try:    
+        attendance = get_object_or_404(Attendance, course=course, date=fecha)
+        
+        
+        alumnos_asistencias = attendance.attendancestudent_set.all()
+        datos_asistencia = []
+        for registro in alumnos_asistencias:
+            alumno = registro.student
+            nombre_alumno = alumno.name
+            apellido = alumno.lastName
+            ci = alumno.ciNumber
+            presente = registro.present
+            
+            datos_alumno = {
+                'nombre': nombre_alumno,
+                'apellido': apellido,
+                'presente': 'P' if registro.present else 'A',
+                'ci':ci
+            }
+            datos_asistencia.append(datos_alumno)
+    
+        return JsonResponse({'asistencias': datos_asistencia})
+    except:
+        return JsonResponse({'asistencias': []})
 
 def obtener_rango_curso(request, id):
    curso = get_object_or_404(Course, pk=id)
    curso_dict = model_to_dict(curso)
+   fechas = curso.coursedates_set.all()
+   fechas_formateadas = [fecha.date.strftime("%d/%m/%Y")  for fecha in fechas]
     
     # Convertir campos de fecha y hora a cadenas de texto
    for key, value in curso_dict.items():
@@ -216,8 +257,10 @@ def obtener_rango_curso(request, id):
             if related_obj is not None:
                 curso_dict[field.name] = related_obj.pk
                 
-   range = {'inicio': curso_dict['start_date'], 'fin': curso_dict['end_date']}
+   range = {'inicio': curso_dict['start_date'],
+            'fin': curso_dict['end_date']}
+   
                 
-   return JsonResponse({'rango':range})
+   return JsonResponse({'rango':range, 'fechas': fechas_formateadas})
 
 # def obtener_asistencia(request, )

@@ -23,10 +23,11 @@ async function actualizarListaAlumnos(cursoId) {
         const cellCheckbox = document.createElement("td");
         const checkbox = document.createElement("input");
         checkbox.type = "checkbox";
-        checkbox.name = "presente_" + alumno.id;
+        checkbox.name =  alumno.id;
         checkbox.value = "presente";
+        checkbox.disabled = true;
         checkbox.addEventListener('change', function() {
-            checkbox.value = this.checked ? 'true' : 'false'; // Establecer el valor del checkbox como 'true' o 'false' según esté marcado o desmarcado
+            checkbox.value = this.checked ? 'True' : 'False'; // Establecer el valor del checkbox como 'true' o 'false' según esté marcado o desmarcado
         });
         cellCheckbox.appendChild(checkbox);
 
@@ -55,22 +56,39 @@ document.addEventListener('DOMContentLoaded', () => {
     const d = document;
     const select = d.getElementById('curso')
     const inputFecha = d.getElementById('fecha')
+    const tablaAsistencia = d.getElementById('tabla-asistencia1')
+    console.log(tablaAsistencia)
 
     select.addEventListener('change', async(e) => {
         const target = e.target.value;
-        const curso = await fetch(`/obtener_curso/${target}`)
-        const { rango } = await curso.json()
-        const inicio = rango.inicio
-        const fin = rango.fin
+        const curso = await fetch(`/obtener_fechas_curso/${target}`)
+        const { fechas }  = await curso.json()
         const today = new Date().toISOString().split('T')[0];
         if(curso){
             inputFecha.disabled = false
-            inputFecha.min = inicio;
-            inputFecha.max = fin;
             inputFecha.value = today;
+            const fragment = d.createDocumentFragment()
+            fechas.map((fecha, index) => {
+                const option = d.createElement('option')
+                option.text = fecha
+                option.value = fecha
+                fragment.append(option)
+            })
+            inputFecha.append(fragment)
+            
         }else{
             inputFecha.disabled = true
         }
-
     })
+
+    inputFecha.addEventListener('change', (e) => {
+        const inputs = tablaAsistencia.querySelectorAll('tbody tr td input')
+        console.log(inputFecha.value)
+        if(inputFecha){
+            inputs.forEach((input) => input.disabled = false)
+        }else{
+            inputs.forEach((input) => input.disabled = true)
+        }
+    })
+
 })

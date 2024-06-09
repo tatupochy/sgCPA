@@ -2,8 +2,11 @@ from django.db import models
 
 from cities.models import Cities
 from countries.models import Country
+from constans.days import Day
 from subjects.models import Subject
 from teachers.models import Teacher
+from django.contrib.postgres.fields import ArrayField
+
 
 # Create your models here.
 
@@ -18,16 +21,17 @@ class Course(models.Model):
     start_date = models.DateField()
     end_date = models.DateField()
     fee_amount = models.DecimalField(max_digits=10, decimal_places=0)
-    days_per_week = models.IntegerField()
+    days_per_week = ArrayField(
+        models.IntegerField(choices=[(day.value, day.name) for day in Day]),
+        null=True,
+        blank=True
+    )
     year = models.IntegerField()
     subjects = models.ManyToManyField(Subject, blank=True)
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True)
+    
 
-    def __str__(self):
-        if self.section:
-            return f"{self.name} - {self.get_shift_display()} {self.section}"
-        else:
-            return f"{self.name} - {self.get_shift_display()}"
+   
         
     class Meta:
         permissions = [
@@ -36,6 +40,13 @@ class Course(models.Model):
             ('xyz_puede_modificar_cursos', 'Puede modificar cursos'),
             ('xyz_puede_eliminar_cursos', 'Puede eliminar cursos'),
         ]
+        
+class CourseDates(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, null=True)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.course} - {self.date}"
 
 
 class Shift(models.Model):
