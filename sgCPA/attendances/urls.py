@@ -11,5 +11,8 @@ urlpatterns = [
     path('listado_asistencias/', views.listado_asistencias, name='listado_asistencias'),
     path('obtener_fechas_curso/<int:curso_id>', views.obtener_fechas_curso),
     # path('obtener_asistencias/<int:id>/<int:day>/<int:month>/<int:year>/', views.obtener_asistencias)
-    path('obtener_asistencias/<int:id>', views.obtener_asistencias)
+    path('obtener_asistencias/<int:id>', views.obtener_asistencias),
+    # path('obtener_meses_curso/<int:curso_id>/',  views.obtener_meses_curso, name='obtener_meses_curso'),
+    # path('ver_asistencias_fecha/', views.ver_asistencias_fecha, name='ver_asistencias_fecha'),
+    path('descargar_asistencias_pdf/<int:curso_id>/<str:fecha>/', views.descargar_asistencias_pdf, name='descargar_asistencias_pdf')
 ]

@@ -20,6 +20,8 @@ from django.forms.models import model_to_dict
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 import json
+from xhtml2pdf import pisa
+from django.template.loader import render_to_string
 
 
 
@@ -264,3 +266,28 @@ def obtener_rango_curso(request, id):
    return JsonResponse({'rango':range, 'fechas': fechas_formateadas})
 
 # def obtener_asistencia(request, )
+def descargar_asistencias_pdf(request, curso_id, fecha):
+    curso = get_object_or_404(Course, pk=curso_id)
+    fecha = datetime.strptime(fecha, "%Y-%m-%d").date()
+    asistencias = Attendance.objects.filter(course=curso, date=fecha)
+
+    # Preparar el contexto para el template
+    context = {
+        'curso': curso,
+        'fecha': fecha,
+        'asistencias': asistencias,
+        'total_presentes': sum(1 for asistencia in asistencias if asistencia.present)
+    }
+
+    # Renderizar el template a HTML
+    html = render_to_string('attendances/reporte_asistencias.html', context)
+
+    # Crear un objeto de respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="asistencias_{curso.name}_{fecha}.pdf"'
+
+    # Convertir HTML a PDF
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    return response

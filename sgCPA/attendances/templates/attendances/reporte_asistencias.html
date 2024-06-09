@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .total {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Asistencias</h1>
+    <h2>{{ curso.name }}</h2>
+    <p>Fecha: {{ fecha }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Apellido</th>
+                <th>Nombre</th>
+                <th>Número de Cédula</th>
+                <th>Fecha</th>
+                <th>Asistencia</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for asistencia in asistencias %}
+            <tr>
+                <td>{{ asistencia.student.lastName }}</td>
+                <td>{{ asistencia.student.name }}</td>
+                <td>{{ asistencia.student.ciNumber }}</td>
+                <td>{{ asistencia.date }}</td>
+                <td>{% if asistencia.present %}Presente{% else %}Ausente{% endif %}</td>
+            </tr>
+            {% endfor %}
+            <tr class="total">
+                <td colspan="4">Total de presentes:</td>
+                <td>{{ total_presentes }}</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
