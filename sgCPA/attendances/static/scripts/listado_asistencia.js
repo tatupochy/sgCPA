@@ -52,6 +52,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const fecha = d.getElementById('fecha')
     const curso = d.getElementById('curso')
     const tabla_asistencias = d.getElementById('asistencias_body')
+    const form = d.getElementById('form')
+    const csrftoken = getCookie('csrftoken');
+    const headers = {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken
+    }
 
     curso.addEventListener('change', async(e) => {
         const curso = e.target.value;
@@ -65,6 +71,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const defaultOption = d.createElement('option')
             defaultOption.textContent = 'Seleccionar una fecha'
             defaultOption.selected = true;
+            defaultOption.disabled = true;
             fragment.append(defaultOption)
             fechas.map((fecha) => {
                 const option = d.createElement('option')
@@ -83,15 +90,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     fecha.addEventListener('change', async(e) => {
         const value = e.target.value
-        const csrftoken = getCookie('csrftoken');
         const courseId = d.getElementById('curso').value
-        const response = await fetch(`/obtener_asistencias/${courseId}`, 
-            {method: 'POST', headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
-            }, body: JSON.stringify({value}), 
-            }
-        )
+        const body = JSON.stringify({value})
+        const response = await fetch(`/obtener_asistencias/${courseId}`, {method: 'POST', headers, body})
         const {asistencias} = await response.json()
         tabla_asistencias.innerHTML = ''
         const fragment = d.createDocumentFragment()
@@ -102,7 +103,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tdLastName = d.createElement('td')
                 const tdCi = d.createElement('td')
                 const tdAttendance = d.createElement('td')
-                console.log(asistencia)
                 tdName.textContent = asistencia.nombre;
                 tdLastName.textContent  = asistencia.apellido
                 tdCi.textContent  = asistencia.ci
@@ -118,6 +118,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }else{
             tabla_asistencias.innerHTML = ''; // Limpiar la tabla antes de agregar nuevos datos
         }
+    })
+
+    form.addEventListener('submit', async(e) => {
+        e.preventDefault()
+        const body = JSON.stringify({curso_id: curso.value, fecha: fecha.value})
+        const response = await fetch(`/descargar_asistencias_pdf`, {method: 'POST', headers, body})
+
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `asistencias_${curso.value}_${fecha.value}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
     })
    
 })

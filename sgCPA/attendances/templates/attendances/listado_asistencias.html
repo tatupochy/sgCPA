@@ -5,18 +5,20 @@
 <div class="container">
     <h1>Listado de Asistencias</h1>
 
-    <form method="post" class="mt-4">
+    <form method="post" class="mt-4" id="form">
         {% csrf_token %}
-        <div class="w-100 mb-4">
-            <!-- <label for="curso" class="col-sm-2 col-form-label">Curso:</label> -->
-            <div class="w-100">
-                <label for="curso_id">Seleccione un curso</label>
+        <div class="w-100 mb-4 d-flex align-items-center justify-content-center gap-4">
+            <div class="w-70 flex-grow-1">
+                <!-- <label for="curso_id">Seleccione un curso</label> -->
                 <select id="curso" name="curso_id" class="form-select">
-                    <option selected>Seleccione un curso</option>
+                    <option selected disabled>Seleccione un curso</option>
                     {% for curso in cursos %}
                         <option value="{{ curso.id }}" {% if selected_curso and selected_curso.id == curso.id %}selected{% endif %}>{{ curso.name }}</option>
                     {% endfor %}
                 </select>
+            </div>
+            <div class="">
+                <button class="btn btn-primary">Descargar PDF</button>
             </div>
         </div>
 
@@ -34,18 +36,8 @@
         </div>
         {% endif %} -->
         <div>
-            <select id="fecha" class="form-control" disabled>
-                <option>Seleccionar fecha</option>
-                
-            </select>
+            <select id="fecha" class="form-control" disabled></select>
         </div>
-
-        <!-- <div class="row mb-3 w-100 text-center mt-2"> -->
-            <!-- <div class="col-sm-2"></div> -->
-            <!-- <div class="col-sm-4"> -->
-                <!-- <button type="submit" class="btn btn-primary">Filtrar</button> -->
-            <!-- </div> -->
-        <!-- </div> -->
     </form>
 
     <div class="table-responsive mt-4">
@@ -55,7 +47,6 @@
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Cédula</th>
-                    <!-- <th>Fecha</th> -->
                     <th>Asistencia</th>
                     <!-- <th>Advertencia</th> -->
                     <!-- <th>Acciones</th> -->
@@ -92,6 +83,9 @@
             </tbody>
         </table>
     </div>
+
+   
+    
 
     {% for asistencia in asistencias %}
     <div class="modal fade" id="confirmDeleteModal{{ asistencia.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">

@@ -266,10 +266,24 @@ def obtener_rango_curso(request, id):
    return JsonResponse({'rango':range, 'fechas': fechas_formateadas})
 
 # def obtener_asistencia(request, )
-def descargar_asistencias_pdf(request, curso_id, fecha):
+def descargar_asistencias_pdf(request):
+    body = json.loads(request.body)
+    curso_id = body.get('curso_id')
+    fecha_str = body.get('fecha')
     curso = get_object_or_404(Course, pk=curso_id)
-    fecha = datetime.strptime(fecha, "%Y-%m-%d").date()
-    asistencias = Attendance.objects.filter(course=curso, date=fecha)
+    try:
+        fecha = datetime.strptime(fecha_str, "%d/%m/%Y").date()  # Cambiado a '%d/%m/%Y'
+    except ValueError:
+        return HttpResponse("Formato de fecha incorrecto", status=400)
+    
+    print(fecha)
+    print(curso)
+    
+    attendance = get_object_or_404(Attendance, course=curso, date=fecha)
+    asistencias = attendance.attendancestudent_set.all()
+    
+    
+    
 
     # Preparar el contexto para el template
     context = {

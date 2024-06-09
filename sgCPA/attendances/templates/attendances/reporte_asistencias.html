@@ -38,7 +38,6 @@
                 <th>Apellido</th>
                 <th>Nombre</th>
                 <th>Número de Cédula</th>
-                <th>Fecha</th>
                 <th>Asistencia</th>
             </tr>
         </thead>
@@ -48,12 +47,11 @@
                 <td>{{ asistencia.student.lastName }}</td>
                 <td>{{ asistencia.student.name }}</td>
                 <td>{{ asistencia.student.ciNumber }}</td>
-                <td>{{ asistencia.date }}</td>
                 <td>{% if asistencia.present %}Presente{% else %}Ausente{% endif %}</td>
             </tr>
             {% endfor %}
             <tr class="total">
-                <td colspan="4">Total de presentes:</td>
+                <td colspan="3">Total de presentes:</td>
                 <td>{{ total_presentes }}</td>
             </tr>
         </tbody>
