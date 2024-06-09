@@ -1,6 +1,7 @@
 from django.shortcuts import render
 
-from students.models import Student, Course
+from attendances.models import Attendance, AttendanceStudent
+from students.models import CourseDates, Student, Course
 from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2
 import calendar
 from dateutil.relativedelta import relativedelta
@@ -283,6 +284,11 @@ def enrollment_create(request):
             return render(request, 'enrollment_create.html', {'states': states, 'students': Student.objects.all(), 'courses': Course.objects.all(), 'error': 'El estudiante tiene cuotas pendientes por pagar'})
 
         enrollment.save()
+        
+        courseDates = CourseDates.objects.filter(course=course)
+        for courseDate in courseDates:
+            attendance = Attendance.objects.filter(course_id=course_id, date=courseDate.date).first()
+            AttendanceStudent.objects.create(attendance=attendance, student=student)
 
         return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
     else:

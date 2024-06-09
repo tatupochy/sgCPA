@@ -5,8 +5,6 @@ from students.models import Course, Student
 class Attendance(models.Model):
     date = models.DateField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    # student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    # present = models.BooleanField()
     students = models.ManyToManyField(Student, through='AttendanceStudent')
 
     class Meta:
@@ -19,7 +17,7 @@ class Attendance(models.Model):
         
 class AttendanceStudent(models.Model):
     attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    present = models.BooleanField()
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True, null=True)
+    present = models.BooleanField(blank=True, null=True)
     
     

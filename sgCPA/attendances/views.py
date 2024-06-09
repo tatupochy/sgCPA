@@ -36,31 +36,22 @@ def registrar_asistencia(request):
         students = [matriculacion.student for matriculacion in matriculaciones]
         fecha = datetime.strptime(fecha_str, "%d/%m/%Y").date()
         
-        existing_attendances = Attendance.objects.filter(date=fecha, course=curso)
-        
-        if existing_attendances.exists():
-            # attendance = Attendance.objects.get(date=fecha, course=curso)
-            return render(request, 'attendances/registrar_asistencia.html', {'message': 'registro de asistencia ya generado anteriormente'})
-        # except ObjectDoesNotExist:
-        
-        attendance = Attendance.objects.create(date=fecha, course=curso)
+        attendance = Attendance.objects.get(date=fecha, course=curso)
 
         
         for student in students:
+            print(request.POST)
+            print(student.id)
             presente = request.POST.get(str(student.id)) is not None
-            AttendanceStudent.objects.create(attendance=attendance, student=student, present=presente)
+            AttendanceStudent.objects.filter(attendance=attendance, student=student).update(present=presente)
     
-        return render(request, 'attendances/registrar_asistencia.html', {'message': 'datos guardados correctamente'})
+        # return render(request, 'attendances/registrar_asistencia.html', {'message': 'datos guardados correctamente'})
+        return redirect(reverse('registrar_asistencia'))
     else:
         now = timezone.now().date()
         cursos = Course.objects.filter(start_date__lte=now, end_date__gte=now)
         return render(request, 'attendances/registrar_asistencia.html', {'cursos': cursos})
 
-
-# def alumnos_por_curso(request, course_id):
-#     alumnos = Student.objects.filter(course_id=course_id)
-#     data = [{'id': alumno.id, 'nombre': alumno.name, 'apellido': alumno.lastName, 'ci': alumno.ciNumber} for alumno in alumnos]
-#     return JsonResponse(data, safe=False)
 
 def alumnos_por_curso(request, course_id):
     enrollments = Enrollment.objects.filter(course_id=course_id).select_related('student')
@@ -228,12 +219,14 @@ def obtener_asistencias(request, id):
             apellido = alumno.lastName
             ci = alumno.ciNumber
             presente = registro.present
+            id_alumno = alumno.id
             
             datos_alumno = {
                 'nombre': nombre_alumno,
                 'apellido': apellido,
-                'presente': 'P' if registro.present else 'A',
-                'ci':ci
+                'presente': 'P' if presente else 'A',
+                'ci':ci,
+                'id_alumno': id_alumno
             }
             datos_asistencia.append(datos_alumno)
     

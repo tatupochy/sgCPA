@@ -4,6 +4,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, Http
 
 from countries.models import Country
 from cities.models import Cities
+from attendances.models import Attendance, AttendanceStudent
 from utils.utils import calculate_class_days
 from .models import CourseDates, Student, Course, Shift, Section
 from subjects.models import Subject
@@ -11,7 +12,6 @@ from django.db.models import Q
 from datetime import datetime
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 import datetime
-
 from teachers.models import Teacher
 
 
@@ -184,13 +184,11 @@ def registrar_curso(request):
         
         start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
-        class_days = list(map(int, ['1', '3', '5']))
+        class_days = list(map(int, days_per_week))
 
         teacher = Teacher.objects.get(pk=teacher)
-        
         total_days, class_dates = calculate_class_days(start_date=start_date, end_date=end_date, class_days=class_days)
         
-
         # Verificar si todos los campos requeridos están presentes
         if name and shift and start_date and end_date and fee_amount and days_per_week:
             # Crear una instancia de Course
@@ -210,7 +208,10 @@ def registrar_curso(request):
             curso.save()
             curso.subjects.add(*subjects_ids)
             for date in class_dates:
-               course_date = CourseDates.objects.create(date=date, course=curso)
+               CourseDates.objects.create(date=date, course=curso)
+               attendance = Attendance.objects.create(date=date, course=curso)
+               
+           
             return redirect('detalle_curso', id=curso.id)
             
         else:
