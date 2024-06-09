@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from students.models import Course,Student
 from payments.models import Enrollment
 from django.shortcuts import HttpResponse,HttpResponseRedirect
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponse
 from .models import Attendance
 from django.urls import reverse
 from django.views.generic import DetailView
@@ -14,7 +14,10 @@ from collections import defaultdict
 from .utils import check_attendance,calcular_asistencia_mes,get_business_days,get_business_days_in_month,get_expected_attendance_days
 from calendar import monthrange, month_name
 from datetime import datetime, timedelta, date
-import calendar
+
+
+from django.template.loader import render_to_string
+from xhtml2pdf import pisa
 
 
 # sgCPA\attendances\views.py
@@ -24,6 +27,10 @@ def registrar_asistencia(request):
         fecha = request.POST.get('fecha')
         curso_id = request.POST['curso']
         curso = Course.objects.get(pk=curso_id)
+
+        # Obtener todos los alumnos del curso a través de Enrollment
+        enrollments = Enrollment.objects.filter(course_id=curso_id).select_related('student')
+        alumnos_curso = [enrollment.student for enrollment in enrollments]
         
         # Recorre todas las claves del diccionario POST
         for key, value in request.POST.items():
@@ -34,6 +41,16 @@ def registrar_asistencia(request):
                 # Convierte el valor 'true'/'false' en un valor booleano
                 presente = value == 'true'
                 Attendance.objects.create(date=fecha, course=curso, student=alumno, present=presente)
+
+                # Remover al alumno de la lista de alumnos del curso
+                if alumno in alumnos_curso:
+                    alumnos_curso.remove(alumno)
+
+
+        # Registrar asistencia con valor False para los alumnos restantes
+        for alumno in alumnos_curso:
+            Attendance.objects.create(date=fecha, course=curso, student=alumno, present=False)
+
         #return HttpResponseRedirect(reverse('registrar_asistencia'))
         # Redirige a la vista que muestra las asistencias del curso
         return HttpResponseRedirect(reverse('ver_asistencias', kwargs={'course_id': curso_id}))
@@ -193,3 +210,52 @@ def obtener_meses_curso(request, curso_id):
     end_month = curso.end_date.month
     meses_curso = [(m, month_name[m]) for m in range(start_month, end_month + 1)]
     return JsonResponse({'meses_curso': meses_curso})
+
+#08/06/2024x1
+def ver_asistencias_fecha(request):
+    cursos = Course.objects.filter(active=True)
+    asistencias = []
+    selected_curso = None
+    selected_fecha = None
+
+    if request.method == 'POST':
+        curso_id = request.POST.get('curso_id')
+        fecha = request.POST.get('fecha')
+
+        if curso_id and fecha:
+            selected_curso = get_object_or_404(Course, pk=curso_id)
+            selected_fecha = datetime.strptime(fecha, "%Y-%m-%d").date()
+            asistencias = Attendance.objects.filter(course=selected_curso, date=selected_fecha)
+
+    return render(request, 'attendances/ver_asistencias_fecha.html', {
+        'cursos': cursos,
+        'asistencias': asistencias,
+        'selected_curso': selected_curso,
+        'selected_fecha': selected_fecha,
+    })
+
+def descargar_asistencias_pdf(request, curso_id, fecha):
+    curso = get_object_or_404(Course, pk=curso_id)
+    fecha = datetime.strptime(fecha, "%Y-%m-%d").date()
+    asistencias = Attendance.objects.filter(course=curso, date=fecha)
+
+    # Preparar el contexto para el template
+    context = {
+        'curso': curso,
+        'fecha': fecha,
+        'asistencias': asistencias,
+        'total_presentes': sum(1 for asistencia in asistencias if asistencia.present)
+    }
+
+    # Renderizar el template a HTML
+    html = render_to_string('attendances/reporte_asistencias.html', context)
+
+    # Crear un objeto de respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="asistencias_{curso.name}_{fecha}.pdf"'
+
+    # Convertir HTML a PDF
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    return response
