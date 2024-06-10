@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} Crear Timbrado {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments/stampings'" style="cursor: pointer;"></i>
+    <h1>Crear timbrado:</h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_number" class="form-label">Número:</label>
+            <input type="text" class="form-control" id="id_number" name="number" required>
+        </div>
+        <div class="form-group">
+            <label for="id_valid_until" class="form-label">Válido hasta</label>
+            <input type="date" class="form-control" id="id_valid_until" name="valid_until" required>
+        </div>
+        <div class="form-group">
+            <label for="id_establishment_number" class="form-label">Número de establecimiento:</label>
+            <input type="text" class="form-control" id="id_establishment_number" name="establishment_number" required>
+        </div>
+        <div class="form-group">
+            <label for="id_expedition_point" class="form-label">Número de punto de expedición:</label>
+            <input type="text" class="form-control" id="id_expedition_point" name="expedition_point" required>
+        </div>
+        <div class="form-group">
+            <label for="id_start_number" class="form-label">Número de inicio:</label>
+            <input type="text" class="form-control" id="id_start_number" name="start_number" required>
+        </div>
+        <div class="form-group">
+            <label for="id_end_number" class="form-label">Número de fin:</label>
+            <input type="text" class="form-control" id="id_end_number" name="end_number" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    <li>{{ error }}</li>
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

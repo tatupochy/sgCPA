@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %} Buscar Pagos {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments'" style="cursor: pointer;"></i>
+    <h1>Buscar pagos: </h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_student" class="form-label">Ci. Estudiante:</label>
+            <input type="number" class="form-control" id="id_student" name="student" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar pagos pendientes</button>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

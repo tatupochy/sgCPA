@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} Crear Caja {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments/cash_boxes'" style="cursor: pointer;"></i>
+    <h1>Crear caja:</h1>
+    <form method="post" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_name" class="form-label">Nombre:</label>
+            <input type="text" class="form-control" id="id_name" name="name" required>
+        </div>
+        <div class="form-group">
+            <label for="id_description" class="form-label">Descripción:</label>
+            <input type="text" class="form-control" id="id_description" name="description" required>
+        </div>
+        <div class="form-group">
+            <label for="id_stamping" class="form-label">Timbrado:</label>
+            <select class="form-select" id="id_stamping" name="stamping" required>
+                <option value="" selected>Seleccionar timbrado</option>
+                {% for stamping in stampings %}
+                    <option value="{{ stamping.id }}">{{ stamping.number }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_active" class="form-label">Activa:</label>
+            <input type="checkbox" class="form-check" id="id_active" name="active" value="true">
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar cambios</button>
+        {% if form.errors %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                    {% for error in errors %}
+                    <li>{{ error }}</li>
+                    {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    <li>{{ error }}</li>
+                </ul>
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

@@ -3,7 +3,7 @@ from . import views
 from .views import (
     payments,
     payment_detail,
-    payment_create,
+    search_pending_payments,
     payment_fee_create,
     payment_enrollment_create,
     fees,
@@ -27,7 +27,8 @@ from .views import (
 urlpatterns = [
     path('payments/', payments, name='payments'),
     path('payments/<int:payment_id>/', payment_detail, name='payment_detail'),
-    path('payments/create/', payment_create, name='payment_create'),
+    path('payments/search_pending_payments/', search_pending_payments, name='search_pending_payments'),
+    path('registrar_pago/', views.registrar_pago, name='registrar_pago'),
     path('payments/create/fee/<int:pk>', payment_fee_create, name='payment_fee_create'),
     path('payments/create/enrollment/<int:pk>', payment_enrollment_create, name='payment_enrollment_create'),
     path('fees/', fees, name='fees'),
@@ -49,5 +50,13 @@ urlpatterns = [
     path('concepts/<int:concept_id>/', views.concept_detail, name='concept_detail'),
     path('concepts/<int:concept_id>/edit', views.concept_edit, name='concept_edit'),
     path('concepts/<int:concept_id>/delete', views.concept_delete, name='concept_delete'),
+    ########
+    path('cash_boxes/create/', views.cash_box_create, name='cash_box_create'),
+    path('cash_boxes/', views.cash_box_list, name='cash_box_list'),
+    path('cash_boxes/<int:cash_box_id>/', views.cash_box_detail, name='cash_box_detail'),
+    ########
+    path('stampings/create/', views.stamping_create, name='stamping_create'),
+    path('stampings/', views.stamping_list, name='stamping_list'),
+    path('stampings/<int:stamping_id>/', views.stamping_detail, name='stamping_detail'),
 
 ]

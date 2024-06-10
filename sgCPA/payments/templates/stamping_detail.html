@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalles de Timbrado {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/stampings'" style="cursor: pointer;"></i>
+    <h1>Detalles de timbrado: {{ stamping.number }}</h1>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label for="id_number" class="form-label">Número:</label>
+                <input type="text" class="form-control" id="id_number" name="number" value="{{ stamping.number }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_valid_until" class="form-label">Válido hasta:</label>
+                <input type="text" class="form-control" id="id_valid_until" name="valid_until" value="{{ stamping.valid_until }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_establishment_number" class="form-label">Número de establecimiento:</label>
+                <input type="text" class="form-control" id="id_establishment_number" name="establishment_number" value="{{ stamping.establishment_number }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_expedition_point" class="form-label">Punto de expedición:</label>
+                <input type="text" class="form-control" id="id_expedition_point" name="expedition_point" value="{{ stamping.expedition_point }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_start_number" class="form-label">Número de inicio:</label>
+                <input type="text" class="form-control" id="id_start_number" name="start_number" value="{{ stamping.start_number }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_end_number" class="form-label">Número de fin:</label>
+                <input type="text" class="form-control" id="id_end_number" name="end_number" value="{{ stamping.end_number }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_actual_number" class="form-label">Número actual:</label>
+                <input type="text" class="form-control" id="id_actual_number" name="actual_number" value="{{ stamping.actual_number }}" disabled readonly >
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

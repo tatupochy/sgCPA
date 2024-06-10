@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from students.models import Student, Course
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -136,7 +137,7 @@ class PaymentMethod2(models.Model):
 
     def __str__(self):
         return self.name
-    
+
 
 class Concept(models.Model):
     name = models.CharField(max_length=100, unique=True)
@@ -144,3 +145,56 @@ class Concept(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class CashBox(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+    description = models.CharField(max_length=255, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    stamping = models.ForeignKey('Stamping', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Stamping(models.Model):
+    number = models.CharField(max_length=100, unique=True)
+    valid_until = models.DateField()
+    establishment_number = models.CharField(max_length=100, unique=True)
+    expedition_point = models.IntegerField()
+    start_number = models.IntegerField()
+    end_number = models.IntegerField()
+    actual_number = models.IntegerField()
+
+    def __str__(self):
+        return self.number
+
+
+class Invoice(models.Model):
+    number = models.CharField(max_length=100, unique=True)
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
+    cash_box = models.ForeignKey(CashBox, on_delete=models.CASCADE)
+    stamping = models.ForeignKey(Stamping, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+    valid_until = models.DateField()
+    client = models.ForeignKey(Student, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.number
+
+
+class InvoiceDetail(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.invoice.number
+

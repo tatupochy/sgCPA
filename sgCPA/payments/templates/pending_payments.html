@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block title %} Pagos Pendientes {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/search_pending_payments'" style="cursor: pointer;"></i>
+    <h1>Pagos Pendientes para {{ student.name }}</h1>
+
+    <form method="post" action="{% url 'registrar_pago' %}">
+        {% csrf_token %}
+        <h2>Cuotas Pendientes</h2>
+        <div class="form-group">
+            <label for="payment_method" class="form-label">Método de Pago:</label>
+            <select class="form-control" id="payment_method" name="payment_method" required>
+                <option value="" selected disabled>Seleccione un método de pago</option>
+                {% for payment_method in payment_methods %}
+                <option value="{{ payment_method.id }}">{{ payment_method.description }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <table class="table table-hover table-bordered table-striped" id="feesTable">
+            <thead>
+                <tr>
+                    <th scope="col">Seleccionar</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Año</th>
+                    <th scope="col">Fecha de Vencimiento</th>
+                    <th scope="col">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for fee in pending_fees %}
+                <tr>
+                    <td><input type="checkbox" class="fee-checkbox" data-id="{{ fee.id }}"></td>
+                    <td>{{ fee.name }}</td>
+                    <td>{{ fee.year }}</td>
+                    <td>{{ fee.expiration_date }}</td>
+                    <td>{{ fee.fee_amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Matrículas Pendientes</h2>
+        <table class="table table-hover table-bordered table-striped" id="enrollmentsTable">
+            <thead>
+                <tr>
+                    <th scope="col">Seleccionar</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Año</th>
+                    <th scope="col">Fecha de Matrícula</th>
+                    <th scope="col">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in pending_enrollments %}
+                <tr>
+                    <td><input type="checkbox" class="enrollment-checkbox" data-id="{{ enrollment.id }}"></td>
+                    <td>{{ enrollment.name }}</td>
+                    <td>{{ enrollment.year }}</td>
+                    <td>{{ enrollment.enrollment_date }}</td>
+                    <td>{{ enrollment.enrollment_amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="btn btn-success">Registrar Pago</button>
+    </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', (event) => {
+    const feeCheckboxes = document.querySelectorAll('.fee-checkbox');
+    const enrollmentCheckboxes = document.querySelectorAll('.enrollment-checkbox');
+
+    function toggleCheckboxes(checkboxes) {
+        for (let i = 0; i < checkboxes.length; i++) {
+            if (i > 0) {
+                checkboxes[i].disabled = true;
+            }
+            checkboxes[i].addEventListener('change', function() {
+                if (this.checked) {
+                    if (i + 1 < checkboxes.length) {
+                        checkboxes[i + 1].disabled = false;
+                    }
+                } else {
+                    for (let j = i + 1; j < checkboxes.length; j++) {
+                        checkboxes[j].disabled = true;
+                        checkboxes[j].checked = false;
+                    }
+                }
+            });
+        }
+    }
+
+    toggleCheckboxes(feeCheckboxes);
+    toggleCheckboxes(enrollmentCheckboxes);
+});
+</script>
+{% endblock %}

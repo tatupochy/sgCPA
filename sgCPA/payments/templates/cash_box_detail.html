@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalles de Caja {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/cash_boxes'" style="cursor: pointer;"></i>
+    <h1>Detalles de caja: {{ cash_box.name }}</h1>
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label for="id_name" class="form-label">Nombre:</label>
+                <input type="text" class="form-control" id="id_name" name="name" value="{{ cash_box.name }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_description" class="form-label">Descripción:</label>
+                <input type="text" class="form-control" id="id_description" name="description" value="{{ cash_box.description }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_stamping" class="form-label">Timbrado:</label>
+                <input type="text" class="form-control" id="id_stamping" name="stamping" value="{{ cash_box.stamping.number }}" disabled readonly >
+            </div>
+            <div class="form-group">
+                <label for="id_active" class="form-label">Activa:</label>
+                {% if cash_box.active %}
+                    <input type="text" class="form-control" id="id_active" name="active" value="Activa" disabled readonly >
+                {% else %}
+                    <input type="text" class="form-control" id="id_active" name="active" value="Inactiva" disabled readonly >
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -37,7 +37,7 @@ body {
 }
 
 #sidebar {
-    width: 85px;
+    width: 91px;
     min-width: 70px;
     z-index: 1000;
     transition: all .25s ease-in-out;

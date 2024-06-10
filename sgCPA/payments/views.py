@@ -1,7 +1,11 @@
+from datetime import datetime
+
+from django.contrib.auth.models import User
 from django.shortcuts import render
 
 from students.models import Student, Course
-from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2
+from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2, CashBox, \
+    Stamping
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import redirect,get_object_or_404
@@ -21,58 +25,62 @@ def payment_detail(request, payment_id):
     return render(request, 'payment_detail.html', {'payment': payment})
 
 
-def payment_create(request):
+def search_pending_payments(request):
     if request.method == 'POST':
-        student_id = int(request.POST['student'])
-        year = request.POST['year']
-        payment_date = request.POST['payment_date']
-        payment_method_id = int(request.POST['payment_method'])
-        payment_type_id = int(request.POST['payment_type'])
-        payment_amount = int(request.POST['payment_amount'])
+        student_ci = request.POST['student']
+        student = Student.objects.get(ciNumber=student_ci)
+        state = State.objects.get(name='pending')
+        payment_methods = PaymentMethod.objects.all()
 
-        payment = Payment()
-        payment.student_id = student_id
-        payment.year = year
-        payment.payment_date = payment_date
-        payment.payment_method_id = payment_method_id
-        payment.payment_type_id = payment_type_id
-        payment.payment_amount = payment_amount
-        payment.save()
+        pending_fees = Fee.objects.filter(student=student, state=state)
+        pending_enrollments = Enrollment.objects.filter(student=student, state=state)
 
-        if payment.payment_type_id == 1:
-            enrollment_id = int(request.POST['enrollment'])
+        return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollments': pending_enrollments, 'student': student, 'payment_methods': payment_methods})
+
+    else:
+        return render(request, 'search_pending_payments.html')
+
+
+def registrar_pago(request):
+    if request.method == 'POST':
+        selected_fees = request.POST.getlist('selected_fees')
+        selected_enrollments = request.POST.getlist('selected_enrollments')
+
+        # Procesar las cuotas seleccionadas
+        for fee_id in selected_fees:
+            fee = Fee.objects.get(id=fee_id)
+            fee.state = State.objects.get(name='paid')
+            fee.save()
+
+            # Crear un pago por la cuota
+            payment = Payment()
+            payment.student = fee.student
+            payment.year = fee.year
+            payment.payment_date = datetime.now()
+            payment.payment_method = PaymentMethod.objects.get(name='efectivo')
+            payment.payment_type = PaymentType.objects.get(name='fee')
+            payment.payment_amount = fee.fee_amount
+            payment.save()
+
+        # Procesar las matrículas seleccionadas
+        for enrollment_id in selected_enrollments:
             enrollment = Enrollment.objects.get(id=enrollment_id)
-            enrollment.enrollment_paid_amount = enrollment.enrollment_paid_amount + payment_amount
-            if enrollment.enrollment_paid_amount == enrollment.enrollment_amount and enrollment.enrollment_paid_amount != 0:
-                enrollment.state_id = State.objects.get(name='paid')
-            elif enrollment.enrollment_amount > enrollment.enrollment_paid_amount and enrollment.enrollment_paid_amount != 0:
-                enrollment.state_id = State.objects.get(name='partial')
-            elif enrollment.enrollment_paid_amount == 0:
-                enrollment.state_id = State.objects.get(name='pending')
-
+            enrollment.state = State.objects.get(name='paid')
             enrollment.save()
 
-        elif payment.payment_type_id == 2:
-            fee_id = int(request.POST['fee'])
-            fee = Fee.objects.get(id=fee_id)
-            fee.fee_paid_amount = fee.fee_paid_amount + payment_amount
-            if fee.fee_paid_amount == fee.fee_amount and fee.fee_paid_amount != 0:
-                fee.state_id = State.objects.get(name='paid')
-            elif fee.fee_amount > fee.fee_paid_amount and fee.fee_paid_amount != 0:
-                fee.state_id = State.objects.get(name='partial')
-            elif fee.fee_paid_amount == 0:
-                fee.state_id = State.objects.get(name='pending')
-
-            fee.save()
+            # Crear un pago por la matrícula
+            payment = Payment()
+            payment.student = enrollment.student
+            payment.year = enrollment.year
+            payment.payment_date = datetime.now()
+            payment.payment_method = PaymentMethod.objects.get(name='efectivo')
+            payment.payment_type = PaymentType.objects.get(name='enrollment')
+            payment.payment_amount = enrollment.enrollment_amount
+            payment.save()
 
         return render(request, 'payments.html', {'payments': Payment.objects.all()})
     else:
-        payment_methods = PaymentMethod.objects.all()
-        payment_types = PaymentType.objects.all()
-        students = Student.objects.all()
-        fees = Fee.objects.all()
-        enrollments = Enrollment.objects.all()
-        return render(request, 'payment_create.html', {'payment_methods': payment_methods, 'payment_types': payment_types, 'students': students, 'fees': fees, 'enrollments': enrollments})
+        return render(request, 'search_pending_payments.html')
 
 
 def payment_fee_create(request, pk):
@@ -364,9 +372,11 @@ def payment_method_create(request):
         return redirect('payment_method_list')
     return render(request, 'payment_method_form.html')
 
+
 def payment_method_list(request):
     payment_methods = PaymentMethod2.objects.all()
     return render(request, 'payment_method_list.html', {'payment_methods': payment_methods})
+
 
 def payment_method_edit(request, payment_method_id):
     payment_method = get_object_or_404(PaymentMethod2, id=payment_method_id)
@@ -388,12 +398,14 @@ def payment_method_edit(request, payment_method_id):
         
     return render(request, 'payment_method_edit.html', {'payment_method': payment_method})
 
+
 def payment_method_delete(request, payment_method_id):
     payment_method = get_object_or_404(PaymentMethod2, id=payment_method_id)
     if request.method == 'POST':
         payment_method.delete()
         return redirect('payment_method_list')  # Redirect to the payment method list after deletion
     return render(request, 'payment_method_delete.html', {'payment_method': payment_method})
+
 
 def concept_create(request):
     if request.method == 'POST':
@@ -403,9 +415,11 @@ def concept_create(request):
         return redirect('concept_list')
     return render(request, 'concept_create.html')
 
+
 def concept_list(request):
     concepts = Concept.objects.all()
     return render(request, 'concepts.html', {'concepts': concepts})
+
 
 def concept_edit(request, concept_id):
     concept = get_object_or_404(Concept, id=concept_id)
@@ -425,6 +439,7 @@ def concept_edit(request, concept_id):
         
     return render(request, 'concept_edit.html', {'concept': concept})
 
+
 def concept_delete(request, concept_id):
     concept = get_object_or_404(Concept, pk=concept_id)
     
@@ -432,7 +447,66 @@ def concept_delete(request, concept_id):
 
     return redirect('concept_list')
 
+
 def concept_detail(request, concept_id):
     concept = Concept.objects.get(id=concept_id)
     return render(request, 'concept_detail.html', {'concept': concept})
 
+
+def cash_box_create(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        description = request.POST.get('description')
+        # created at the moment
+        created_at = datetime.now()
+        stamping = request.POST.get('stamping')
+        stamping = Stamping.objects.get(id=stamping)
+        # get logged in user
+        user = request.user
+        if request.POST.get('active') == 'true':
+            active = True
+        else:
+            active = False
+
+        CashBox.objects.create(name=name, description=description, created_at=created_at, stamping=stamping, user=user, active=active)
+        return redirect('cash_box_list')
+
+    else:
+        stampings = Stamping.objects.all()
+        return render(request, 'cash_box_create.html', {'stampings': stampings})
+
+
+def cash_box_list(request):
+    cash_boxes = CashBox.objects.all()
+    return render(request, 'cash_boxes.html', {'cash_boxes': cash_boxes})
+
+
+def cash_box_detail(request, cash_box_id):
+    cash_box = CashBox.objects.get(id=cash_box_id)
+    return render(request, 'cash_box_detail.html', {'cash_box': cash_box})
+
+
+def stamping_create(request):
+    if request.method == 'POST':
+        number = request.POST.get('number')
+        valid_until = request.POST.get('valid_until')
+        establishment_number = request.POST.get('establishment_number')
+        expedition_point = request.POST.get('expedition_point')
+        start_number = request.POST.get('start_number')
+        end_number = request.POST.get('end_number')
+        actual_number = 1
+
+        Stamping.objects.create(number=number, valid_until=valid_until, establishment_number=establishment_number, expedition_point=expedition_point, start_number=start_number, end_number=end_number, actual_number=actual_number)
+        return redirect('stamping_list')
+    else:
+        return render(request, 'stamping_create.html')
+
+
+def stamping_list(request):
+    stampings = Stamping.objects.all()
+    return render(request, 'stampings.html', {'stampings': stampings})
+
+
+def stamping_detail(request, stamping_id):
+    stamping = Stamping.objects.get(id=stamping_id)
+    return render(request, 'stamping_detail.html', {'stamping': stamping})

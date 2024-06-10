@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %} Timbrados {% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Timbrados</h1>
+
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Número</th>
+                <th scope="col">Válido hasta</th>
+                <th scope="col">Número de establecimiento</th>
+                <th scope="col">Número de punto de expedición</th>
+                <th scope="col" class="col-md-2 text-center"><button class="btn btn-primary" onclick= "window.location.href = '/payments/stampings/create'"><i class="fa fa-plus"></i></button></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for stamping in stampings %}
+            <tr>
+                <td onclick= "window.location.href = '/stampings/{{ stamping.id }}'" style="cursor: pointer;">{{ stamping.number }}</td>
+                <td>{{ stamping.valid_until }}</td>
+                <td>{{ stamping.establishment_number }}</td>
+                <td>{{ stamping.expedition_point }}</td>
+                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-stamping-id="{{ stamping.id }}"><i class="fa fa-trash"></i></button></td>
+            </tr>
+            {%  endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
