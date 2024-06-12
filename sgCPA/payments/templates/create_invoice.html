@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} Crear Factura {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/payments'" style="cursor: pointer;"></i>
+    <h1>Crear Factura:</h1>
+    <form method="POST" class="form">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_number" class="form-label">Número:</label>
+            <input type="text" class="form-control" id="id_number" name="number" required>
+        </div>
+        <div class="form-group">
+            <label for="id_date" class="form-label">Fecha:</label>
+            <input type="date" class="form-control" id="id_date" name="date" required>
+        </div>
+        <div class="form-group">
+            <label for="id_amount" class="form-label">Monto:</label>
+            <input type="number" step="0.01" class="form-control" id="id_amount" name="amount" required>
+        </div>
+        <div class="form-group">
+            <label for="id_concept" class="form-label">Concepto:</label>
+            <select class="form-select" id="id_concept" name="concept" required>
+                <option value="" selected>Seleccionar concepto</option>
+                {% for concept in concepts %}
+                    <option value="{{ concept.id }}">{{ concept.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_cash_box" class="form-label">Caja:</label>
+            <select class="form-select" id="id_cash_box" name="cash_box" required>
+                <option value="" selected>Seleccionar caja</option>
+                {% for cash_box in cash_boxes %}
+                    <option value="{{ cash_box.id }}">{{ cash_box.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_stamping" class="form-label">Timbrado:</label>
+            <select class="form-select" id="id_stamping" name="stamping" required>
+                <option value="" selected>Seleccionar timbrado</option>
+                {% for stamping in stampings %}
+                    <option value="{{ stamping.id }}">{{ stamping.number }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="id_valid_until" class="form-label">Válido Hasta:</label>
+            <input type="date" class="form-control" id="id_valid_until" name="valid_until" required>
+        </div>
+        <div class="form-group">
+            <label for="id_client" class="form-label">Cliente:</label>
+            <select class="form-select" id="id_client" name="client" required>
+                <option value="" selected>Seleccionar cliente</option>
+                {% for client in clients %}
+                    <option value="{{ client.id }}">{{ client.first_name }} {{ client.last_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Guardar Factura</button>
+        {% if error_message %}
+            <div class="alert alert-danger mt-3">
+                {{ error_message }}
+            </div>
+        {% endif %}
+    </form>
+</div>
+{% endblock %}

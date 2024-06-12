@@ -1,11 +1,11 @@
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django.contrib.auth.models import User
 from django.shortcuts import render
 
 from students.models import Student, Course
 from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2, CashBox, \
-    Stamping
+    Stamping, Invoice
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import redirect,get_object_or_404
@@ -29,58 +29,142 @@ def search_pending_payments(request):
     if request.method == 'POST':
         student_ci = request.POST['student']
         student = Student.objects.get(ciNumber=student_ci)
-        state = State.objects.get(name='pending')
-        payment_methods = PaymentMethod.objects.all()
 
-        pending_fees = Fee.objects.filter(student=student, state=state)
-        pending_enrollments = Enrollment.objects.filter(student=student, state=state)
-
-        return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollments': pending_enrollments, 'student': student, 'payment_methods': payment_methods})
+        return redirect('pending_payments', pk=student.id)
 
     else:
         return render(request, 'search_pending_payments.html')
 
 
-def registrar_pago(request):
+def pending_payments(request, pk):
     if request.method == 'POST':
+        student_id = request.POST['student']
+        student = Student.objects.get(id=student_id)
+
         selected_fees = request.POST.getlist('selected_fees')
         selected_enrollments = request.POST.getlist('selected_enrollments')
 
-        # Procesar las cuotas seleccionadas
+        payment_method = request.POST['payment_method']
+
+        fees = []
+        enrollments = []
+
         for fee_id in selected_fees:
             fee = Fee.objects.get(id=fee_id)
-            fee.state = State.objects.get(name='paid')
-            fee.save()
+            fees.append(fee)
 
-            # Crear un pago por la cuota
-            payment = Payment()
-            payment.student = fee.student
-            payment.year = fee.year
-            payment.payment_date = datetime.now()
-            payment.payment_method = PaymentMethod.objects.get(name='efectivo')
-            payment.payment_type = PaymentType.objects.get(name='fee')
-            payment.payment_amount = fee.fee_amount
-            payment.save()
-
-        # Procesar las matrículas seleccionadas
         for enrollment_id in selected_enrollments:
             enrollment = Enrollment.objects.get(id=enrollment_id)
-            enrollment.state = State.objects.get(name='paid')
-            enrollment.save()
+            enrollments.append(enrollment)
 
-            # Crear un pago por la matrícula
-            payment = Payment()
-            payment.student = enrollment.student
-            payment.year = enrollment.year
-            payment.payment_date = datetime.now()
-            payment.payment_method = PaymentMethod.objects.get(name='efectivo')
-            payment.payment_type = PaymentType.objects.get(name='enrollment')
-            payment.payment_amount = enrollment.enrollment_amount
-            payment.save()
+        invoice = create_invoice(fees, enrollments, student, payment_method)
 
-        return render(request, 'payments.html', {'payments': Payment.objects.all()})
+        return redirect('show_invoice', pk=invoice.id)
+
     else:
-        return render(request, 'search_pending_payments.html')
+        student = Student.objects.get(id=pk)
+        pending_fees = Fee.objects.filter(student_id=pk, state_id=State.objects.get(name='pending').id)
+        pending_enrollments = Enrollment.objects.filter(student_id=pk, state_id=State.objects.get(name='pending').id)
+
+        payment_methods = PaymentMethod.objects.all()
+
+        return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollments': pending_enrollments, 'student': student, 'payment_methods': payment_methods})
+
+
+def create_invoice(fees, enrollments, student, payment_method):
+    invoice = Invoice()
+    invoice.number = 1
+    invoice.date = datetime.now()
+    invoice.amount = 0
+    invoice.concept = Concept.objects.get(name='Matrícula y cuotas')
+    invoice.cash_box = CashBox.objects.get(active=True, user=student.user)
+    invoice.stamping = invoice.cash_box.stamping
+    invoice.valid_until = datetime.now() + relativedelta(months=1)
+    invoice.client = student
+    invoice.save()
+
+    for fee in fees:
+        payment = Payment()
+        payment.student = student
+        payment.year = fee.year
+        payment.payment_date = datetime.now()
+        payment.payment_amount = fee.amount
+        payment.payment_method = PaymentMethod.objects.get(id=payment_method)
+        payment.payment_type = PaymentType.objects.get(name='fee')
+        payment.fee = fee
+        payment.save()
+
+        fee.state = State.objects.get(name='paid')
+        fee.save()
+
+        invoice.amount += fee.amount
+
+    for enrollment in enrollments:
+        payment = Payment()
+        payment.student = student
+        payment.year = enrollment.year
+        payment.payment_date = datetime.now()
+        payment.payment_amount = enrollment.amount
+        payment.payment_method = PaymentMethod.objects.get(id=payment_method)
+        payment.payment_type = PaymentType.objects.get(name='enrollment')
+        payment.save()
+
+        enrollment.state = State.objects.get(name='paid')
+        enrollment.save()
+
+        invoice.amount += enrollment.amount
+
+    invoice.save()
+
+    return invoice
+
+def show_invoice(request):
+    if request.method == 'POST':
+        number = request.POST['number']
+        date = request.POST['date']
+        amount = request.POST['amount']
+        concept_id = request.POST['concept']
+        cash_box_id = request.POST['cash_box']
+        stamping_id = request.POST['stamping']
+        valid_until = request.POST['valid_until']
+        client_id = request.POST['client']
+
+        try:
+            concept = Concept.objects.get(id=concept_id)
+            cash_box = CashBox.objects.get(id=cash_box_id)
+            stamping = Stamping.objects.get(id=stamping_id)
+            client = Student.objects.get(id=client_id)
+
+            invoice = Invoice(
+                number=number,
+                date=date,
+                amount=amount,
+                concept=concept,
+                cash_box=cash_box,
+                stamping=stamping,
+                valid_until=valid_until,
+                client=client,
+                created_at=timezone.now(),
+                active=True  # Suponiendo que todas las nuevas facturas son activas por defecto
+            )
+            invoice.save()
+            return render(request, 'invoice_created.html', {'invoice': invoice})
+        except (Concept.DoesNotExist, CashBox.DoesNotExist, Stamping.DoesNotExist, Student.DoesNotExist):
+            error_message = "Datos de entrada no válidos. Por favor, revise y vuelva a intentar."
+
+        return render(request, 'create_invoice.html', {'error_message': error_message})
+    else:
+        cash_box = CashBox.objects.get(active=True, user=request.user)
+        stamping = cash_box.stamping
+
+        concepts = Concept.objects.all()
+        client = Student.objects.get
+        return render(request, 'create_invoice.html', {
+            'concepts': concepts,
+            'cash_boxes': cash_box,
+            'stampings': stamping,
+            'clients': client,
+        })
 
 
 def payment_fee_create(request, pk):

@@ -7,9 +7,13 @@
     <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/search_pending_payments'" style="cursor: pointer;"></i>
     <h1>Pagos Pendientes para {{ student.name }}</h1>
 
-    <form method="post" action="{% url 'registrar_pago' %}">
+    <form method="POST" class="form">
         {% csrf_token %}
         <h2>Cuotas Pendientes</h2>
+        <div class="form-group">
+            <label for="id_student" class="form-label">Estudiante:</label>
+            <input type="text" class="form-control" id="id_student" name="student" value="{{ student.ciNumber }}" readonly>
+        </div>
         <div class="form-group">
             <label for="payment_method" class="form-label">Método de Pago:</label>
             <select class="form-control" id="payment_method" name="payment_method" required>
