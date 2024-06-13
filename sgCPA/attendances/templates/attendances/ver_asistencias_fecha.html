@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h1>Reporte de Asistencias por Fecha</h1>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="row mb-3">
+            <label for="curso" class="col-sm-2 col-form-label">Curso:</label>
+            <div class="col-sm-4">
+                <select id="curso" name="curso_id" class="form-select">
+                    <option value="">Seleccione un curso</option>
+                    {% for curso in cursos %}
+                        <option value="{{ curso.id }}" {% if selected_curso and selected_curso.id == curso.id %}selected{% endif %}>{{ curso.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <label for="fecha" class="col-sm-2 col-form-label">Fecha:</label>
+            <div class="col-sm-4">
+                <input type="date" id="fecha" name="fecha" class="form-control" value="{{ selected_fecha|date:'Y-m-d' }}">
+            </div>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-4">
+                <button type="submit" class="btn btn-primary">Generar Reporte</button>
+            </div>
+        </div>
+    </form>
+
+    {% if asistencias %}
+    <div class="table-responsive mt-4">
+        <h3>Asistencias del Curso {{ selected_curso.name }} en la Fecha {{ selected_fecha }}</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha</th>
+                    <th>Asistencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asistencia in asistencias %}
+                <tr>
+                    <td>{{ asistencia.student.name }}</td>
+                    <td>{{ asistencia.student.lastName }}</td>
+                    <td>{{ asistencia.date }}</td>
+                    <td>
+                        {% if asistencia.present %}
+                            P
+                        {% else %}
+                            A
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <a href="{% url 'descargar_asistencias_pdf' selected_curso.id selected_fecha %}" class="btn btn-secondary">Descargar PDF</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

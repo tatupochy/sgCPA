@@ -5,8 +5,7 @@ from students.models import Course, Student
 class Attendance(models.Model):
     date = models.DateField()
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    present = models.BooleanField()
+    students = models.ManyToManyField(Student, through='AttendanceStudent')
 
     class Meta:
         permissions = [
@@ -15,3 +14,10 @@ class Attendance(models.Model):
             ('xyz_puede_modificar_asistencias', 'Puede modificar asistencias'),
             ('xyz_puede_eliminar_asistencias', 'Puede eliminar asistencias'),
         ]
+        
+class AttendanceStudent(models.Model):
+    attendance = models.ForeignKey(Attendance, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True, null=True)
+    present = models.BooleanField(blank=True, null=True)
+    
+    
