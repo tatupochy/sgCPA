@@ -29,6 +29,8 @@ class Course(models.Model):
     year = models.IntegerField()
     subjects = models.ManyToManyField(Subject, blank=True)
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True)
+    minStudentsNumber = models.IntegerField(blank=True, null=True)
+    maxStudentsNumber = models.IntegerField(blank=True, null=True)
     
 
    

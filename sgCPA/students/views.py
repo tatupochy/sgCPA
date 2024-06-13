@@ -181,6 +181,9 @@ def registrar_curso(request):
         fee_amount = request.POST.get('fee_amount')
         days_per_week = request.POST.getlist('days_per_week')
         teacher = request.POST.get('teacher')
+        minStudentsNumber = request.POST.get('minStudentsNumber')
+        maxStudentsNumber = request.POST.get('maxStudentsNumber')
+        
         
         start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
         end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
@@ -202,14 +205,16 @@ def registrar_curso(request):
                 fee_amount=fee_amount,
                 days_per_week=days_per_week,
                 year=datetime.datetime.now().year,
-                teacher=teacher
+                teacher=teacher,
+                minStudentsNumber=minStudentsNumber,
+                maxStudentsNumber=maxStudentsNumber
             )
             # Guardar el curso en la base de datos
             curso.save()
             curso.subjects.add(*subjects_ids)
             for date in class_dates:
-               CourseDates.objects.create(date=date, course=curso)
-               attendance = Attendance.objects.create(date=date, course=curso)
+                CourseDates.objects.create(date=date, course=curso)
+                attendance = Attendance.objects.create(date=date, course=curso)
                
            
             return redirect('detalle_curso', id=curso.id)
