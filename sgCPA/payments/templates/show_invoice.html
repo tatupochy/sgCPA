@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %} Detalles de la Factura {% endblock %}
+
+{% block content %}
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/invoices/'" style="cursor: pointer;"></i>
+    <h1>Detalles de la Factura {{ invoice.number }}</h1>
+    <p><strong>Fecha:</strong> {{ invoice.date }}</p>
+    <p><strong>Cliente:</strong> {{ invoice.client.first_name }} {{ invoice.client.last_name }}</p>
+    <p><strong>Monto Total:</strong> {{ invoice.amount }} {{ invoice.client.currency }}</p>
+    <p><strong>Válida Hasta:</strong> {{ invoice.valid_until }}</p>
+    <p><strong>Caja:</strong> {{ invoice.cash_box.name }}</p>
+    <p><strong>Timbrado:</strong> {{ invoice.stamping.number }}</p>
+
+    <h2>Detalles de la Factura</h2>
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Concepto</th>
+                <th scope="col">Monto</th>
+                <th scope="col">Fecha de Creación</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detail in invoice_details %}
+            <tr>
+                <td>{{ detail.concept.description }}</td>
+                <td>{{ detail.amount }}</td>
+                <td>{{ detail.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

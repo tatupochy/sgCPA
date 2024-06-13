@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %} Pagos Pendientes {% endblock %}
+{% block title %}Pagos Pendientes{% endblock %}
 
 {% block content %}
 <div class="container card" style="padding: 1%;">
@@ -36,7 +36,7 @@
             <tbody>
                 {% for fee in pending_fees %}
                 <tr>
-                    <td><input type="checkbox" class="fee-checkbox" data-id="{{ fee.id }}"></td>
+                    <td><input type="checkbox" class="fee-checkbox" name="selected_fees" value="{{ fee.id }}"></td>
                     <td>{{ fee.name }}</td>
                     <td>{{ fee.year }}</td>
                     <td>{{ fee.expiration_date }}</td>
@@ -60,7 +60,7 @@
             <tbody>
                 {% for enrollment in pending_enrollments %}
                 <tr>
-                    <td><input type="checkbox" class="enrollment-checkbox" data-id="{{ enrollment.id }}"></td>
+                    <td><input type="checkbox" class="enrollment-checkbox" name="selected_enrollments" value="{{ enrollment.id }}"></td>
                     <td>{{ enrollment.name }}</td>
                     <td>{{ enrollment.year }}</td>
                     <td>{{ enrollment.enrollment_date }}</td>

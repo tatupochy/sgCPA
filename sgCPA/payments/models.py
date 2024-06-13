@@ -176,7 +176,6 @@ class Invoice(models.Model):
     number = models.CharField(max_length=100, unique=True)
     date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
-    concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     cash_box = models.ForeignKey(CashBox, on_delete=models.CASCADE)
     stamping = models.ForeignKey(Stamping, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
