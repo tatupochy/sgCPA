@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura {{ invoice.name }}</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f4f4f4;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .invoice-details, .client-details, .payment-details {
+            margin-bottom: 20px;
+        }
+        .invoice-details table, .client-details table, .payment-details table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .invoice-details th, .client-details th, .payment-details th,
+        .invoice-details td, .client-details td, .payment-details td {
+            border: 1px solid #ddd;
+        }
+        .total {
+            font-weight: bold;
+            text-align: right;
+            padding-right: 20px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="invoice-details">
+            <table>
+                <tr>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <img src="https://www.flaticon.com/svg/static/icons/svg/174/174857.svg" alt="Logo">
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>Detalles de la empresa</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                    <td>
+                        <table>
+                            <tr>
+                                <td>
+                                    <p>Timbrado N°: {{ invoice.stamping.number }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>Fecha de inicio de vigencia: {{ invoice.stamping.date }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>Fecha de fin de vigencia: {{ invoice.stamping.valid_until }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <p>RUC: {{ invoice.ruc }}</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="client-details">
+            <table>
+                <tr>
+                    <th>Nombre del Cliente</th>
+                    <td>{{ invoice.client.name }}</td>
+                </tr>
+                <tr>
+                    <th>Cédula de Identidad</th>
+                    <td>{{ invoice.client.ciNumber }}</td>
+                </tr>
+                <tr>
+                    <th>Dirección</th>
+                    <td>{{ invoice.client.address }}</td>
+                </tr>
+                <tr>
+                    <th>Teléfono</th>
+                    <td>{{ invoice.client.phone }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="payment-details">
+            <h2>Detalles del Pago</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Concepto</th>
+                        <th>Descripción</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for detail in invoice.invoice_details.all %}
+                    <tr>
+                        <td>{{ detail.concept.name }}</td>
+                        <td>{{ detail.concept.description }}</td>
+                        <td>{{ detail.amount }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="total">
+            <h2>Total: {{ invoice.amount }}</h2>
+        </div>
+
+        <div class="footer">
+            <p>Gracias por su pago. Si tiene alguna pregunta, no dude en contactarnos.</p>
+            <p>Condiciones de Pago: El pago debe realizarse antes de la fecha de vencimiento indicada.</p>
+        </div>
+    </div>
+</body>
+</html>

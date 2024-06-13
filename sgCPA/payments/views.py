@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from django.contrib.auth.models import User
 
@@ -75,12 +76,14 @@ def pending_payments(request, pk):
 
 def create_invoice(fees, enrollments, student, payment_method, user):
 
-    cash_box = CashBox.objects.get(active=True, user= user)
+    cash_box = CashBox.objects.get(active=True, user=user)
 
     invoice = Invoice()
     invoice.number = cash_box.stamping.actual_number
     cash_box.stamping.actual_number += 1
     cash_box.stamping.save()
+    # complete the invoice last part with the 0 to the left, to complete the 7 characters
+    invoice.name = str(cash_box.stamping.establishment_number) + '-' + str(cash_box.stamping.expedition_point) + '-' + str(cash_box.stamping.actual_number).zfill(7)
     invoice.date = datetime.now()
     invoice.amount = 0
     invoice.cash_box = cash_box
@@ -94,21 +97,42 @@ def create_invoice(fees, enrollments, student, payment_method, user):
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
         invoice_detail.amount = fee.fee_amount
-        invoice_detail.concept = Concept.objects.get(name='fee')
+        invoice_detail.concept = Concept.objects.get(related_to='fee')
         invoice_detail.created_at = datetime.now()
+        invoice_detail.fee = fee
         invoice_detail.save()
 
         invoice.amount += fee.fee_amount
+
+        if invoice_detail.concept.iva == '10':
+            invoice.iva_10 += fee.fee_amount * Decimal(str(0.1))
+            invoice.sub_total_iva_10 += fee.fee_amount
+        elif invoice_detail.concept.iva == '5':
+            invoice.iva_5 += fee.fee_amount * Decimal(str(0.05))
+            invoice.sub_total_iva_5 += fee.fee_amount
+        else:
+            invoice.sub_total_iva_0 += fee.fee_amount
+
 
     for enrollment in enrollments:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
         invoice_detail.amount = enrollment.enrollment_amount
-        invoice_detail.concept = Concept.objects.get(name='enrollment')
+        invoice_detail.concept = Concept.objects.get(related_to='enrollment')
         invoice_detail.created_at = datetime.now()
+        invoice_detail.enrollment = enrollment
         invoice_detail.save()
 
         invoice.amount += enrollment.enrollment_amount
+
+        if invoice_detail.concept.iva == '10':
+            invoice.iva_10 += enrollment.enrollment_amount * Decimal(str(0.1))
+            invoice.sub_total_iva_10 += enrollment.enrollment_amount
+        elif invoice_detail.concept.iva == '5':
+            invoice.iva_5 += enrollment.enrollment_amount * Decimal(str(0.05))
+            invoice.sub_total_iva_5 += enrollment.enrollment_amount
+        else:
+            invoice.sub_total_iva_0 += enrollment.enrollment_amount
 
     invoice.save()
 
@@ -118,6 +142,10 @@ def create_invoice(fees, enrollments, student, payment_method, user):
 def show_invoice(request, pk):
     # Obtener la factura por ID, lanzando un error 404 si no se encuentra
     invoice = get_object_or_404(Invoice, id=pk)
+    formated_invoice_date = invoice.date.strftime('%Y-%m-%d')
+    invoice.date = formated_invoice_date
+    formated_valid_until = invoice.valid_until.strftime('%Y-%m-%d')
+    invoice.valid_until = formated_valid_until
     # Obtener los detalles de la factura
     invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
@@ -461,7 +489,9 @@ def concept_create(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
-        Concept.objects.create(name=name, description=description)
+        iva = request.POST.get('iva')
+        related_to = request.POST.get('related_to')
+        Concept.objects.create(name=name, description=description, iva=iva, related_to=related_to)
         return redirect('concept_list')
     return render(request, 'concept_create.html')
 
@@ -477,10 +507,14 @@ def concept_edit(request, concept_id):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
+        iva = request.POST.get('iva')
+        related_to = request.POST.get('related_to')
         
         # Actualizar los campos del concepto
         concept.name = name
         concept.description = description
+        concept.iva = iva
+        concept.related_to = related_to
         
         # Guardar los cambios en la base de datos
         concept.save()
