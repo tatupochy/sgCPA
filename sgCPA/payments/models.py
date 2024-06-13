@@ -155,7 +155,7 @@ class Concept(models.Model):
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=255, blank=True, null=True)
     iva = models.CharField(max_length=2, choices=iva_choices, default='10')
-    related_to = models.CharField(max_length=20, choices=related_to_choices, default='other', unique=True)
+    related_to = models.CharField(max_length=20, choices=related_to_choices, blank=True, null=True)
 
     def __str__(self):
         return self.name

@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='concept',
             name='related_to',
-            field=models.CharField(choices=[('enrollment', 'Matrícula'), ('fee', 'Cuota'), ('other', 'Otro')], default='other', max_length=20, unique=True),
+            field=models.CharField(choices=[('enrollment', 'Matrícula'), ('fee', 'Cuota'), ('other', 'Otro')], max_length=20, blank=True, null=True),
         ),
     ]
