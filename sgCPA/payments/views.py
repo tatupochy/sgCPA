@@ -93,6 +93,8 @@ def create_invoice(fees, enrollments, student, payment_method, user):
     invoice.created_at = datetime.now()
     invoice.save()
 
+    total_iva = 0
+
     for fee in fees:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
@@ -106,13 +108,14 @@ def create_invoice(fees, enrollments, student, payment_method, user):
 
         if invoice_detail.concept.iva == '10':
             invoice.iva_10 += fee.fee_amount * Decimal(str(0.1))
+            total_iva += invoice.iva_10
             invoice.sub_total_iva_10 += fee.fee_amount
         elif invoice_detail.concept.iva == '5':
             invoice.iva_5 += fee.fee_amount * Decimal(str(0.05))
+            total_iva += invoice.iva_5
             invoice.sub_total_iva_5 += fee.fee_amount
         else:
             invoice.sub_total_iva_0 += fee.fee_amount
-
 
     for enrollment in enrollments:
         invoice_detail = InvoiceDetail()
@@ -127,13 +130,16 @@ def create_invoice(fees, enrollments, student, payment_method, user):
 
         if invoice_detail.concept.iva == '10':
             invoice.iva_10 += enrollment.enrollment_amount * Decimal(str(0.1))
+            total_iva += invoice.iva_10
             invoice.sub_total_iva_10 += enrollment.enrollment_amount
         elif invoice_detail.concept.iva == '5':
             invoice.iva_5 += enrollment.enrollment_amount * Decimal(str(0.05))
+            total_iva += invoice.iva_5
             invoice.sub_total_iva_5 += enrollment.enrollment_amount
         else:
             invoice.sub_total_iva_0 += enrollment.enrollment_amount
 
+    invoice.iva_total = total_iva
     invoice.save()
 
     return invoice

@@ -12,33 +12,26 @@
             background: #f4f4f4;
         }
         .container {
-            width: 80%;
+            width: 60%;
             margin: 0 auto;
             background: white;
             padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
-        .invoice-details, .client-details, .payment-details {
+        .invoice-details, .client-details {
             margin-bottom: 20px;
         }
-        .invoice-details table, .client-details table, .payment-details table {
+        .invoice-details table, .client-details table, .payment-details table, .total-details table, .iva-details table{
             width: 100%;
+            border: 1px solid black;
             border-collapse: collapse;
         }
-        .invoice-details th, .client-details th, .payment-details th,
-        .invoice-details td, .client-details td, .payment-details td {
-            border: 1px solid #ddd;
+        .invoice-details td, .client-details td, .payment-details td, .total-details td, .iva-details td {
+            padding: 5px;
+            border-left: 1px solid black;
+            border-right: 1px solid black;
         }
-        .total {
-            font-weight: bold;
-            text-align: right;
-            padding-right: 20px;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 20px;
-            font-size: 12px;
+        .client-details tr, .payment-details tr, .total-details tr, .iva-details tr {
+            border-bottom: 1px solid black;
         }
     </style>
 </head>
@@ -47,40 +40,45 @@
         <div class="invoice-details">
             <table>
                 <tr>
-                    <td>
-                        <table>
+                    <td style="width: 60%;">
+                        <table style="border: none;">
                             <tr>
-                                <td>
+                                <td style="border: none;">
                                     <img src="https://www.flaticon.com/svg/static/icons/svg/174/174857.svg" alt="Logo">
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <p>Detalles de la empresa</p>
+                                <td style="border: none;">
+                                    Detalles de la empresa
                                 </td>
                             </tr>
                         </table>
                     </td>
-                    <td>
-                        <table>
+                    <td style="width: 40%;">
+                        <table style="border: none;">
                             <tr>
-                                <td>
-                                    <p>Timbrado N°: {{ invoice.stamping.number }}</p>
+                                <td style="border: none;">
+                                    Timbrado N°: {{ invoice.stamping.number }}
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <p>Fecha de inicio de vigencia: {{ invoice.stamping.date }}</p>
+                                <td style="border: none;">
+                                    Fecha de inicio de vigencia: {{ invoice.stamping.date }}
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <p>Fecha de fin de vigencia: {{ invoice.stamping.valid_until }}</p>
+                                <td style="border: none;">
+                                    Fecha de fin de vigencia: {{ invoice.stamping.valid_until }}
                                 </td>
                             </tr>
                             <tr>
-                                <td>
-                                    <p>RUC: {{ invoice.ruc }}</p>
+                                <td style="border: none;">
+                                    RUC: {{ invoice.ruc }}
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border: none;">
+                                    Factura N°: {{ invoice.name }}
                                 </td>
                             </tr>
                         </table>
@@ -92,53 +90,104 @@
         <div class="client-details">
             <table>
                 <tr>
-                    <th>Nombre del Cliente</th>
-                    <td>{{ invoice.client.name }}</td>
+                    <td>Fecha de emision: {{ invoice.date }}</td>
+                    <td>Condición de venta: Contado</td>
                 </tr>
                 <tr>
-                    <th>Cédula de Identidad</th>
-                    <td>{{ invoice.client.ciNumber }}</td>
+                    <td>
+                        Ruc: {{ invoice.client.ciNumber }}
+                    </td>
+                    <td>
+                        Nota de remision:
+                    </td>
                 </tr>
                 <tr>
-                    <th>Dirección</th>
-                    <td>{{ invoice.client.address }}</td>
+                    <td>
+                        Nombre o razon social: {{ invoice.client.name }} {{ invoice.client.lastName }}
+                    </td>
                 </tr>
                 <tr>
-                    <th>Teléfono</th>
-                    <td>{{ invoice.client.phone }}</td>
+                    <td>
+                        Direccion:
+                    </td>
                 </tr>
             </table>
         </div>
 
         <div class="payment-details">
-            <h2>Detalles del Pago</h2>
             <table>
                 <thead>
                     <tr>
-                        <th>Concepto</th>
-                        <th>Descripción</th>
-                        <th>Monto</th>
+                        <td>Cantidad</td>
+                        <td>Descripción</td>
+                        <td>Precio unitario</td>
+                        <td>Exentas</td>
+                        <td>Gravadas 5%</td>
+                        <td>Gravadas 10%</td>
                     </tr>
                 </thead>
                 <tbody>
+                    {% exentas = 0 %}
+                    {% iva5 = 0 %}
+                    {% iva10 = 0 %}
                     {% for detail in invoice.invoice_details.all %}
                     <tr>
+                        <td>1</td>
                         <td>{{ detail.concept.name }}</td>
-                        <td>{{ detail.concept.description }}</td>
                         <td>{{ detail.amount }}</td>
+                        {% if detail.concept.iva == '0' %}
+                            {% exentas += detail.amount %}
+                            <td>{{ detail.amount }}</td>
+                            <td>0</td>
+                            <td>0</td>
+                        {% endif %}
+                        {% if detail.concept.iva == '5' %}
+                            {% iva5 += detail.amount %}
+                            <td>0</td>
+                            <td>{{ detail.amount }}</td>
+                            <td>0</td>
+                        {% endif %}
+                        {% if detail.concept.iva == '10' %}
+                            {% iva10 += detail.amount %}
+                            <td>0</td>
+                            <td>0</td>
+                            <td>{{ detail.amount }}</td>
+                        {% endif %}
                     </tr>
                     {% endfor %}
+                    <tr>
+                        <td colspan="3">Sub-totales</td>
+                        <td>{{ exentas }}</td>
+                        <td>{{ iva5 }}</td>
+                        <td>{{ iva10 }}</td>
+                    </tr>
                 </tbody>
             </table>
         </div>
 
-        <div class="total">
-            <h2>Total: {{ invoice.amount }}</h2>
+        <div class="total-details">
+            <table style="border-top: none">
+                <tr>
+                    <td>Total a pagar (en letras): {{ invoice.text_amount }}</td>
+                    <td colspan="2" style="width:20%; text-align: right;">{{ invoice.amount }}</td>
+                </tr>
+            </table>
         </div>
 
-        <div class="footer">
-            <p>Gracias por su pago. Si tiene alguna pregunta, no dude en contactarnos.</p>
-            <p>Condiciones de Pago: El pago debe realizarse antes de la fecha de vencimiento indicada.</p>
+        <div class="iva-details">
+            <table style="border-top: none">
+                <tr>
+                    <td style="border: none">
+                        Liquidación de IVA 5%: {{ invoice.iva_5 }}
+                    </td>
+                    <td style="border: none">
+                        Liquidación de IVA 10%: {{ invoice.iva_10 }}
+                    </td>
+                    <td style="border: none">
+                        Total IVA: {{ invoice.iva_total }}
+                    </td>
+                </tr>
+            </table>
         </div>
     </div>
 </body>
