@@ -4,8 +4,19 @@
 
 {% block content %}
 <!-- Main jumbotron for a primary marketing message or call to action -->
+<style>
+    .floating-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+    }
+</style>
 <div class="container">
     <h1>Pagos</h1>
+    <button class="btn btn-primary floating-btn" onclick="window.location.href='/concepts'">
+        Conceptos
+    </button>
     <table class="table table-hover table-bordered table-striped">
         <thead>
             <tr>

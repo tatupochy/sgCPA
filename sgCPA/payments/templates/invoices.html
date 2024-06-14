@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %} Facturas {% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Facturas</h1>
+    <table class="table table-hover table-bordered table-striped">
+        <thead>
+            <tr>
+                <th scope="col">Fecha</th>
+                <th scope="col">Cliente</th>
+                <th scope="col">Monto Total</th>
+                <th scope="col">Válida Hasta</th>
+                <th scope="col">Caja</th>
+                <th scope="col">Timbrado</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for invoice in invoices %}
+            <tr onclick="window.location.href='/show_invoice/{{ invoice.id }}';" style="cursor: pointer;">
+                <td>{{ invoice.date }}</td>
+                <td>{{ invoice.client.name }} {{ invoice.client.lastName }}</td>
+                <td>{{ invoice.amount }}</td>
+                <td>{{ invoice.valid_until }}</td>
+                <td>{{ invoice.cash_box.name }}</td>
+                <td>{{ invoice.stamping.number }}</td>
+            </tr>
+            {%  endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

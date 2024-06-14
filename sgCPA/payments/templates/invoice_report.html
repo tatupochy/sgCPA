@@ -63,7 +63,7 @@
                             </tr>
                             <tr>
                                 <td style="border: none;">
-                                    Fecha de inicio de vigencia: {{ invoice.stamping.date }}
+                                    Fecha de inicio de vigencia: {{ invoice.stamping.valid_from }}
                                 </td>
                             </tr>
                             <tr>
@@ -73,7 +73,7 @@
                             </tr>
                             <tr>
                                 <td style="border: none;">
-                                    RUC: {{ invoice.ruc }}
+                                    RUC: 135489-8
                                 </td>
                             </tr>
                             <tr>
@@ -127,28 +127,22 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% exentas = 0 %}
-                    {% iva5 = 0 %}
-                    {% iva10 = 0 %}
-                    {% for detail in invoice.invoice_details.all %}
+                    {% for detail in invoice_details %}
                     <tr>
                         <td>1</td>
                         <td>{{ detail.concept.name }}</td>
                         <td>{{ detail.amount }}</td>
                         {% if detail.concept.iva == '0' %}
-                            {% exentas += detail.amount %}
                             <td>{{ detail.amount }}</td>
                             <td>0</td>
                             <td>0</td>
                         {% endif %}
                         {% if detail.concept.iva == '5' %}
-                            {% iva5 += detail.amount %}
                             <td>0</td>
                             <td>{{ detail.amount }}</td>
                             <td>0</td>
                         {% endif %}
                         {% if detail.concept.iva == '10' %}
-                            {% iva10 += detail.amount %}
                             <td>0</td>
                             <td>0</td>
                             <td>{{ detail.amount }}</td>

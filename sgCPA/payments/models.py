@@ -96,6 +96,7 @@ class PaymentType(models.Model):
     PAYMENT_TYPE_CHOICES = (
         ('enrollment', 'Matrícula'),
         ('fee', 'Cuota'),
+        ('invoice', 'Factura')
     )
 
     name = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default='enrollment')
@@ -116,8 +117,6 @@ class Payment(models.Model):
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE)
     payment_type = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
-    fee = models.ForeignKey(Fee, on_delete=models.CASCADE, null=True, blank=True)
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, null=True, blank=True)
     invoice = models.ForeignKey('Invoice', on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
@@ -175,6 +174,7 @@ class CashBox(models.Model):
 
 class Stamping(models.Model):
     number = models.CharField(max_length=100, unique=True)
+    valid_from = models.DateField(blank=True, null=True)
     valid_until = models.DateField()
     establishment_number = models.CharField(max_length=100, unique=True)
     expedition_point = models.CharField(max_length=100, unique=True)
