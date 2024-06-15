@@ -1,0 +1,15 @@
+.table-container{
+    height: 200px;
+    overflow: auto;
+}
+
+/* .tbody-table{
+    max-height: 200px !important;
+    height: 200px !important;
+    overflow: hidden;
+}
+
+.tbody-table tr td {
+    max-height: 10px !important;
+    height: 5px;
+} */

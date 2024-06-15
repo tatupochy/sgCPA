@@ -185,6 +185,7 @@ def registrar_curso(request):
         maxStudentsNumber = request.POST.get('maxStudentsNumber')
         enrollment_start_date = request.POST.get('enrollment_start_date')
         enrollment_end_date = request.POST.get('enrollment_end_date')
+        enrollment_amount = request.POST.get('enrollment_amount')
         
         
         start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
@@ -211,7 +212,8 @@ def registrar_curso(request):
                 minStudentsNumber=minStudentsNumber,
                 maxStudentsNumber=maxStudentsNumber,
                 enrollment_start_date=enrollment_start_date,
-                enrollment_end_date=enrollment_end_date
+                enrollment_end_date=enrollment_end_date,
+                enrollment_amount=enrollment_amount
             )
             # Guardar el curso en la base de datos
             curso.save()
@@ -304,6 +306,23 @@ def listar_curso(request):
     cursos = Course.objects.all()
     return render(request, 'courses/listar_curso.html', {'cursos': cursos})
 
+
+def obtener_curso(request, id):
+    course = Course.objects.get(id=id)
+    
+    print(course.id)
+    print(course.name)
+    print(course.enrollment_amount)
+    data = {
+        'enrollment_amount': course.enrollment_amount,
+        'minStudentsNumber': course.minStudentsNumber,
+        'maxStudentsNumber': course.maxStudentsNumber,
+        'fee_amount': course.fee_amount,
+        'minStudentsNumber': course.minStudentsNumber,
+        'maxStudentsNumber': course.maxStudentsNumber
+        
+    }
+    return JsonResponse({"course_data":data})
 
 
 ###### Turnos ######   

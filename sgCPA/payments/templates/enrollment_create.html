@@ -4,35 +4,56 @@
 {% block title %} Crear Matrícula {% endblock %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'styles/formStyles.css' %}">
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/enrollments'"
         style="cursor: pointer;"></i>
     <h1>Crear matrícula: </h1>
-    <form method="post" class="form">
+    <form method="post" class="form p-1">
         {% csrf_token %}
-        <div class="form-group w-100 d-flex align-items-center justify-content-center flex-column">
-            <label for="id_course" class="form-label">Curso:</label>
-            <select class="form-select w-100" id="id_course" name="course" style="width: 40%" required>
-                <option value="" selected disabled>Seleccionar curso</option>
-                {% for course in courses %}
-                <option value="{{ course.id }}">{{ course.name }}</option>
-                {% endfor %}
-            </select>
+        <div class="form-group w-100 d-flex align-items-center justify-content-center gap-4">
+            <article class="w-50">
+                <label for="id_course" class="form-label">Curso:</label>
+                <select class="form-select w-100" id="id_course" name="course" style="width: 40%" required>
+                    <option value="" selected disabled>Seleccionar curso</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.name }}</option>
+                    {% endfor %}
+                </select>
+            </article>
+            <article class="w-50">
+                <label for="id_enrollment_date" class="form-label">Fecha:</label>
+                <input type="date" class="form-control" id="id_enrollment_date" name="enrollment_date" required>
+            </article>
         </div>
         
-        <div class="form-group">
-            <label for="id_year" class="form-label">Año:</label>
-            <input type="number" class="form-control" id="id_year" name="year" required>
+        <div class="form-group w-100 d-flex gap-4">
+            
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto Matricula</label>
+                <input type="text" class="form-control" id="id_enrollment_amount"  disabled />
+            </article>
+
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto Cuota</label>
+                <input type="text" class="form-control" id="id_fee_amount"  disabled />
+            </article>
         </div>
-        <div class="form-group">
-            <label for="id_enrollment_date" class="form-label">Fecha:</label>
-            <input type="date" class="form-control" id="id_enrollment_date" name="enrollment_date" required>
+        
+
+        <div class="form-group d-flex gap-4 mb-4">
+            
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Cantidad Minima de alumnos</label>
+                <input type="text" class="form-control" id="minStudentsNumber"  disabled />
+            </article>
+
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Cantidad Maxima de alumnos</label>
+                <input type="text" class="form-control" id="maxStudentsNumber"  disabled />
+            </article>
         </div>
-        <div class="form-group">
-            <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto:</label>
-            <input type="number" class="form-control" id="id_enrollment_amount" name="enrollment_amount" required>
-        </div>
-        <!-- <button type="submit" class="btn btn-primary mb-2 mt-2">Guardar cambios</button> -->
+
         {% if form.errors %}
         <div class="alert alert-danger mt-3">
             <ul>
@@ -51,7 +72,7 @@
             </ul>
         </div>
         {% endif %}
-        <div class="form-group d-flex w-100 align-items-center justify-content-center mb-2 mt-2 flex-column">
+        <div class="form-group d-flex w-100 align-items-center mb-2 mt-2 flex-column table-container">
             <table id="student_table" class="table table-hover table-bordered">
                 <thead>
                     <tr>
@@ -61,18 +82,24 @@
                         <th>Matricular</th>
                     </tr>
                 </thead>
-                <tbody>
-                    
+                <tbody class="tbody-table">
+                    {% for student in students %}
+                    <tr>
+                        <td>{{student.name}}</td>
+                        <td>{{student.lastName}}</td>
+                        <td>{{student.ciNumber}}</td>
+                        <td>
+                            <input  type="checkbox"/>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr></tr>
                 </tbody>
             </table>
-            <!-- <label for="id_student" class="form-label">Ci. estudiante:</label>
-            <input type="number" class="form-control" id="id_student" name="student" required> -->
-            <!-- <label for="id_student">Seleccionar estudiante</label>
-            <select id="id_student" class="form-control" name="student">
-                {% for student in students   %}
-                    <option value="{{student.ciNumber}}">{{student.name}}</option>
-                {% endfor %}
-            </select> -->
+        </div>
+
+        <div>
+            <button class="btn btn-primary">Matricular</button>
         </div>
     </form>
 </div>

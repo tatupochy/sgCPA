@@ -365,7 +365,6 @@ def enrollment_create(request):
         enrollment.course_id = course_id
         enrollment.year = year
         enrollment.enrollment_date = enrollment_date
-        print('amount', amount)
         enrollment.enrollment_amount = amount
         enrollment.state_id = states.get(name='pending').id
         enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
