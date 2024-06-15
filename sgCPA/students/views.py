@@ -183,6 +183,8 @@ def registrar_curso(request):
         teacher = request.POST.get('teacher')
         minStudentsNumber = request.POST.get('minStudentsNumber')
         maxStudentsNumber = request.POST.get('maxStudentsNumber')
+        enrollment_start_date = request.POST.get('enrollment_start_date')
+        enrollment_end_date = request.POST.get('enrollment_end_date')
         
         
         start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
@@ -207,7 +209,9 @@ def registrar_curso(request):
                 year=datetime.datetime.now().year,
                 teacher=teacher,
                 minStudentsNumber=minStudentsNumber,
-                maxStudentsNumber=maxStudentsNumber
+                maxStudentsNumber=maxStudentsNumber,
+                enrollment_start_date=enrollment_start_date,
+                enrollment_end_date=enrollment_end_date
             )
             # Guardar el curso en la base de datos
             curso.save()

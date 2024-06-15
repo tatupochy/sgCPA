@@ -1,32 +1,25 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block title %} Crear Matrícula {% endblock %}
 
 {% block content %}
 <div class="container card" style="padding: 1%;">
-    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/enrollments'" style="cursor: pointer;"></i>
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/enrollments'"
+        style="cursor: pointer;"></i>
     <h1>Crear matrícula: </h1>
     <form method="post" class="form">
         {% csrf_token %}
-        <div class="form-group d-flex w-100 align-items-center justify-content-center mb-2 mt-2 flex-column">
-            <!-- <label for="id_student" class="form-label">Ci. estudiante:</label>
-            <input type="number" class="form-control" id="id_student" name="student" required> -->
-            <label for="id_student">Seleccionar estudiante</label>
-            <select id="id_student" class="form-control" name="student">
-                {% for student in students   %}
-                    <option value="{{student.ciNumber}}">{{student.name}}</option>
-                {% endfor %}
-            </select>
-        </div>
         <div class="form-group w-100 d-flex align-items-center justify-content-center flex-column">
             <label for="id_course" class="form-label">Curso:</label>
             <select class="form-select w-100" id="id_course" name="course" style="width: 40%" required>
-                <option value="" selected>Seleccionar curso</option>
+                <option value="" selected disabled>Seleccionar curso</option>
                 {% for course in courses %}
-                    <option value="{{ course.id }}">{{ course.name }}</option>
+                <option value="{{ course.id }}">{{ course.name }}</option>
                 {% endfor %}
             </select>
         </div>
+        
         <div class="form-group">
             <label for="id_year" class="form-label">Año:</label>
             <input type="number" class="form-control" id="id_year" name="year" required>
@@ -39,25 +32,50 @@
             <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto:</label>
             <input type="number" class="form-control" id="id_enrollment_amount" name="enrollment_amount" required>
         </div>
-        <button type="submit" class="btn btn-primary mb-2 mt-2">Guardar cambios</button>
+        <!-- <button type="submit" class="btn btn-primary mb-2 mt-2">Guardar cambios</button> -->
         {% if form.errors %}
-            <div class="alert alert-danger mt-3">
-                <ul>
-                    {% for field, errors in form.errors.items %}
-                    {% for error in errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                    {% endfor %}
-                </ul>
-            </div>
+        <div class="alert alert-danger mt-3">
+            <ul>
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
         {% endif %}
         {% if error %}
-            <div class="alert alert-danger mt-3">
-                <ul>
-                    <li>{{ error }}</li>
-                </ul>
-            </div>
+        <div class="alert alert-danger mt-3">
+            <ul>
+                <li>{{ error }}</li>
+            </ul>
+        </div>
         {% endif %}
+        <div class="form-group d-flex w-100 align-items-center justify-content-center mb-2 mt-2 flex-column">
+            <table id="student_table" class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Numero de Cedula</th>
+                        <th>Matricular</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+                </tbody>
+            </table>
+            <!-- <label for="id_student" class="form-label">Ci. estudiante:</label>
+            <input type="number" class="form-control" id="id_student" name="student" required> -->
+            <!-- <label for="id_student">Seleccionar estudiante</label>
+            <select id="id_student" class="form-control" name="student">
+                {% for student in students   %}
+                    <option value="{{student.ciNumber}}">{{student.name}}</option>
+                {% endfor %}
+            </select> -->
+        </div>
     </form>
 </div>
+<script src="{% static 'scripts/create_enrollment.js' %}"></script>
+
 {% endblock %}

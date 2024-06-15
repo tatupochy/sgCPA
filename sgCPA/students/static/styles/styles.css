@@ -26,6 +26,7 @@ body {
 
 .wrapper {
     display: flex;
+    /* max-height: 100vh; */
 }
 
 .main {
@@ -159,4 +160,10 @@ a.sidebar-link:hover {
 #sidebar.expand .sidebar-link[data-bs-toggle="collapse"].collapsed::after {
     transform: rotate(45deg);
     transition: all .2s ease-out;
+}
+
+.form {
+    height: 100%;
+    overflow: auto;
+    width: 100%;
 }

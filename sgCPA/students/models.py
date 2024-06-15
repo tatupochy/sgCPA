@@ -31,6 +31,9 @@ class Course(models.Model):
     teacher = models.ForeignKey(Teacher, on_delete=models.SET_NULL, null=True, blank=True)
     minStudentsNumber = models.IntegerField(blank=True, null=True)
     maxStudentsNumber = models.IntegerField(blank=True, null=True)
+    enrollment_start_date = models.DateField(blank=True, null=True)
+    enrollment_end_date = models.DateField(blank=True, null=True)
+    enrollment_amount = models.DecimalField(max_digits=10, decimal_places=0, blank=True, null=True)
     
 
    
