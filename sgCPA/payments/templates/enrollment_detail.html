@@ -33,8 +33,6 @@
             <input type="text" class="form-control" id="id_state" value="{{ enrollment.state.description }}" name="id_state" disabled readonly>
         </div>
         <button type="button" class="btn btn-primary" onclick= "window.location.href = '/fees/create_fees/{{ enrollment.student.id }}'">Crear cuotas</button>
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/payments/create/enrollment/{{ enrollment.id }}'">Pagar matrícula</button>
-        {% if has_fees %}
         <button type="button" class="btn btn-primary" onclick= "window.location.href = '/enrollments/{{ enrollment.id }}/detail_payment'">Ver detalle de pago</button>
         {% endif %}
     </form>

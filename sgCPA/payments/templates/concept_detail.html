@@ -14,7 +14,15 @@
         </div>
         <div class="form-group">
             <label for="id_description" class="form-label">Descripción:</label>
-            <input type="description" class="form-control" id="id_description" name="description" value="{{ concept.description }}" disabled readonly>
+            <input type="text" class="form-control" id="id_description" name="description" value="{{ concept.description }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_iva" class="form-label">IVA:</label>
+            <input type="text" class="form-control" id="id_iva" name="iva" value="{{ concept.iva }}" disabled readonly>
+        </div>
+        <div class="form-group">
+            <label for="id_related_to" class="form-label">Relacionado a:</label>
+            <input type="text" class="form-control" id="id_related_to" name="related_to" value="{{ concept.related_to }}" disabled readonly>
         </div>
     </form>
 </div>

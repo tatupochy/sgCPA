@@ -1,11 +1,16 @@
 from datetime import datetime, timezone
+from decimal import Decimal
 
 from django.contrib.auth.models import User
+from django.http import HttpResponse
 
 from django.shortcuts import render
 
 from attendances.models import Attendance, AttendanceStudent
+from django.template.loader import render_to_string
 from students.models import CourseDates, Student, Course
+from xhtml2pdf import pisa
+
 from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2, CashBox, \
     Stamping, Invoice, InvoiceDetail
 import calendar
@@ -75,12 +80,14 @@ def pending_payments(request, pk):
 
 def create_invoice(fees, enrollments, student, payment_method, user):
 
-    cash_box = CashBox.objects.get(active=True, user= user)
+    cash_box = CashBox.objects.get(active=True, user=user)
 
     invoice = Invoice()
     invoice.number = cash_box.stamping.actual_number
     cash_box.stamping.actual_number += 1
     cash_box.stamping.save()
+    # complete the invoice last part with the 0 to the left, to complete the 7 characters
+    invoice.name = str(cash_box.stamping.establishment_number) + '-' + str(cash_box.stamping.expedition_point) + '-' + str(cash_box.stamping.actual_number).zfill(7)
     invoice.date = datetime.now()
     invoice.amount = 0
     invoice.cash_box = cash_box
@@ -90,26 +97,50 @@ def create_invoice(fees, enrollments, student, payment_method, user):
     invoice.created_at = datetime.now()
     invoice.save()
 
+    total_iva = 0
+
     for fee in fees:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
         invoice_detail.amount = fee.fee_amount
-        invoice_detail.concept = Concept.objects.get(name='fee')
+        invoice_detail.concept = Concept.objects.get(related_to='fee')
         invoice_detail.created_at = datetime.now()
+        invoice_detail.fee = fee
         invoice_detail.save()
 
         invoice.amount += fee.fee_amount
+
+        if invoice_detail.concept.iva == '10':
+            invoice.iva_10 += fee.fee_amount * Decimal(str(0.1))
+            invoice.sub_total_iva_10 += fee.fee_amount
+        elif invoice_detail.concept.iva == '5':
+            invoice.iva_5 += fee.fee_amount * Decimal(str(0.05))
+            invoice.sub_total_iva_5 += fee.fee_amount
+        else:
+            invoice.sub_total_iva_0 += fee.fee_amount
 
     for enrollment in enrollments:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
         invoice_detail.amount = enrollment.enrollment_amount
-        invoice_detail.concept = Concept.objects.get(name='enrollment')
+        invoice_detail.concept = Concept.objects.get(related_to='enrollment')
         invoice_detail.created_at = datetime.now()
+        invoice_detail.enrollment = enrollment
         invoice_detail.save()
 
         invoice.amount += enrollment.enrollment_amount
 
+        if invoice_detail.concept.iva == '10':
+            invoice.iva_10 += enrollment.enrollment_amount * Decimal(str(0.1))
+            invoice.sub_total_iva_10 += enrollment.enrollment_amount
+        elif invoice_detail.concept.iva == '5':
+            invoice.iva_5 += enrollment.enrollment_amount * Decimal(str(0.05))
+            invoice.sub_total_iva_5 += enrollment.enrollment_amount
+        else:
+            invoice.sub_total_iva_0 += enrollment.enrollment_amount
+
+    total_iva = invoice.iva_10 + invoice.iva_5
+    invoice.iva_total = total_iva
     invoice.save()
 
     return invoice
@@ -118,92 +149,104 @@ def create_invoice(fees, enrollments, student, payment_method, user):
 def show_invoice(request, pk):
     # Obtener la factura por ID, lanzando un error 404 si no se encuentra
     invoice = get_object_or_404(Invoice, id=pk)
+    formated_invoice_date = invoice.date.strftime('%Y-%m-%d')
+    invoice.date = formated_invoice_date
+    formated_valid_until = invoice.valid_until.strftime('%Y-%m-%d')
+    invoice.valid_until = formated_valid_until
     # Obtener los detalles de la factura
     invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
+    is_invoice_paid = False
+    payment = Payment.objects.filter(invoice=invoice).first()
+    if payment:
+        is_invoice_paid = True
+
     context = {
         'invoice': invoice,
-        'invoice_details': invoice_details
+        'invoice_details': invoice_details,
+        'is_invoice_paid': is_invoice_paid
     }
     return render(request, 'show_invoice.html', context)
 
 
-def payment_fee_create(request, pk):
-    if request.method == 'POST':
-        student_id = int(request.POST['student'])
-        year = request.POST['year']
-        payment_date = request.POST['payment_date']
-        payment_method_id = int(request.POST['payment_method'])
-        payment_type_id = PaymentType.objects.get(name='fee').id
-        payment_amount = int(request.POST['payment_amount'])
-
-        payment = Payment()
-        payment.student_id = student_id
-        payment.year = year
-        payment.payment_date = payment_date
-        payment.payment_method_id = payment_method_id
-        payment.payment_type_id = payment_type_id
-        payment.payment_amount = payment_amount
-        payment.save()
-
-        fee = Fee.objects.get(id=pk)
-        fee.fee_paid_amount = fee.fee_paid_amount + payment_amount
-        if fee.fee_paid_amount == fee.fee_amount and fee.fee_paid_amount != 0:
-            fee.state_id = State.objects.get(name='paid')
-        elif fee.fee_amount > fee.fee_paid_amount and fee.fee_paid_amount != 0:
-            fee.state_id = State.objects.get(name='partial')
-        elif fee.fee_paid_amount == 0:
-            fee.state_id = State.objects.get(name='pending')
-
-        fee.save()
-
-        return render(request, 'payments.html', {'payments': Payment.objects.all()})
-    else:
-        fee = Fee.objects.get(id=pk)
-        student = Student.objects.get(id=fee.student_id)
-        payment_methods = PaymentMethod.objects.all()
-        payment_types = PaymentType.objects.all()
-        students = Student.objects.all()
-        fee = Fee.objects.get(id=pk)
-        return render(request, 'payment_fee_create.html', {'payment_methods': payment_methods, 'payment_types': payment_types, 'student': student, 'fee': fee})
+def invoices(request):
+    invoices = Invoice.objects.all()
+    return render(request, 'invoices.html', {'invoices': invoices})
 
 
-def payment_enrollment_create(request, pk):
-    if request.method == 'POST':
-        student_id = int(request.POST['student'])
-        year = request.POST['year']
-        payment_date = request.POST['payment_date']
-        payment_method_id = int(request.POST['payment_method'])
-        payment_type_id = PaymentType.objects.get(name='enrollment').id
-        payment_amount = int(request.POST['payment_amount'])
+def download_invoice(request, pk):
+    invoice = Invoice.objects.get(id=pk)
+    invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
-        payment = Payment()
-        payment.student_id = student_id
-        payment.year = year
-        payment.payment_date = payment_date
-        payment.payment_method_id = payment_method_id
-        payment.payment_type_id = payment_type_id
-        payment.payment_amount = payment_amount
-        payment.save()
+    exentas = 0
+    iva5 = 0
+    iva10 = 0
 
-        enrollment = Enrollment.objects.get(id=pk)
-        enrollment.enrollment_paid_amount = enrollment.enrollment_paid_amount + payment_amount
-        if enrollment.enrollment_paid_amount == enrollment.enrollment_amount and enrollment.enrollment_paid_amount != 0:
-            enrollment.state = State.objects.get(name='paid')
+    for invoice_detail in invoice_details:
+        if invoice_detail.concept.iva == '10':
+            iva10 += invoice_detail.amount
+        elif invoice_detail.concept.iva == '5':
+            iva5 += invoice_detail.amount
         else:
-            enrollment.state = State.objects.get(name='pending')
+            exentas += invoice_detail.amount
 
-        enrollment.save()
+    html = render_to_string('invoice_report.html', {'invoice': invoice, 'invoice_details': invoice_details, 'exentas': exentas, 'iva5': iva5, 'iva10': iva10})
 
-        return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
+    filename = 'invoice_' + str(invoice.name) + '.pdf'
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="' + filename + '"'
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    return response
+
+
+def payment_invoice_create(request, pk):
+    if request.method == 'POST':
+
+        invoice = Invoice.objects.get(id=pk)
+
+        student_id = int(request.POST['student'])
+        year = request.POST['year']
+        payment_date = request.POST['payment_date']
+        payment_method_id = int(request.POST['payment_method'])
+        payment_type_id = PaymentType.objects.get(name='invoice').id
+        payment_amount = float(request.POST['payment_amount'].replace(',', '.'))
+
+        payment = Payment()
+        payment.student_id = student_id
+        payment.year = year
+        payment.payment_date = payment_date
+        payment.payment_method_id = payment_method_id
+        payment.payment_type_id = payment_type_id
+        payment.payment_amount = payment_amount
+        payment.invoice = invoice
+        payment.save()
+
+        invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
+
+        for invoice_detail in invoice_details:
+            if invoice_detail.fee:
+                invoice_detail.fee.state = State.objects.get(name='paid')
+                invoice_detail.fee.save()
+            elif invoice_detail.enrollment:
+                invoice_detail.enrollment.state = State.objects.get(name='paid')
+                invoice_detail.enrollment.save()
+
+        return render(request, 'payment_detail.html', {'payment': payment})
     else:
-        enrollment = Enrollment.objects.get(id=pk)
-        student = Student.objects.get(id=enrollment.student_id)
+        invoice = Invoice.objects.get(id=pk)
+        student = Student.objects.get(id=invoice.client.id)
         payment_methods = PaymentMethod.objects.all()
         payment_types = PaymentType.objects.all()
-        students = Student.objects.all()
-        enrollment = Enrollment.objects.get(id=pk)
-        return render(request, 'payment_enrollment_create.html', {'payment_methods': payment_methods, 'payment_types': payment_types, 'student': student, 'enrollment': enrollment})
+        invoice = Invoice.objects.get(id=pk)
+        payment_date = datetime.now()
+        formatted_payment_date = payment_date.strftime('%Y-%m-%d')
+        return render(request, 'payment_invoice_create.html', {'payment_methods': payment_methods,
+                                                               'payment_types': payment_types, 'student': student, 'invoice': invoice,
+                                                               'payment_amount': invoice.amount, 'payment_date': formatted_payment_date, 'year': datetime.now().year})
 
 
 def fees(request):
@@ -461,7 +504,9 @@ def concept_create(request):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
-        Concept.objects.create(name=name, description=description)
+        iva = request.POST.get('iva')
+        related_to = request.POST.get('related_to')
+        Concept.objects.create(name=name, description=description, iva=iva, related_to=related_to)
         return redirect('concept_list')
     return render(request, 'concept_create.html')
 
@@ -477,10 +522,14 @@ def concept_edit(request, concept_id):
     if request.method == 'POST':
         name = request.POST.get('name')
         description = request.POST.get('description')
+        iva = request.POST.get('iva')
+        related_to = request.POST.get('related_to')
         
         # Actualizar los campos del concepto
         concept.name = name
         concept.description = description
+        concept.iva = iva
+        concept.related_to = related_to
         
         # Guardar los cambios en la base de datos
         concept.save()
@@ -539,6 +588,7 @@ def cash_box_detail(request, cash_box_id):
 def stamping_create(request):
     if request.method == 'POST':
         number = request.POST.get('number')
+        valid_from = request.POST.get('valid_from')
         valid_until = request.POST.get('valid_until')
         establishment_number = request.POST.get('establishment_number')
         expedition_point = request.POST.get('expedition_point')
@@ -546,7 +596,7 @@ def stamping_create(request):
         end_number = request.POST.get('end_number')
         actual_number = 1
 
-        Stamping.objects.create(number=number, valid_until=valid_until, establishment_number=establishment_number, expedition_point=expedition_point, start_number=start_number, end_number=end_number, actual_number=actual_number)
+        Stamping.objects.create(number=number, valid_from=valid_from, valid_until=valid_until, establishment_number=establishment_number, expedition_point=expedition_point, start_number=start_number, end_number=end_number, actual_number=actual_number)
         return redirect('stamping_list')
     else:
         return render(request, 'stamping_create.html')

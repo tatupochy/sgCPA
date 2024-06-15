@@ -96,6 +96,7 @@ class PaymentType(models.Model):
     PAYMENT_TYPE_CHOICES = (
         ('enrollment', 'Matrícula'),
         ('fee', 'Cuota'),
+        ('invoice', 'Factura')
     )
 
     name = models.CharField(max_length=20, choices=PAYMENT_TYPE_CHOICES, default='enrollment')
@@ -116,8 +117,7 @@ class Payment(models.Model):
     payment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_method = models.ForeignKey(PaymentMethod, on_delete=models.CASCADE)
     payment_type = models.ForeignKey(PaymentType, on_delete=models.CASCADE)
-    fee = models.ForeignKey(Fee, on_delete=models.CASCADE, null=True, blank=True)
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, null=True, blank=True)
+    invoice = models.ForeignKey('Invoice', on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
         permissions = [
@@ -140,8 +140,21 @@ class PaymentMethod2(models.Model):
 
 
 class Concept(models.Model):
+    iva_choices = (
+        ('10', '10%'),
+        ('5', '5%'),
+        ('0', '0%'),
+    )
+    related_to_choices = (
+        ('enrollment', 'Matrícula'),
+        ('fee', 'Cuota'),
+        ('other', 'Otro'),
+    )
+
     name = models.CharField(max_length=100, unique=True)
     description = models.CharField(max_length=255, blank=True, null=True)
+    iva = models.CharField(max_length=2, choices=iva_choices, default='10')
+    related_to = models.CharField(max_length=20, choices=related_to_choices, blank=True, null=True)
 
     def __str__(self):
         return self.name
@@ -161,9 +174,10 @@ class CashBox(models.Model):
 
 class Stamping(models.Model):
     number = models.CharField(max_length=100, unique=True)
+    valid_from = models.DateField(blank=True, null=True)
     valid_until = models.DateField()
     establishment_number = models.CharField(max_length=100, unique=True)
-    expedition_point = models.IntegerField()
+    expedition_point = models.CharField(max_length=100, unique=True)
     start_number = models.IntegerField()
     end_number = models.IntegerField()
     actual_number = models.IntegerField()
@@ -174,6 +188,7 @@ class Stamping(models.Model):
 
 class Invoice(models.Model):
     number = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=100, unique=True, blank=True, null=True)
     date = models.DateField()
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     cash_box = models.ForeignKey(CashBox, on_delete=models.CASCADE)
@@ -182,6 +197,12 @@ class Invoice(models.Model):
     active = models.BooleanField(default=True)
     valid_until = models.DateField()
     client = models.ForeignKey(Student, on_delete=models.CASCADE)
+    iva_10 = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    iva_5 = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    iva_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sub_total_iva_10 = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sub_total_iva_5 = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    sub_total_iva_0 = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
         return self.number
@@ -191,6 +212,8 @@ class InvoiceDetail(models.Model):
     invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE)
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
+    fee = models.ForeignKey(Fee, on_delete=models.CASCADE, null=True, blank=True)
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
 

@@ -32,7 +32,6 @@
             <label for="id_state" class="form-label">Estado:</label>
             <input type="text" class="form-control" id="id_state" value="{{ fee.state.description }}" name="id_state" disabled readonly>
         </div>
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/payments/create/fee/{{ fee.id }}'">Pagar cuota</button>
     </form>
 </div>
 {% endblock %}

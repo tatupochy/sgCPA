@@ -5,26 +5,26 @@
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments'" style="cursor: pointer;"></i>
-    <h1>Crear pago de matrícula: </h1>
+    <h1>Crear pago de factura: </h1>
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
             <label for="id_student" class="form-label">Estudiante:</label>
             <select class="form-select" id="id_student" name="student" style="width: 40%" aria-readonly="true" required>
-                <option value="{{ student.id }}" selected>{{ student.name }} {{ student.LastName }}</option>
+                <option value="{{ student.id }}" selected>{{ student.name }} {{ student.lastName }}</option>
             </select>
         </div>
         <div class="form-group">
             <label for="id_year" class="form-label">Año:</label>
-            <input type="number" class="form-control" id="id_year" name="year" required>
+            <input type="number" class="form-control" id="id_year" name="year" value="{{ year }}" required>
         </div>
         <div class="form-group">
             <label for="id_payment_date" class="form-label">Fecha:</label>
-            <input type="date" class="form-control" id="id_payment_date" name="payment_date" required>
+            <input type="date" class="form-control" id="id_payment_date" name="payment_date" value="{{ payment_date }}" required>
         </div>
         <div class="form-group">
             <label for="id_payment_amount" class="form-label">Monto:</label>
-            <input type="number" class="form-control" id="id_payment_amount" name="payment_amount" required>
+            <input type="text" class="form-control" id="id_payment_amount" name="payment_amount" value="{{ payment_amount }}" required>
         </div>
         <div class="form-group">
             <label for="id_payment_method" class="form-label">Método:</label>
@@ -36,8 +36,8 @@
             </select>
         </div>
         <div class="form-group">
-            <label for="id_enrollment" class="form-label">Matrícula:</label>
-            <input type="text" class="form-control" id="id_enrollment" name="enrollment" value="{{ enrollment.name }}" readonly required>
+            <label for="id_invoice" class="form-label">Factura:</label>
+            <input type="text" class="form-control" id="id_invoice" name="invoice" value="{{ invoice.name }}" readonly required>
         </div>
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         {% if form.errors %}
