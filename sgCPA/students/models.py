@@ -34,6 +34,13 @@ class Course(models.Model):
     enrollment_start_date = models.DateField(blank=True, null=True)
     enrollment_end_date = models.DateField(blank=True, null=True)
     enrollment_amount = models.DecimalField(max_digits=10, decimal_places=0, blank=True, null=True)
+    space_available = models.IntegerField(blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        if self.pk is None and self.space_available is None:  # Check if the instance is new and space_available is not set
+            self.space_available = self.maxStudentsNumber
+        super().save(*args, **kwargs)
+
     
 
    

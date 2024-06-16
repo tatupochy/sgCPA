@@ -1,8 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
+from django.utils import timezone
+
 
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from django.shortcuts import render
 
@@ -16,6 +18,7 @@ from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, En
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import redirect,get_object_or_404
+from django.urls import reverse
 
 # Create your views here.
 
@@ -346,51 +349,61 @@ def enrollment_create(request):
     if request.method == 'POST':
 
         form_data = request.POST.dict()
-        print('form_data', form_data)
 
         states = State.objects.all()
 
-        student_ci = form_data['student']
         course_id = form_data['course']
-        year = form_data['year']
         enrollment_date = form_data['enrollment_date']
-        amount = form_data['enrollment_amount']
 
-        student = Student.objects.get(ciNumber=student_ci)
-        student_id = student.id
+        students = Student.objects.all()
+        
         course = Course.objects.get(id=course_id)
+        
+        for student in students:
+            studentId = request.POST.get(str(student.id))
+            if studentId  is not None and course.space_available > 0:
+                enrollment = Enrollment()
+                enrollment.course_id = course_id
+                enrollment.enrollment_date = enrollment_date
+                enrollment.state_id = states.get(name='pending').id
+                enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
+                enrollment.student_id = studentId
+                enrollment.save()
+                courseDates = CourseDates.objects.filter(course=course)
+                
+                for courseDate in courseDates:
+                    attendance = Attendance.objects.filter(course_id=course_id, date=courseDate.date).first()
+                    AttendanceStudent.objects.create(attendance=attendance, student=student)
+                    
+                if course.space_available > 0:
+                    course.space_available -= 1
+                    course.save()
+                    
+            elif studentId is not None and course.space_available <= 0:
+                # Si no hay cupos disponibles, maneja la situación de alguna forma adecuada
+                return JsonResponse({"status": "error", "message": "No hay cupos disponibles para el curso"}, status=400)
 
-        enrollment = Enrollment()
-        enrollment.student_id = student_id
-        enrollment.course_id = course_id
-        enrollment.year = year
-        enrollment.enrollment_date = enrollment_date
-        enrollment.enrollment_amount = amount
-        enrollment.state_id = states.get(name='pending').id
-        enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
-
-        # check if the student has an enrollment for the course
-        if Enrollment.objects.filter(student_id=student_id, course_id=course_id):
-            return render(request, 'enrollment_create.html', {'states': states, 'students': Student.objects.all(), 'courses': Course.objects.all(), 'error': 'El estudiante ya tiene una matrícula para el curso seleccionado'})
-
-        # check if student has unpaid fees
-        if Fee.objects.filter(student_id=student_id, state_id=states.get(name='pending').id):
-            return render(request, 'enrollment_create.html', {'states': states, 'students': Student.objects.all(), 'courses': Course.objects.all(), 'error': 'El estudiante tiene cuotas pendientes por pagar'})
-
-        enrollment.save()
-
-        courseDates = CourseDates.objects.filter(course=course)
-        for courseDate in courseDates:
-            attendance = Attendance.objects.filter(course_id=course_id, date=courseDate.date).first()
-            AttendanceStudent.objects.create(attendance=attendance, student=student)
-
-        return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
+        return redirect(reverse('enrollment_create'))
     else:
         states = State.objects.all()
         students = Student.objects.all()
-        courses = Course.objects.all()
+        fecha_actual = timezone.now().date()
+    
+    # Filtrar cursos cuyas fechas de inicio y fin de matriculación están en el rango de la fecha actual
+        courses = Course.objects.filter(
+            enrollment_start_date__lte=fecha_actual,
+            enrollment_end_date__gte=fecha_actual
+        )
+        # courses = Course.objects.all()
         return render(request, 'enrollment_create.html', {'states': states, 'students': students, 'courses': courses})
     
+def get_students(request, courseId):
+    print(courseId)
+    estudiantes_matriculados = Enrollment.objects.filter(course_id=courseId).values('student_id')
+    estudiantes_no_matriculados = Student.objects.exclude(id__in=estudiantes_matriculados)
+    print(estudiantes_no_matriculados)
+    return JsonResponse({"Hola": "hola"})
+
 
 def payment_methods(request):
     payment_methods = PaymentMethod.objects.all()

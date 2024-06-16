@@ -54,6 +54,17 @@
             </article>
         </div>
 
+        <div class="form-group d-flex gap-4 mb-4 w-100">
+            <article class="w-50">
+                <label for="space_available" class="form-label mb-2 mt-2">Cantidad de cupos disponibles</label>
+                <input type="text" class="form-control" id="space_available"  disabled />
+            </article>
+            <article class="w-50">
+                <label for="student_quantity" class="form-label mb-2 mt-2">Cantidad de alumnos seleccionados</label>
+                <input type="text" class="form-control" id="student_quantity" value="0"  disabled />
+            </article>
+        </div>
+
         {% if form.errors %}
         <div class="alert alert-danger mt-3">
             <ul>
@@ -83,23 +94,23 @@
                     </tr>
                 </thead>
                 <tbody class="tbody-table">
-                    {% for student in students %}
+                    <!-- {% for student in students %}
                     <tr>
                         <td>{{student.name}}</td>
                         <td>{{student.lastName}}</td>
                         <td>{{student.ciNumber}}</td>
                         <td>
-                            <input  type="checkbox"/>
+                            <input value="{{student.id}}" name="{{student.id}}"  type="checkbox"/>
                         </td>
                     </tr>
                     {% endfor %}
-                    <tr></tr>
+                    <tr></tr> -->
                 </tbody>
             </table>
         </div>
 
         <div>
-            <button class="btn btn-primary">Matricular</button>
+            <button type="submit" class="btn btn-primary">Matricular</button>
         </div>
     </form>
 </div>

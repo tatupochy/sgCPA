@@ -5,6 +5,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, Http
 from countries.models import Country
 from cities.models import Cities
 from attendances.models import Attendance, AttendanceStudent
+from payments.models import Enrollment
 from utils.utils import calculate_class_days
 from .models import CourseDates, Student, Course, Shift, Section
 from subjects.models import Subject
@@ -308,18 +309,31 @@ def listar_curso(request):
 
 
 def obtener_curso(request, id):
+    
     course = Course.objects.get(id=id)
     
-    print(course.id)
-    print(course.name)
-    print(course.enrollment_amount)
+    # Verificar si hay algún registro de Enrollment para el curso
+    if Enrollment.objects.filter(course_id=id).exists():
+        # Si hay registros, obtener los estudiantes que no están matriculados en el curso
+        estudiantes_matriculados = Enrollment.objects.filter(course_id=id).values('student_id')
+        estudiantes_no_matriculados = Student.objects.exclude(id__in=estudiantes_matriculados)
+    else:
+        # Si no hay registros, obtener todos los estudiantes
+        estudiantes_no_matriculados = Student.objects.all()
+    
+    # Convertir a lista de diccionarios para el JSON
+    estudiantes_no_matriculados_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
+   
+    
     data = {
         'enrollment_amount': course.enrollment_amount,
         'minStudentsNumber': course.minStudentsNumber,
         'maxStudentsNumber': course.maxStudentsNumber,
         'fee_amount': course.fee_amount,
         'minStudentsNumber': course.minStudentsNumber,
-        'maxStudentsNumber': course.maxStudentsNumber
+        'maxStudentsNumber': course.maxStudentsNumber,
+        'student_list': estudiantes_no_matriculados_list,
+        'space_available': course.space_available
         
     }
     return JsonResponse({"course_data":data})

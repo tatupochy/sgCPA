@@ -52,10 +52,12 @@ class Fee(models.Model):
 
 class Enrollment(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    year = models.IntegerField()
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True, null=True)
+    # year = models.IntegerField()
+
+    # year = models.IntegerField()
     enrollment_date = models.DateField()
-    enrollment_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    # enrollment_amount = models.DecimalField(max_digits=10, decimal_places=2)
     enrollment_paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
