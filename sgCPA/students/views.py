@@ -241,39 +241,33 @@ def detalle_curso(request, id):
 
 def editar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)
-    fechas = curso.coursedates_set.all()
-    fechas_formateadas = [fecha.date.strftime("%A, %d de %B de %Y")  for fecha in fechas]
-    print(fechas_formateadas)
     CHOICE_SHIFTS = Shift.objects.all()
     CHOICES_SECTIONS = Section.objects.all()
     if request.method == 'POST':
-        subjects_ids = request.POST.getlist('subjects')
-        name = request.POST.get('name')
-        shift = Shift.objects.get(pk=request.POST.get('shift'))
+        
+       
         section = Section.objects.get(pk=request.POST.get('section'))
         active = request.POST.get('active') == 'on'
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        fee_amount = request.POST.get('fee_amount')
-        days_per_week = request.POST.get('days_per_week')
+        
+        enrollment_start_date = request.POST.get('enrollment_start_date')
+        enrollment_end_date = request.POST.get('enrollment_end_date')
+        minStudentsNumber=request.POST.get('minStudentsNumber')
+        maxStudentsNumber=request.POST.get('maxStudentsNumber')
+        
         teacher = Teacher.objects.get(pk=request.POST.get('teacher'))
+        
+       
+        curso.section = section
+        curso.active = active
+        curso.enrollment_start_date = enrollment_start_date
+        curso.enrollment_end_date = enrollment_end_date
+        curso.minStudentsNumber = minStudentsNumber
+        curso.maxStudentsNumber = maxStudentsNumber
+        curso.teacher = teacher
+        curso.save()
+        
+        return listar_curso(request)
 
-        if name and shift and start_date and end_date and fee_amount and days_per_week:
-            # Actualizar los campos del curso con los nuevos valores
-            curso.name = name
-            curso.shift = shift
-            curso.section = section
-            curso.active = active
-            curso.start_date = start_date
-            curso.end_date = end_date
-            curso.fee_amount = fee_amount
-            curso.days_per_week = days_per_week
-            curso.subjects.set(subjects_ids)
-            curso.teacher = teacher
-            curso.save()
-            return redirect('detalle_curso', id=curso.id)
-        else:
-            return HttpResponse("Faltan campos requeridos")
     else:
         
         subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
@@ -282,7 +276,12 @@ def editar_curso(request, id):
         
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
+        
+        curso.enrollment_start_date = curso.enrollment_start_date.strftime("%Y-%m-%d")
+        curso.enrollment_end_date = curso.enrollment_end_date.strftime("%Y-%m-%d")
+        
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
+        
         
         data = {
             'CHOICE_SHIFTS': CHOICE_SHIFTS,
@@ -294,7 +293,7 @@ def editar_curso(request, id):
             'teacherSelected': teacherSelected,
         }
         
-        return render(request, 'courses/editar_curso.html', data)
+        return render(request, 'courses/registrar_curso.html', data)
     
 def borrar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)

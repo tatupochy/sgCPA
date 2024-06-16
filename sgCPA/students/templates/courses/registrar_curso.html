@@ -10,53 +10,57 @@
 
 {% block content %}
 
-<form action="/registrar_curso/" class="mt-1 d-flex flex-column w-full form mx-auto p-5 gap-3"
-    method="post">
+<form class="mt-1 d-flex flex-column w-full form mx-auto p-5 gap-3" method="post">
     {% csrf_token %}
     <legend class="text-center">
+        {% if curso %}
+        Editar curso
+        {% else %}
         Registro de curso
+        {% endif %}
     </legend>
 
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="name" class="mb-2 form-label"> Nombre del Curso </label>
-            <input class="form-control" id="name" name="name" type="text" />
+            <input {% if curso %} disabled {% endif %} value="{{curso.name}}" class="form-control" id="name" name="name" type="text" />
         </article>
         <article class="w-50">
             <label for="start_date" class="mb-2 form-label">Fecha de Inicio</label>
-            <input class="form-control" id="start_date" type="date" name="start_date" />
+            <input {% if curso %} disabled {% endif %} class="form-control" value="{{curso.start_date}}" id="start_date" type="date" name="start_date" />
         </article>
     </section>
 
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="end_date" class="mb-2 form-label">Fecha de Fin</label>
-            <input class="form-control" id="end_date" type="date" name="end_date" />
+            <input {% if curso %} disabled {% endif %} class="form-control" id="end_date" type="date" name="end_date" value="{{curso.end_date}}" />
         </article>
         <article class="w-50">
             <label for="fee_amount" class="mb-2 form-label">Monto Cuota Mensual</label>
-            <input class="form-control" id="fee_amount" type="number" name="fee_amount" min="0" max="5000000" />
+            <input {% if curso %} disabled {% endif %} value="{{curso.enrollment_amount}}" class="form-control" id="fee_amount" type="number"
+                name="fee_amount" min="0" max="5000000" />
         </article>
     </section>
 
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="days_per_week" class="mb-2 form-label">Días por Semana</label>
-            <select multiple class="form-control" id="days_per_week" name="days_per_week">
-                <option value="1">Lunes</option>
-                <option value="2">Martes</option>
-                <option value="3">Miercoles</option>
-                <option value="4">Jueves</option>
-                <option value="5">Viernes</option>
-                <option value="6">Sabado</option>
+            <select {% if curso %} disabled {% endif %} multiple class="form-control" id="days_per_week" name="days_per_week">
+                <option value="1" {% if 1 in curso.days_per_week %}selected{% endif %}>Lunes</option>
+                <option value="2" {% if 2 in curso.days_per_week %}selected{% endif %}>Martes</option>
+                <option value="3" {% if 3 in curso.days_per_week %}selected{% endif %}>Miercoles</option>
+                <option value="4" {% if 4 in curso.days_per_week %}selected{% endif %}>Jueves</option>
+                <option value="5" {% if 5 in curso.days_per_week %}selected{% endif %}>Viernes</option>
+                <option value="6" {% if 6 in curso.days_per_week %}selected{% endif %}>Sabado</option>
             </select>
         </article>
         <article class="w-50">
             <label for="shift" class="mb-2 form-label">Turno</label>
-            <select class="form-select" id="shift" name="shift">
+            <select {% if curso %} disabled {% endif %} class="form-select" id="shift" name="shift">
                 <option value="">Seleccionar turno</option>
                 {% for choice in CHOICE_SHIFTS %}
-                <option value="{{ choice.id }}">{{ choice.name }}</option>
+                <option {% if curso.shift_id == choice.id  %} selected {% endif %} value="{{ choice.id }}">{{ choice.name }}</option>
                 {% endfor %}
             </select>
         </article>
@@ -68,13 +72,13 @@
             <select class="form-select" id="section" name="section">
                 <option value="">Seleccionar sección</option>
                 {% for choice in CHOICES_SECTIONS %}
-                <option value="{{ choice.id }}">{{ choice.name }}</option>
+                <option {% if curso.section_id == choice.id  %} selected {% endif %} value="{{ choice.id }}">{{ choice.name }}</option>
                 {% endfor %}
             </select>
         </article>
         <article class="w-50">
             <label for="active" class="mb-2 form-check-label">Curso activo?</label>
-            <input class="form-check-input" id="active" type="checkbox" name="active" />
+            <input {% if curso.active == True %} checked {% endif  %} class="form-check-input" id="active" type="checkbox" name="active" />
         </article>
     </section>
 
@@ -82,9 +86,9 @@
 
         <article class="w-50">
             <label for="active" class="mb-2 form-check-label">Materias</label>
-            <select class="form-select" name="subjects" id="subjectsSelect" multiple>
+            <select {% if curso %} disabled {% endif %} class="form-select" name="subjects" id="subjectsSelect" multiple>
                 {% for subject in subject_list %}
-                <option value="{{subject.id}}" {% if subject.id in selected_subject_ids %}selected{% endif %}>
+                <option {% if subject.id in ids_de_materias  %} selected {% endif  %} value="{{subject.id}}" {% if subject.id in selected_subject_ids %}selected{% endif %}>
                     {{subject.name}}</option>
                 {% endfor %}
             </select>
@@ -94,7 +98,7 @@
             <select class="form-select" id="teacher" name="teacher">
                 <option value="">Seleccionar profesor</option>
                 {% for teacher in teachers %}
-                <option value="{{ teacher.id }}">{{ teacher.name }} {{ teacher.lastName }}</option>
+                <option {% if teacherSelected.id == teacher.id  %} selected {% endif %} value="{{ teacher.id }}">{{ teacher.name }} {{ teacher.lastName }}</option>
                 {% endfor %}
             </select>
         </article>
@@ -103,34 +107,35 @@
     <section class="d-flex justify-content-center gap-3">
         <article class="w-50">
             <label>Cantidad minima de estudiantes</label>
-            <input type="number" name="minStudentsNumber" class="form-control" />
+            <input type="number" name="minStudentsNumber" value="{{curso.minStudentsNumber}}" class="form-control" />
         </article>
 
         <article class="w-50">
             <label>Cantidad maxima de estudiantes</label>
-            <input type="number" name="maxStudentsNumber" class="form-control" />
+            <input type="number" name="maxStudentsNumber" class="form-control" value="{{curso.maxStudentsNumber}}" />
         </article>
     </section>
 
     <section class="d-flex justify-content-center gap-3">
         <article class="w-50">
             <label>Fecha de inicio de matriculacion</label>
-            <input type="date" name="enrollment_start_date" class="form-control" />
+            <input type="date" name="enrollment_start_date" class="form-control"
+                value="{{curso.enrollment_start_date}}" />
         </article>
 
         <article class="w-50">
             <label>Fecha fin de matriculacion</label>
-            <input type="date" name="enrollment_end_date" class="form-control" />
+            <input type="date" name="enrollment_end_date" class="form-control" value="{{curso.enrollment_end_date}}" />
         </article>
     </section>
 
     <section class="d-flex justify-content-center gap-3">
         <article class="w-100">
             <label>Monto matricula</label>
-            <input type="number" name="enrollment_amount" class="form-control" />
+            <input {% if curso %} disabled {% endif %} type="number" name="enrollment_amount" class="form-control" value="{{curso.enrollment_amount}}" />
         </article>
 
-        
+
     </section>
 
 
