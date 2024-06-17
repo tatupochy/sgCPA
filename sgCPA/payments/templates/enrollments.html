@@ -5,30 +5,160 @@
 {% block content %}
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="container">
+    {% csrf_token %}
     <h1>Matrículas</h1>
-    <table class="table table-hover table-bordered table-striped">
+    
+    <button type="button" class="btn btn-primary">+ Agregar matrícula</button>
+    <table id="enrollmentTable" class="table table-hover table-bordered table-striped">
         <thead>
             <tr>
-                <th scope="col">Matricula</th>
-                <th scope="col">Estudiante</th>
-                <th scope="col">Año</th>
+                <th scope="col">#</th>
+                <th scope="col">Curso</th>
+                <th scope="col">Alumno</th>
+                <th scope="col">CI</th>
                 <th scope="col">Fecha</th>
                 <th scope="col">Monto</th>
                 <th scope="col">Estado</th>
+                <th scope="col">Acción</th>
             </tr>
         </thead>
         <tbody>
             {% for enrollment in enrollments %}
-            <tr onclick="window.location.href='/enrollments/{{ enrollment.id }}';" style="cursor: pointer;">
-                <td>{{ enrollment.name }}</td>
+            <tr id={{enrollment.id}}>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ enrollment.course.name }}</td>
                 <td>{{ enrollment.student.name }} {{ enrollment.student.lastName }}</td>
-                <td>{{ enrollment.year }}</td>
+                <td>{{ enrollment.student.ciNumber}}</td>
                 <td>{{ enrollment.enrollment_date }}</td>
                 <td>{{ enrollment.enrollment_amount }}</td>
                 <td>{{ enrollment.state.description }}</td>
-            </tr>    
+                <!-- <td>
+                    <button type="button" class="btn btn-warning btn-sm">✏️</button>
+                    <button type="button" class="btn btn-danger btn-sm">🗑️</button>
+                </td> -->
+
+
+                <td class="acciones-container">
+                    <div class="acciones">
+                        <button class="btn btn-primary editar" data-id={{enrollment.id}}>
+                            <i class="fa-solid fa-pencil editar" data-id={{enrollment.id}}></i>
+                        </button>
+                        <button data-id={{enrollment.id}} type="button" class="btn btn-danger" data-bs-toggle="modal" id="deleteButton"
+                            data-bs-target="#staticBackdrop">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                </td>
+
+            </tr>
             {%  endfor %}
         </tbody>
     </table>
 </div>
+
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-4" id="staticBackdropLabel">Inhabilitar matricula</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body fs-4">
+                Esta seguro que quiere inhabilitar esta matricula?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="delete" class="btn btn-primary" data-bs-dismiss="modal">Aceptar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Include DataTables scripts and initialize the table -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+<script>
+$(document).ready(function() {
+    $('#enrollmentTable').DataTable({
+        dom: 'Bfrtip',
+        buttons: [
+            'copy', 'excel', 'csv',
+            {
+                extend: 'pdfHtml5',
+                text: 'PDF',
+                title: 'Listado de alumnos matriculados',
+                filename: function() {
+                    var d = new Date();
+                    var datestring = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "_" + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2);
+                    return 'ListadoMatriculados_' + datestring;
+                },
+                exportOptions: {
+                    columns: [0,1, 2, 3, 4, 5]
+                },
+                customize: function(doc) {
+              
+                    // Ensure table widths are set
+                    if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
+                        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                    }
+                }
+            },
+            'print'
+        ],
+        language: {
+            "lengthMenu": "Mostrar _MENU_ registros por página",
+            "zeroRecords": "No se encontraron resultados",
+            "info": "Mostrando página _PAGE_ de _PAGES_",
+            "infoEmpty": "No hay registros disponibles",
+            "infoFiltered": "(filtrado de _MAX_ registros totales)",
+            "search": "Buscar:",
+            "paginate": {
+                "first": "Primero",
+                "last": "Último",
+                "next": "Siguiente",
+                "previous": "Anterior"
+            },
+            "buttons": {
+                "copy": "Copiar",
+                "excel": "Excel",
+                "csv": "CSV",
+                "pdf": "PDF",
+                "print": "Imprimir"
+            }
+        }
+
+    });
+
+    const d = document;
+ 
+    // d.addEventListener('DOMContentLoaded', () => {
+        const acceptButton = d.getElementById('delete')
+        
+        acceptButton.addEventListener('click', async(e) => {
+            const deleteButton = d.getElementById('deleteButton')
+            const id = deleteButton.dataset.id
+        console.log(deleteButton)
+        await fetch(`/enrollment_eliminar/${id}/`) //, {method:"POST"})
+        // window.location.reload()
+
+    //  });
+    });
+
+
+});
+</script>
+
+
+
 {% endblock %}

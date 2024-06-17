@@ -396,7 +396,15 @@ def enrollment_create(request):
         )
         # courses = Course.objects.all()
         return render(request, 'enrollment_create.html', {'states': states, 'students': students, 'courses': courses})
+
+def enrollment_eliminar(request, id):
     
+    enrollment = get_object_or_404(Enrollment, id=id)
+    enrollment.active = False
+    enrollment.save()
+    return HttpResponse("Registro modificado correctamente")
+
+
 def get_students(request, courseId):
     print(courseId)
     estudiantes_matriculados = Enrollment.objects.filter(course_id=courseId).values('student_id')
