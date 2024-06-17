@@ -23,7 +23,7 @@
             </article>
             <article class="w-50">
                 <label for="id_enrollment_date" class="form-label">Fecha:</label>
-                <input type="date" class="form-control" id="id_enrollment_date" name="enrollment_date" required>
+                <input type="date" class="form-control" id="id_enrollment_date" disabled name="enrollment_date" required>
             </article>
         </div>
         
@@ -83,6 +83,17 @@
             </ul>
         </div>
         {% endif %}
+        <div class="text-start  w-100 mb-2">
+            <article class="w-50 py-2 px-1 ">
+                <label class="mb-2">Buscar por CI</label>
+                <div  class="input-group w-50">
+                    <input type="text" class="form-control" id="ci_input" />
+                    <button class="btn btn-primary input-group-text" type="button" id="ci_button">
+                        <i class="fa-solid fa-magnifying-glass "></i>
+                    </button>
+                </div>
+            </article>
+        </div>
         <div class="form-group d-flex w-100 align-items-center mb-2 mt-2 flex-column table-container">
             <table id="student_table" class="table table-hover table-bordered">
                 <thead>

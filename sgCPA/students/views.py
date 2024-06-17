@@ -332,10 +332,30 @@ def obtener_curso(request, id):
         'minStudentsNumber': course.minStudentsNumber,
         'maxStudentsNumber': course.maxStudentsNumber,
         'student_list': estudiantes_no_matriculados_list,
-        'space_available': course.space_available
+        'space_available': course.space_available,
+        'enrollment_start_date': course.enrollment_start_date,
+        'enrollment_end_date': course.enrollment_end_date
         
     }
     return JsonResponse({"course_data":data})
+
+def obtener_alumno_por_ci(request, ci, course_id):
+    
+    students = Student.objects.filter(ciNumber__icontains=ci)
+    
+     # Filtrar los estudiantes que no están matriculados en el curso especificado
+    estudiantes_matriculados = Enrollment.objects.filter(course_id=course_id).values('student_id')
+    
+    estudiantes_no_matriculados = students.exclude(id__in=estudiantes_matriculados)
+    
+    students_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
+
+    # Si hay estudiantes que coinciden, serializarlos y devolver la respuesta
+    # if students.exists():
+    return JsonResponse(students_list, safe=False)
+        
+    # Si no hay coincidencias, devolver un mensaje indicando que no se encontraron estudiantes
+    # return JsonResponse({"message": "No se encontraron estudiantes con ese número de cédula"}, status=404)
 
 
 ###### Turnos ######   
