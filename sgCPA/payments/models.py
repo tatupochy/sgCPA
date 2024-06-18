@@ -108,6 +108,7 @@ def create_payment_type(sender, **kwargs):
     if sender.name == 'payments':
         PaymentType.objects.get_or_create(name='enrollment', description='Matrícula')
         PaymentType.objects.get_or_create(name='fee', description='Cuota')
+        PaymentType.objects.get_or_create(name='invoice', description='Factura')
 
 
 class Payment(models.Model):

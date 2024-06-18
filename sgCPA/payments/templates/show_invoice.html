@@ -22,7 +22,7 @@
         </div>
         <div class="form-group">
             <label for="id_valid_until" class="form-label">Válida Hasta:</label>
-            <input type="date" class="form-control" id="id_valid_until" name="valid_until" value="{{ invoice.valid_until }}">
+            <input type="date" class="form-control" id="id_valid_until" name="valid_until" value="{{ invoice.valid_until }}" {% if is_invoice_paid %} readonly {% endif %}>
         </div>
         <div class="form-group">
             <label for="id_cash_box" class="form-label">Caja:</label>
@@ -68,10 +68,12 @@
                 {% endfor %}
             </tbody>
         </table>
-        {% if invoice.paid %}
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/payments/create/invoice/{{ invoice.id }}'">Registrar pago</button>
+        {% if not is_invoice_paid %}
+        <button type="submit" class="btn btn-primary">Guardar y Pagar factura</button>
         {% endif %}
+        {% if is_invoice_paid %}
         <button type="button" class="btn btn-secundary" onclick= "window.location.href = '/download_invoice/{{ invoice.id }}'">Descargar factura</button>
+        {% endif %}
     </form>
 </div>
 {% endblock %}
