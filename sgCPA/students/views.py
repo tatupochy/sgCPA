@@ -189,8 +189,10 @@ def registrar_curso(request):
         enrollment_amount = request.POST.get('enrollment_amount')
         
         
-        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
-        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        # Verificar si las fechas están vacías antes de convertirlas
+        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+
         class_days = list(map(int, days_per_week))
 
         teacher = Teacher.objects.get(pk=teacher)

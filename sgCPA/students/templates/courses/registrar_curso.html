@@ -10,7 +10,7 @@
 
 {% block content %}
 
-<form class="mt-1 d-flex flex-column w-full form mx-auto p-5 gap-3" method="post">
+<form class="mt-1 d-flex flex-column w-full form mx-auto p-5 gap-3" method="post" id="cursoForm">
     {% csrf_token %}
     <legend class="text-center">
         {% if curso %}
@@ -23,30 +23,34 @@
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="name" class="mb-2 form-label"> Nombre del Curso </label>
-            <input {% if curso %} disabled {% endif %} value="{{curso.name}}" class="form-control" id="name" name="name" type="text" />
+            <input {% if curso %} disabled {% endif %} value="{{curso.name}}" class="form-control" id="name" name="name" type="text" required />
+            <span class="error-message"></span>
         </article>
         <article class="w-50">
             <label for="start_date" class="mb-2 form-label">Fecha de Inicio</label>
-            <input {% if curso %} disabled {% endif %} class="form-control" value="{{curso.start_date}}" id="start_date" type="date" name="start_date" />
+            <input {% if curso %} disabled {% endif %} class="form-control" value="{{curso.start_date}}" id="start_date" type="date" name="start_date" required />
+            <span class="error-message"></span>
         </article>
     </section>
 
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="end_date" class="mb-2 form-label">Fecha de Fin</label>
-            <input {% if curso %} disabled {% endif %} class="form-control" id="end_date" type="date" name="end_date" value="{{curso.end_date}}" />
+            <input {% if curso %} disabled {% endif %} class="form-control" id="end_date" type="date" name="end_date" value="{{curso.end_date}}" required />
+            <span class="error-message"></span>
         </article>
         <article class="w-50">
             <label for="fee_amount" class="mb-2 form-label">Monto Cuota Mensual</label>
             <input {% if curso %} disabled {% endif %} value="{{curso.enrollment_amount}}" class="form-control" id="fee_amount" type="number"
-                name="fee_amount" min="0" max="5000000" />
+                name="fee_amount" min="0" max="5000000" required/>
+            <span class="error-message"></span>
         </article>
     </section>
 
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="days_per_week" class="mb-2 form-label">Días por Semana</label>
-            <select {% if curso %} disabled {% endif %} multiple class="form-control" id="days_per_week" name="days_per_week">
+            <select {% if curso %} disabled {% endif %} multiple class="form-control" id="days_per_week" name="days_per_week" required>
                 <option value="1" {% if 1 in curso.days_per_week %}selected{% endif %}>Lunes</option>
                 <option value="2" {% if 2 in curso.days_per_week %}selected{% endif %}>Martes</option>
                 <option value="3" {% if 3 in curso.days_per_week %}selected{% endif %}>Miercoles</option>
@@ -54,31 +58,35 @@
                 <option value="5" {% if 5 in curso.days_per_week %}selected{% endif %}>Viernes</option>
                 <option value="6" {% if 6 in curso.days_per_week %}selected{% endif %}>Sabado</option>
             </select>
+            <span class="error-message"></span>
         </article>
         <article class="w-50">
             <label for="shift" class="mb-2 form-label">Turno</label>
-            <select {% if curso %} disabled {% endif %} class="form-select" id="shift" name="shift">
+            <select {% if curso %} disabled {% endif %} class="form-select" id="shift" name="shift" required>
                 <option value="">Seleccionar turno</option>
                 {% for choice in CHOICE_SHIFTS %}
                 <option {% if curso.shift_id == choice.id  %} selected {% endif %} value="{{ choice.id }}">{{ choice.name }}</option>
                 {% endfor %}
             </select>
+            <span class="error-message"></span>
         </article>
     </section>
 
     <section class="d-flex gap-3 justify-content-center w-100">
         <article class="w-50">
             <label for="section" class="mb-2 form-label">Sección</label>
-            <select class="form-select" id="section" name="section">
+            <select class="form-select" id="section" name="section" required>
                 <option value="">Seleccionar sección</option>
                 {% for choice in CHOICES_SECTIONS %}
                 <option {% if curso.section_id == choice.id  %} selected {% endif %} value="{{ choice.id }}">{{ choice.name }}</option>
                 {% endfor %}
             </select>
+            <span class="error-message"></span>
         </article>
         <article class="w-50">
-            <label for="active" class="mb-2 form-check-label">Curso activo?</label>
+            <label for="active" class="mb-2 form-check-label">Curso activo? </label>
             <input {% if curso.active == True %} checked {% endif  %} class="form-check-input" id="active" type="checkbox" name="active" />
+            <!-- <span class="error-message"></span> -->
         </article>
     </section>
 
@@ -86,33 +94,37 @@
 
         <article class="w-50">
             <label for="active" class="mb-2 form-check-label">Materias</label>
-            <select {% if curso %} disabled {% endif %} class="form-select" name="subjects" id="subjectsSelect" multiple>
+            <select {% if curso %} disabled {% endif %} class="form-select" name="subjects" id="subjectsSelect" multiple required>
                 {% for subject in subject_list %}
                 <option {% if subject.id in ids_de_materias  %} selected {% endif  %} value="{{subject.id}}" {% if subject.id in selected_subject_ids %}selected{% endif %}>
                     {{subject.name}}</option>
                 {% endfor %}
             </select>
+            <span class="error-message"></span>
         </article>
         <article class="w-50">
             <label for="teacher" class="mb-2 form-label">Profesor</label>
-            <select class="form-select" id="teacher" name="teacher">
+            <select class="form-select" id="teacher" name="teacher" required>
                 <option value="">Seleccionar profesor</option>
                 {% for teacher in teachers %}
                 <option {% if teacherSelected.id == teacher.id  %} selected {% endif %} value="{{ teacher.id }}">{{ teacher.name }} {{ teacher.lastName }}</option>
                 {% endfor %}
             </select>
+            <span class="error-message"></span>
         </article>
     </section>
 
     <section class="d-flex justify-content-center gap-3">
         <article class="w-50">
             <label>Cantidad minima de estudiantes</label>
-            <input type="number" name="minStudentsNumber" value="{{curso.minStudentsNumber}}" class="form-control" />
+            <input type="number" name="minStudentsNumber" value="{{curso.minStudentsNumber}}" class="form-control" required />
+            <span class="error-message"></span>
         </article>
 
         <article class="w-50">
             <label>Cantidad maxima de estudiantes</label>
-            <input type="number" name="maxStudentsNumber" class="form-control" value="{{curso.maxStudentsNumber}}" />
+            <input type="number" name="maxStudentsNumber" class="form-control" value="{{curso.maxStudentsNumber}}" required />
+            <span class="error-message"></span>
         </article>
     </section>
 
@@ -120,22 +132,24 @@
         <article class="w-50">
             <label>Fecha de inicio de matriculacion</label>
             <input type="date" name="enrollment_start_date" class="form-control"
-                value="{{curso.enrollment_start_date}}" />
+                value="{{curso.enrollment_start_date}}" required/>
+        <span class="error-message"></span>
         </article>
 
         <article class="w-50">
             <label>Fecha fin de matriculacion</label>
-            <input type="date" name="enrollment_end_date" class="form-control" value="{{curso.enrollment_end_date}}" />
+            <input type="date" name="enrollment_end_date" class="form-control" value="{{curso.enrollment_end_date}}" required />
+            <span class="error-message"></span>
         </article>
+        
     </section>
 
     <section class="d-flex justify-content-center gap-3">
         <article class="w-100">
             <label>Monto matricula</label>
-            <input {% if curso %} disabled {% endif %} type="number" name="enrollment_amount" class="form-control" value="{{curso.enrollment_amount}}" />
+            <input {% if curso %} disabled {% endif %} type="number" name="enrollment_amount" class="form-control" value="{{curso.enrollment_amount}}" required />
+            <span class="error-message"></span>
         </article>
-
-
     </section>
 
 
@@ -144,6 +158,50 @@
     <section class="d-flex justify-content-center">
         <button type="submit" class="btn btn-primary">Guardar</button>
     </section>
+
+    <!-- Script para validar el formulario -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('cursoForm');
+    const guardarBtn = document.getElementById('guardarBtn');
+
+    guardarBtn.addEventListener('click', function(event) {
+        // Evitar el envío del formulario por defecto
+        event.preventDefault();
+
+        // Reiniciar mensajes de error
+        resetErrorMessages();
+
+        // Validar campos requeridos
+        const requiredFields = form.querySelectorAll('[required]');
+        let formIsValid = true;
+
+        requiredFields.forEach(field => {
+            if (!field.value.trim()) {
+                const errorMessage = 'Completa este campo';
+                const errorSpan = field.nextElementSibling;
+
+                errorSpan.textContent = errorMessage;
+                formIsValid = false;
+            }
+        });
+
+        // Enviar el formulario si es válido
+        if (formIsValid) {
+            form.submit();
+        }
+    });
+
+    // Función para reiniciar mensajes de error
+    function resetErrorMessages() {
+        const errorMessages = document.querySelectorAll('.error-message');
+        errorMessages.forEach(span => {
+            span.textContent = '';
+        });
+    }
+    });
+    </script>
+    
 </form>
 <script src="{% static 'scripts/script.js' %}"></script>
 <script src="{% static 'scripts/registrar_curso.js' %}"></script>
