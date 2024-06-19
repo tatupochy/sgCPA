@@ -1,8 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from decimal import Decimal
+from django.utils import timezone
+
 
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 
 from django.shortcuts import render
 
@@ -16,6 +18,7 @@ from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, En
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import redirect,get_object_or_404
+from django.urls import reverse
 
 from .numero_letras import numero_a_letras
 
@@ -53,8 +56,6 @@ def pending_payments(request, pk):
         selected_fees = request.POST.getlist('selected_fees')
         selected_enrollments = request.POST.getlist('selected_enrollments')
 
-        payment_method = request.POST['payment_method']
-
         fees = []
         enrollments = []
 
@@ -66,7 +67,7 @@ def pending_payments(request, pk):
             enrollment = Enrollment.objects.get(id=enrollment_id)
             enrollments.append(enrollment)
 
-        invoice = create_invoice(fees, enrollments, student, payment_method, request.user)
+        invoice = create_invoice(fees, enrollments, student, request.user)
 
         return redirect('show_invoice', pk=invoice.id)
 
@@ -75,12 +76,10 @@ def pending_payments(request, pk):
         pending_fees = Fee.objects.filter(student_id=pk, state_id=State.objects.get(name='pending').id)
         pending_enrollments = Enrollment.objects.filter(student_id=pk, state_id=State.objects.get(name='pending').id)
 
-        payment_methods = PaymentMethod.objects.all()
-
-        return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollments': pending_enrollments, 'student': student, 'payment_methods': payment_methods})
+        return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollments': pending_enrollments, 'student': student})
 
 
-def create_invoice(fees, enrollments, student, payment_method, user):
+def create_invoice(fees, enrollments, student, user):
 
     cash_box = CashBox.objects.get(active=True, user=user)
 
@@ -149,26 +148,33 @@ def create_invoice(fees, enrollments, student, payment_method, user):
 
 
 def show_invoice(request, pk):
-    # Obtener la factura por ID, lanzando un error 404 si no se encuentra
-    invoice = get_object_or_404(Invoice, id=pk)
-    formated_invoice_date = invoice.date.strftime('%Y-%m-%d')
-    invoice.date = formated_invoice_date
-    formated_valid_until = invoice.valid_until.strftime('%Y-%m-%d')
-    invoice.valid_until = formated_valid_until
-    # Obtener los detalles de la factura
-    invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
+    if request.method == 'POST':
+        invoice = Invoice.objects.get(id=pk)
+        invoice.valid_until = request.POST['valid_until']
+        invoice.save()
 
-    is_invoice_paid = False
-    payment = Payment.objects.filter(invoice=invoice).first()
-    if payment:
-        is_invoice_paid = True
+        return redirect('payment_invoice_create', pk=pk)
+    else:
+        # Obtener la factura por ID, lanzando un error 404 si no se encuentra
+        invoice = get_object_or_404(Invoice, id=pk)
+        formated_invoice_date = invoice.date.strftime('%Y-%m-%d')
+        invoice.date = formated_invoice_date
+        formated_valid_until = invoice.valid_until.strftime('%Y-%m-%d')
+        invoice.valid_until = formated_valid_until
+        # Obtener los detalles de la factura
+        invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
-    context = {
-        'invoice': invoice,
-        'invoice_details': invoice_details,
-        'is_invoice_paid': is_invoice_paid
-    }
-    return render(request, 'show_invoice.html', context)
+        is_invoice_paid = False
+        payment = Payment.objects.filter(invoice=invoice).first()
+        if payment:
+            is_invoice_paid = True
+
+        context = {
+            'invoice': invoice,
+            'invoice_details': invoice_details,
+            'is_invoice_paid': is_invoice_paid
+        }
+        return render(request, 'show_invoice.html', context)
 
 
 def invoices(request):
@@ -235,9 +241,11 @@ def payment_invoice_create(request, pk):
         for invoice_detail in invoice_details:
             if invoice_detail.fee:
                 invoice_detail.fee.state = State.objects.get(name='paid')
+                invoice_detail.fee.fee_paid_amount = invoice_detail.amount
                 invoice_detail.fee.save()
             elif invoice_detail.enrollment:
                 invoice_detail.enrollment.state = State.objects.get(name='paid')
+                invoice_detail.enrollment.enrollment_paid_amount = invoice_detail.amount
                 invoice_detail.enrollment.save()
 
         return render(request, 'payment_detail.html', {'payment': payment})
@@ -298,8 +306,8 @@ def calculate_fees_quantity(start_date, end_date):
     return total_months
 
 
-def create_fees(request, student_id):
-    enrollment = Enrollment.objects.get(student_id=student_id)
+def create_fees(request, student_id, enrollment_id):
+    enrollment = Enrollment.objects.get(id=enrollment_id)
     course = enrollment.course
     student = Student.objects.get(id=student_id)
     start_date = enrollment.enrollment_date
@@ -342,7 +350,7 @@ def enrollment_detail(request, enrollment_id):
 
 def enrollment_detail_payment(request, enrollment_id):
     enrollment = Enrollment.objects.get(id=enrollment_id)
-    fees = Fee.objects.filter(enrollment = enrollment)
+    fees = Fee.objects.filter(enrollment=enrollment)
     if fees:
         return render(request, 'enrollment_detail_payment.html', {'enrollment': enrollment, 'fees': fees})
 
@@ -351,52 +359,71 @@ def enrollment_create(request):
     if request.method == 'POST':
 
         form_data = request.POST.dict()
-        print('form_data', form_data)
 
         states = State.objects.all()
 
-        student_ci = form_data['student']
         course_id = form_data['course']
-        year = form_data['year']
         enrollment_date = form_data['enrollment_date']
-        amount = form_data['enrollment_amount']
 
-        student = Student.objects.get(ciNumber=student_ci)
-        student_id = student.id
+        students = Student.objects.all()
+        
         course = Course.objects.get(id=course_id)
+        
+        for student in students:
+            studentId = request.POST.get(str(student.id))
+            if studentId  is not None and course.space_available > 0:
+                enrollment = Enrollment()
+                enrollment.course_id = course_id
+                enrollment.enrollment_date = enrollment_date
+                enrollment.state_id = states.get(name='pending').id
+                enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
+                enrollment.student_id = studentId
+                enrollment.save()
+                courseDates = CourseDates.objects.filter(course=course)
+                
+                for courseDate in courseDates:
+                    attendance = Attendance.objects.filter(course_id=course_id, date=courseDate.date).first()
+                    AttendanceStudent.objects.create(attendance=attendance, student=student)
+                    
+                if course.space_available > 0:
+                    course.space_available -= 1
+                    course.save()
 
-        enrollment = Enrollment()
-        enrollment.student_id = student_id
-        enrollment.course_id = course_id
-        enrollment.year = year
-        enrollment.enrollment_date = enrollment_date
-        print('amount', amount)
-        enrollment.enrollment_amount = amount
-        enrollment.state_id = states.get(name='pending').id
-        enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
+                create_fees(request, studentId, enrollment.id)
+                    
+            elif studentId is not None and course.space_available <= 0:
+                # Si no hay cupos disponibles, maneja la situación de alguna forma adecuada
+                return JsonResponse({"status": "error", "message": "No hay cupos disponibles para el curso"}, status=400)
 
-        # check if the student has an enrollment for the course
-        if Enrollment.objects.filter(student_id=student_id, course_id=course_id):
-            return render(request, 'enrollment_create.html', {'states': states, 'students': Student.objects.all(), 'courses': Course.objects.all(), 'error': 'El estudiante ya tiene una matrícula para el curso seleccionado'})
-
-        # check if student has unpaid fees
-        if Fee.objects.filter(student_id=student_id, state_id=states.get(name='pending').id):
-            return render(request, 'enrollment_create.html', {'states': states, 'students': Student.objects.all(), 'courses': Course.objects.all(), 'error': 'El estudiante tiene cuotas pendientes por pagar'})
-
-        enrollment.save()
-
-        courseDates = CourseDates.objects.filter(course=course)
-        for courseDate in courseDates:
-            attendance = Attendance.objects.filter(course_id=course_id, date=courseDate.date).first()
-            AttendanceStudent.objects.create(attendance=attendance, student=student)
-
-        return render(request, 'enrollment_detail.html', {'enrollment': enrollment})
+        return redirect(reverse('enrollment_create'))
     else:
         states = State.objects.all()
         students = Student.objects.all()
-        courses = Course.objects.all()
-        return render(request, 'enrollment_create.html', {'states': states, 'students': students, 'courses': courses})
+        fecha_actual = timezone.now().date()
     
+    # Filtrar cursos cuyas fechas de inicio y fin de matriculación están en el rango de la fecha actual
+        courses = Course.objects.filter(
+            enrollment_start_date__lte=fecha_actual,
+            enrollment_end_date__gte=fecha_actual
+        )
+        # courses = Course.objects.all()
+        return render(request, 'enrollment_create.html', {'states': states, 'students': students, 'courses': courses})
+
+def enrollment_eliminar(request, id):
+    
+    enrollment = get_object_or_404(Enrollment, id=id)
+    enrollment.active = False
+    enrollment.save()
+    return HttpResponse("Registro modificado correctamente")
+
+
+def get_students(request, courseId):
+    print(courseId)
+    estudiantes_matriculados = Enrollment.objects.filter(course_id=courseId).values('student_id')
+    estudiantes_no_matriculados = Student.objects.exclude(id__in=estudiantes_matriculados)
+    print(estudiantes_no_matriculados)
+    return JsonResponse({"Hola": "hola"})
+
 
 def payment_methods(request):
     payment_methods = PaymentMethod.objects.all()

@@ -43,7 +43,8 @@
     width: 100%;
     overflow-y: auto;
     color: black;
-}
+    overflow-x: auto;
+}   
 .table-container .table {
     width: 100%;
     color: black;

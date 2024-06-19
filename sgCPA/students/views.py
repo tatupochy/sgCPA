@@ -5,6 +5,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, Http
 from countries.models import Country
 from cities.models import Cities
 from attendances.models import Attendance, AttendanceStudent
+from payments.models import Enrollment
 from utils.utils import calculate_class_days
 from .models import CourseDates, Student, Course, Shift, Section
 from subjects.models import Subject
@@ -183,10 +184,15 @@ def registrar_curso(request):
         teacher = request.POST.get('teacher')
         minStudentsNumber = request.POST.get('minStudentsNumber')
         maxStudentsNumber = request.POST.get('maxStudentsNumber')
+        enrollment_start_date = request.POST.get('enrollment_start_date')
+        enrollment_end_date = request.POST.get('enrollment_end_date')
+        enrollment_amount = request.POST.get('enrollment_amount')
         
         
-        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date()
-        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date()
+        # Verificar si las fechas están vacías antes de convertirlas
+        start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
+        end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+
         class_days = list(map(int, days_per_week))
 
         teacher = Teacher.objects.get(pk=teacher)
@@ -207,7 +213,10 @@ def registrar_curso(request):
                 year=datetime.datetime.now().year,
                 teacher=teacher,
                 minStudentsNumber=minStudentsNumber,
-                maxStudentsNumber=maxStudentsNumber
+                maxStudentsNumber=maxStudentsNumber,
+                enrollment_start_date=enrollment_start_date,
+                enrollment_end_date=enrollment_end_date,
+                enrollment_amount=enrollment_amount
             )
             # Guardar el curso en la base de datos
             curso.save()
@@ -234,39 +243,33 @@ def detalle_curso(request, id):
 
 def editar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)
-    fechas = curso.coursedates_set.all()
-    fechas_formateadas = [fecha.date.strftime("%A, %d de %B de %Y")  for fecha in fechas]
-    print(fechas_formateadas)
     CHOICE_SHIFTS = Shift.objects.all()
     CHOICES_SECTIONS = Section.objects.all()
     if request.method == 'POST':
-        subjects_ids = request.POST.getlist('subjects')
-        name = request.POST.get('name')
-        shift = Shift.objects.get(pk=request.POST.get('shift'))
+        
+       
         section = Section.objects.get(pk=request.POST.get('section'))
         active = request.POST.get('active') == 'on'
-        start_date = request.POST.get('start_date')
-        end_date = request.POST.get('end_date')
-        fee_amount = request.POST.get('fee_amount')
-        days_per_week = request.POST.get('days_per_week')
+        
+        enrollment_start_date = request.POST.get('enrollment_start_date')
+        enrollment_end_date = request.POST.get('enrollment_end_date')
+        minStudentsNumber=request.POST.get('minStudentsNumber')
+        maxStudentsNumber=request.POST.get('maxStudentsNumber')
+        
         teacher = Teacher.objects.get(pk=request.POST.get('teacher'))
+        
+       
+        curso.section = section
+        curso.active = active
+        curso.enrollment_start_date = enrollment_start_date
+        curso.enrollment_end_date = enrollment_end_date
+        curso.minStudentsNumber = minStudentsNumber
+        curso.maxStudentsNumber = maxStudentsNumber
+        curso.teacher = teacher
+        curso.save()
+        
+        return listar_curso(request)
 
-        if name and shift and start_date and end_date and fee_amount and days_per_week:
-            # Actualizar los campos del curso con los nuevos valores
-            curso.name = name
-            curso.shift = shift
-            curso.section = section
-            curso.active = active
-            curso.start_date = start_date
-            curso.end_date = end_date
-            curso.fee_amount = fee_amount
-            curso.days_per_week = days_per_week
-            curso.subjects.set(subjects_ids)
-            curso.teacher = teacher
-            curso.save()
-            return redirect('detalle_curso', id=curso.id)
-        else:
-            return HttpResponse("Faltan campos requeridos")
     else:
         
         subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
@@ -275,7 +278,12 @@ def editar_curso(request, id):
         
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
+        
+        curso.enrollment_start_date = curso.enrollment_start_date.strftime("%Y-%m-%d")
+        curso.enrollment_end_date = curso.enrollment_end_date.strftime("%Y-%m-%d")
+        
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
+        
         
         data = {
             'CHOICE_SHIFTS': CHOICE_SHIFTS,
@@ -287,7 +295,7 @@ def editar_curso(request, id):
             'teacherSelected': teacherSelected,
         }
         
-        return render(request, 'courses/editar_curso.html', data)
+        return render(request, 'courses/registrar_curso.html', data)
     
 def borrar_curso(request, id):
     curso = get_object_or_404(Course, pk=id)
@@ -300,6 +308,56 @@ def listar_curso(request):
     cursos = Course.objects.all()
     return render(request, 'courses/listar_curso.html', {'cursos': cursos})
 
+
+def obtener_curso(request, id):
+    
+    course = Course.objects.get(id=id)
+    
+    # Verificar si hay algún registro de Enrollment para el curso
+    if Enrollment.objects.filter(course_id=id).exists():
+        # Si hay registros, obtener los estudiantes que no están matriculados en el curso
+        estudiantes_matriculados = Enrollment.objects.filter(course_id=id).values('student_id')
+        estudiantes_no_matriculados = Student.objects.exclude(id__in=estudiantes_matriculados)
+    else:
+        # Si no hay registros, obtener todos los estudiantes
+        estudiantes_no_matriculados = Student.objects.all()
+    
+    # Convertir a lista de diccionarios para el JSON
+    estudiantes_no_matriculados_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
+   
+    
+    data = {
+        'enrollment_amount': course.enrollment_amount,
+        'minStudentsNumber': course.minStudentsNumber,
+        'maxStudentsNumber': course.maxStudentsNumber,
+        'fee_amount': course.fee_amount,
+        'minStudentsNumber': course.minStudentsNumber,
+        'maxStudentsNumber': course.maxStudentsNumber,
+        'student_list': estudiantes_no_matriculados_list,
+        'space_available': course.space_available,
+        'enrollment_start_date': course.enrollment_start_date,
+        'enrollment_end_date': course.enrollment_end_date
+        
+    }
+    return JsonResponse({"course_data":data})
+
+def obtener_alumno_por_ci(request, ci, course_id):
+    
+    students = Student.objects.filter(ciNumber__icontains=ci)
+    
+     # Filtrar los estudiantes que no están matriculados en el curso especificado
+    estudiantes_matriculados = Enrollment.objects.filter(course_id=course_id).values('student_id')
+    
+    estudiantes_no_matriculados = students.exclude(id__in=estudiantes_matriculados)
+    
+    students_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
+
+    # Si hay estudiantes que coinciden, serializarlos y devolver la respuesta
+    # if students.exists():
+    return JsonResponse(students_list, safe=False)
+        
+    # Si no hay coincidencias, devolver un mensaje indicando que no se encontraron estudiantes
+    # return JsonResponse({"message": "No se encontraron estudiantes con ese número de cédula"}, status=404)
 
 
 ###### Turnos ######   

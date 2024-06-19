@@ -4,25 +4,16 @@
 
 {% block content %}
 <div class="container card" style="padding: 1%;">
-    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/search_pending_payments'" style="cursor: pointer;"></i>
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/payments/search_pending_payments'" style="cursor: pointer;"></i>
     <h1>Pagos Pendientes para {{ student.name }}</h1>
 
     <form method="POST" class="form">
         {% csrf_token %}
-        <h2>Cuotas Pendientes</h2>
         <div class="form-group">
             <label for="id_student" class="form-label">Estudiante:</label>
             <input type="text" class="form-control" id="id_student" name="student" value="{{ student.ciNumber }}" readonly>
         </div>
-        <div class="form-group">
-            <label for="payment_method" class="form-label">Método de Pago:</label>
-            <select class="form-control" id="payment_method" name="payment_method" required>
-                <option value="" selected disabled>Seleccione un método de pago</option>
-                {% for payment_method in payment_methods %}
-                <option value="{{ payment_method.id }}">{{ payment_method.description }}</option>
-                {% endfor %}
-            </select>
-        </div>
+        <h2>Cuotas Pendientes</h2>
         <table class="table table-hover table-bordered table-striped" id="feesTable">
             <thead>
                 <tr>
