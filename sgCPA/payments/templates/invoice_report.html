@@ -33,6 +33,9 @@
         .client-details tr, .payment-details tr, .total-details tr, .iva-details tr {
             border-bottom: 1px solid black;
         }
+        span {
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -44,12 +47,22 @@
                         <table style="border: none;">
                             <tr>
                                 <td style="border: none;">
-                                    <img src="https://www.flaticon.com/svg/static/icons/svg/174/174857.svg" alt="Logo">
+                                    <h3>KATUPYRY</h3>
                                 </td>
                             </tr>
                             <tr>
                                 <td style="border: none;">
-                                    Detalles de la empresa
+                                    Cnel. Lirio N° 2020 c/ Trejo y Sanabria
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border: none;">
+                                    Telefono: 0981 123 456
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="border: none;">
+                                    Asunción, Paraguay
                                 </td>
                             </tr>
                         </table>
@@ -58,27 +71,27 @@
                         <table style="border: none;">
                             <tr>
                                 <td style="border: none;">
-                                    Timbrado N°: {{ invoice.stamping.number }}
+                                    <span>Timbrado N°: </span>{{ invoice.stamping.number }}
                                 </td>
                             </tr>
                             <tr>
                                 <td style="border: none;">
-                                    Fecha de inicio de vigencia: {{ invoice.stamping.valid_from }}
+                                    <span>Fecha de inicio de vigencia: </span>{{ invoice.stamping.valid_from }}
                                 </td>
                             </tr>
                             <tr>
                                 <td style="border: none;">
-                                    Fecha de fin de vigencia: {{ invoice.stamping.valid_until }}
+                                    <span>Fecha de fin de vigencia: </span>{{ invoice.stamping.valid_until }}
                                 </td>
                             </tr>
                             <tr>
                                 <td style="border: none;">
-                                    RUC: 135489-8
+                                    <span>RUC: </span>135489-8
                                 </td>
                             </tr>
                             <tr>
                                 <td style="border: none;">
-                                    Factura N°: {{ invoice.name }}
+                                    <span>Factura N°: </span>{{ invoice.name }}
                                 </td>
                             </tr>
                         </table>
@@ -90,25 +103,25 @@
         <div class="client-details">
             <table>
                 <tr>
-                    <td>Fecha de emision: {{ invoice.date }}</td>
-                    <td>Condición de venta: Contado</td>
+                    <td><span>Fecha de emision: </span>{{ invoice.date }}</td>
+                    <td><span>Condición de venta: </span>Contado</td>
                 </tr>
                 <tr>
                     <td>
-                        Ruc: {{ invoice.client.ciNumber }}
+                        <span>Ruc: </span>{{ invoice.client.ciNumber }}
                     </td>
                     <td>
-                        Nota de remision:
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        Nombre o razon social: {{ invoice.client.name }} {{ invoice.client.lastName }}
+                        <span>Nota de remision:</span>
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        Direccion:
+                        <span>Nombre o razon social: </span>{{ invoice.client.name }} {{ invoice.client.lastName }}
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <span>Direccion:</span>
                     </td>
                 </tr>
             </table>
@@ -118,12 +131,12 @@
             <table>
                 <thead>
                     <tr>
-                        <td>Cantidad</td>
-                        <td>Descripción</td>
-                        <td>Precio unitario</td>
-                        <td>Exentas</td>
-                        <td>Gravadas 5%</td>
-                        <td>Gravadas 10%</td>
+                        <td><span>Cantidad</span></td>
+                        <td><span>Descripción</span></td>
+                        <td><span>Precio unitario</span></td>
+                        <td><span>Exentas</span></td>
+                        <td><span>Gravadas 5%</span></td>
+                        <td><span>Gravadas 10%</span></td>
                     </tr>
                 </thead>
                 <tbody>
@@ -150,7 +163,7 @@
                     </tr>
                     {% endfor %}
                     <tr>
-                        <td colspan="3">Sub-totales</td>
+                        <td colspan="3"><span>Sub-totales</span></td>
                         <td>{{ exentas }}</td>
                         <td>{{ iva5 }}</td>
                         <td>{{ iva10 }}</td>
@@ -162,8 +175,8 @@
         <div class="total-details">
             <table style="border-top: none">
                 <tr>
-                    <td>Total a pagar (en letras): {{ invoice.text_amount }}</td>
-                    <td colspan="2" style="width:20%; text-align: right;">{{ invoice.amount }}</td>
+                    <td><span>Total a pagar (en letras): </span>{{ invoice_amount_in_letters }} guaraníes</td>
+                    <td style="width:20%; text-align: right;">{{ invoice.amount }}</td>
                 </tr>
             </table>
         </div>
@@ -172,13 +185,13 @@
             <table style="border-top: none">
                 <tr>
                     <td style="border: none">
-                        Liquidación de IVA 5%: {{ invoice.iva_5 }}
+                        <span>Liquidación de IVA 5%: </span>{{ invoice.iva_5 }}
                     </td>
                     <td style="border: none">
-                        Liquidación de IVA 10%: {{ invoice.iva_10 }}
+                        <span>Liquidación de IVA 10%: </span>{{ invoice.iva_10 }}
                     </td>
                     <td style="border: none">
-                        Total IVA: {{ invoice.iva_total }}
+                        <span>Total IVA: </span>{{ invoice.iva_total }}
                     </td>
                 </tr>
             </table>

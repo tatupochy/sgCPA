@@ -17,6 +17,8 @@ import calendar
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import redirect,get_object_or_404
 
+from .numero_letras import numero_a_letras
+
 # Create your views here.
 
 
@@ -178,6 +180,8 @@ def download_invoice(request, pk):
     invoice = Invoice.objects.get(id=pk)
     invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
+    invoice_amount_in_letters = numero_a_letras(invoice.amount)
+
     exentas = 0
     iva5 = 0
     iva10 = 0
@@ -190,7 +194,8 @@ def download_invoice(request, pk):
         else:
             exentas += invoice_detail.amount
 
-    html = render_to_string('invoice_report.html', {'invoice': invoice, 'invoice_details': invoice_details, 'exentas': exentas, 'iva5': iva5, 'iva10': iva10})
+    html = render_to_string('invoice_report.html', {'invoice': invoice, 'invoice_details': invoice_details,
+                                                    'invoice_amount_in_letters': invoice_amount_in_letters, 'exentas': exentas, 'iva5': iva5, 'iva10': iva10})
 
     filename = 'invoice_' + str(invoice.name) + '.pdf'
 
