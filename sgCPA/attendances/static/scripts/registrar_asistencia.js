@@ -94,10 +94,15 @@ document.addEventListener('DOMContentLoaded', () => {
             inputFecha.value = today;
             const fragment = d.createDocumentFragment()
             fechas.map((fecha, index) => {
-                const option = d.createElement('option')
-                option.text = fecha
-                option.value = fecha
-                fragment.append(option)
+                const parts = fecha.split('/');
+                const currentDate = new Date();
+                const fechaDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                if(fechaDate <=  currentDate){
+                    const option = d.createElement('option')
+                    option.text = fecha
+                    option.value = fecha
+                    fragment.append(option)
+                }
             })
             inputFecha.append(fragment)
             
@@ -116,7 +121,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const fragment = d.createDocumentFragment()
         if(asistencias.length > 0){
             asistencias.map(asistencia => { 
-                console.log(asistencia)
                 const tr = d.createElement('tr')
                 const tdName = d.createElement('td')
                 const tdLastName = d.createElement('td')
@@ -124,7 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const tdAttendance = d.createElement('td')
                 const checkbox = d.createElement('input')
                 checkbox.type = 'checkbox'
-                checkbox.checked = asistencia.presente == 'A' ? false : true
+                checkbox.checked = (asistencia.presente == 'A' || asistencia.presente == 'Indefinido') ? false : true
                 checkbox.name =  asistencia.id_alumno;
                 tdName.textContent = asistencia.nombre;
                 tdLastName.textContent  = asistencia.apellido

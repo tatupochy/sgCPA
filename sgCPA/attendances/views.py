@@ -221,10 +221,18 @@ def obtener_asistencias(request, id):
             presente = registro.present
             id_alumno = alumno.id
             
+            # Validación del campo 'presente'
+            if presente is True:
+                estado_asistencia = 'P'
+            elif presente is False:
+                estado_asistencia = 'A'
+            else:
+                estado_asistencia = 'Indefinido'
+            
             datos_alumno = {
                 'nombre': nombre_alumno,
                 'apellido': apellido,
-                'presente': 'P' if presente else 'A',
+                'presente': estado_asistencia,
                 'ci':ci,
                 'id_alumno': id_alumno
             }

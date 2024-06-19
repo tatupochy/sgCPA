@@ -74,10 +74,15 @@ document.addEventListener('DOMContentLoaded', () => {
             defaultOption.disabled = true;
             fragment.append(defaultOption)
             fechas.map((fecha) => {
-                const option = d.createElement('option')
-                option.text = fecha
-                option.value = fecha
-                fragment.append(option)
+                const parts = fecha.split('/');
+                const currentDate = new Date();
+                const fechaDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                if(fechaDate <= currentDate){
+                    const option = d.createElement('option')
+                    option.text = fecha
+                    option.value = fecha
+                    fragment.append(option)
+                }
             })
             fecha.append(fragment)
             fecha.disabled = false;
