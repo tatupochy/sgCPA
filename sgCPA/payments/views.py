@@ -301,8 +301,8 @@ def calculate_fees_quantity(start_date, end_date):
     return total_months
 
 
-def create_fees(request, student_id):
-    enrollment = Enrollment.objects.get(student_id=student_id)
+def create_fees(request, student_id, enrollment_id):
+    enrollment = Enrollment.objects.get(id=enrollment_id)
     course = enrollment.course
     student = Student.objects.get(id=student_id)
     start_date = enrollment.enrollment_date
@@ -383,6 +383,8 @@ def enrollment_create(request):
                 if course.space_available > 0:
                     course.space_available -= 1
                     course.save()
+
+                create_fees(request, studentId, enrollment.id)
                     
             elif studentId is not None and course.space_available <= 0:
                 # Si no hay cupos disponibles, maneja la situación de alguna forma adecuada

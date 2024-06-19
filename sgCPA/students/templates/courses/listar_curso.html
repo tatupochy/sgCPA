@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
 <h2 class="mt-4 mb-3">Listado de Cursos</h2>
 
@@ -138,4 +138,5 @@
       });
   });
 </script>
+<script src="{% static 'scripts/script.js' %}"></script>
 {% endblock %}
