@@ -21,12 +21,24 @@ from django.shortcuts import redirect,get_object_or_404
 from django.urls import reverse
 
 from .numero_letras import numero_a_letras
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 # Create your views here.
 
 
 def payments(request):
     payments = Payment.objects.all()
+
+    pagination = Paginator(payments, 10)
+    page = request.GET.get('page')
+
+    try:
+        payments = pagination.page(page)
+    except PageNotAnInteger:
+        payments = pagination.page(1)
+    except EmptyPage:
+        payments = pagination.page(pagination.num_pages)
+
     return render(request, 'payments.html', {'payments': payments})
 
 
@@ -179,6 +191,17 @@ def show_invoice(request, pk):
 
 def invoices(request):
     invoices = Invoice.objects.all()
+
+    pagination = Paginator(invoices, 10)
+    page = request.GET.get('page')
+
+    try:
+        invoices = pagination.page(page)
+    except PageNotAnInteger:
+        invoices = pagination.page(1)
+    except EmptyPage:
+        invoices = pagination.page(pagination.num_pages)
+
     return render(request, 'invoices.html', {'invoices': invoices})
 
 
@@ -264,6 +287,17 @@ def payment_invoice_create(request, pk):
 
 def fees(request):
     fees = Fee.objects.all()
+
+    pagination = Paginator(fees, 10)
+    page = request.GET.get('page')
+
+    try:
+        fees = pagination.page(page)
+    except PageNotAnInteger:
+        fees = pagination.page(1)
+    except EmptyPage:
+        fees = pagination.page(pagination.num_pages)
+
     for fee in fees:
         if fee.is_overdue():
             fee.state = State.objects.get(name='overdue')
@@ -545,6 +579,17 @@ def concept_create(request):
 
 def concept_list(request):
     concepts = Concept.objects.all()
+
+    paginator = Paginator(concepts, 10)
+    page = request.GET.get('page')
+
+    try:
+        concepts = paginator.page(page)
+    except PageNotAnInteger:
+        concepts = paginator.page(1)
+    except EmptyPage:
+        concepts = paginator.page(paginator.num_pages)
+
     return render(request, 'concepts.html', {'concepts': concepts})
 
 
@@ -636,6 +681,17 @@ def stamping_create(request):
 
 def stamping_list(request):
     stampings = Stamping.objects.all()
+
+    pagination = Paginator(stampings, 10)
+    page = request.GET.get('page')
+
+    try:
+        stampings = pagination.page(page)
+    except PageNotAnInteger:
+        stampings = pagination.page(1)
+    except EmptyPage:
+        stampings = pagination.page(pagination.num_pages)
+
     return render(request, 'stampings.html', {'stampings': stampings})
 
 

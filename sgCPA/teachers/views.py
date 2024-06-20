@@ -5,9 +5,22 @@ from .models import Teacher
 from django.http import JsonResponse
 from cities.models import Cities
 from countries.models import Country
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 def teacher_list(request):
     teachers = Teacher.objects.all()
+
+    page = request.GET.get('page', 1)
+    paginator = Paginator(teachers, 5)
+
+    try:
+        teachers = paginator.page(page)
+    except PageNotAnInteger:
+        teachers = paginator.page(1)
+    except EmptyPage:
+        teachers = paginator.page(paginator.num_pages)
+
     return render(request, 'teachers/teacher_list.html', {'teachers': teachers})
 
 def teacher_detail(request, pk):
