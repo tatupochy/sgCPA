@@ -412,6 +412,7 @@ def enrollment_create(request):
                 enrollment.state_id = states.get(name='pending').id
                 enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
                 enrollment.student_id = studentId
+                enrollment.enrollment_amount = course.enrollment_amount
                 enrollment.save()
                 courseDates = CourseDates.objects.filter(course=course)
                 

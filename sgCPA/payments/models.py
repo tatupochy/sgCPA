@@ -57,7 +57,7 @@ class Enrollment(models.Model):
 
     # year = models.IntegerField()
     enrollment_date = models.DateField()
-    # enrollment_amount = models.DecimalField(max_digits=10, decimal_places=2)
+    enrollment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     enrollment_paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
