@@ -13,7 +13,6 @@ def sendEmail(subject, message, to_email):
 
 
 def calculate_class_days(start_date, end_date, class_days):
-    print(start_date, end_date, class_days)
     """
     Calcula la cantidad de días de clase y las fechas de cada clase entre start_date y end_date.
 

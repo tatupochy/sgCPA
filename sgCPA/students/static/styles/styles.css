@@ -166,3 +166,7 @@ a.sidebar-link:hover {
     overflow: auto;
     width: 100%;
 }
+
+.error-message{
+    color: red;
+}

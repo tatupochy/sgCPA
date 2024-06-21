@@ -170,6 +170,8 @@ def buscar(request, id):
 def registrar_curso(request):
     CHOICE_SHIFTS = Shift.objects.all()
     CHOICES_SECTIONS = Section.objects.all()
+    subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
+    teachers = Teacher.objects.filter(Q(active=True) | Q(active__isnull=True))
 
     if request.method == 'POST':
         subjects_ids = request.POST.getlist('subjects')
@@ -192,14 +194,25 @@ def registrar_curso(request):
         # Verificar si las fechas están vacías antes de convertirlas
         start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
         end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
+        
+        enrollment_start_date = datetime.datetime.strptime(enrollment_start_date, '%Y-%m-%d').date() if enrollment_start_date else None
+        
+        enrollment_end_date = datetime.datetime.strptime(enrollment_end_date, '%Y-%m-%d').date() if enrollment_end_date else None
+        
 
         class_days = list(map(int, days_per_week))
 
         teacher = Teacher.objects.get(pk=teacher)
         total_days, class_dates = calculate_class_days(start_date=start_date, end_date=end_date, class_days=class_days)
-        
+        print((enrollment_end_date - start_date).days)
         # Verificar si todos los campos requeridos están presentes
         if name and shift and start_date and end_date and fee_amount and days_per_week:
+            # Verificar que la fecha fin de la matriculación no sea mayor a una semana de la fecha de inicio de las clases
+            if (enrollment_end_date - start_date).days > 7:
+                errors = {
+                    'enrollment_end_date': 'La fecha de fin de matriculacion no puede ser mayor a una semana de la fecha de inicio de clases'
+                }
+                return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list, 'teachers': teachers, 'errors': errors})
             # Crear una instancia de Course
             curso = Course(
                 name=name,
@@ -223,7 +236,7 @@ def registrar_curso(request):
             curso.subjects.add(*subjects_ids)
             for date in class_dates:
                 CourseDates.objects.create(date=date, course=curso)
-                attendance = Attendance.objects.create(date=date, course=curso)
+                Attendance.objects.create(date=date, course=curso)
                
            
             return redirect('detalle_curso', id=curso.id)
@@ -232,8 +245,7 @@ def registrar_curso(request):
             # Si falta algún campo requerido, mostrar un mensaje de error o realizar alguna otra acción
             return HttpResponse("Faltan campos requeridos")
     else:
-        subject_list = Subject.objects.filter(Q(active=True) | Q(active__isnull=True))
-        teachers = Teacher.objects.filter(Q(active=True) | Q(active__isnull=True))
+        
         return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list, 'teachers': teachers})
     
 def detalle_curso(request, id):
