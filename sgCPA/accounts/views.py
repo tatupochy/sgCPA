@@ -14,6 +14,8 @@ from django.conf import settings
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+
 
 # Create your views here.
 
@@ -95,6 +97,17 @@ class LogoutView(RedirectView):
 @login_required_custom
 def persons_view(request):
     persons = Person.objects.all()
+
+    paginator = Paginator(persons, 10)
+    page_number = request.GET.get('page')
+
+    try:
+        persons = paginator.page(page_number)
+    except PageNotAnInteger:
+        persons = paginator.page(1)
+    except EmptyPage:
+        persons = paginator.page(paginator.num_pages)
+
     return render(request, "persons.html", {'persons': persons})
 
 
@@ -175,6 +188,17 @@ def person_edit_view(request, pk):
 def users_view(request):
     # Obtén todos los usuarios activos por defecto
     users = User.objects.filter(is_active=True)
+
+    paginator = Paginator(users, 10)
+
+    page_number = request.GET.get('page')
+
+    try:
+        users = paginator.page(page_number)
+    except PageNotAnInteger:
+        users = paginator.page(1)
+    except EmptyPage:
+        users = paginator.page(paginator.num_pages)
 
     # Verifica si el parámetro GET show_inactive_users está presente y es igual a "true"
     if request.GET.get('show_inactive_users') == 'true':
@@ -369,6 +393,17 @@ def change_password(request, pk):
 @login_required_custom
 def roles_view(request):
     roles = Group.objects.all()
+
+    paginator = Paginator(roles, 10)
+    page_number = request.GET.get('page')
+
+    try:
+        roles = paginator.page(page_number)
+    except PageNotAnInteger:
+        roles = paginator.page(1)
+    except EmptyPage:
+        roles = paginator.page(paginator.num_pages)
+
     return render(request, "roles.html", {'roles': roles})
 
 
