@@ -13,6 +13,29 @@
             <label for="id_student" class="form-label">Estudiante:</label>
             <input type="text" class="form-control" id="id_student" name="student" value="{{ student.ciNumber }}" readonly>
         </div>
+
+        <h2>Matrículas Pendientes</h2>
+        <table class="table table-hover table-bordered table-striped" id="enrollmentDetailsTable">
+            <thead>
+                <tr>
+                    <th scope="col">Seleccionar</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Matrícula</th>
+                    <th scope="col">Monto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment_detail in pending_enrollment_details %}
+                <tr>
+                    <td><input type="checkbox" class="enrollment-checkbox" name="selected_enrollment_details" value="{{ enrollment_detail.id }}"></td>
+                    <td>{{ enrollment_detail.name }}</td>
+                    <td>{{ enrollment_detail.enrollment.name }}</td>
+                    <td>{{ enrollment_detail.amount }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
         <h2>Cuotas Pendientes</h2>
         <table class="table table-hover table-bordered table-striped" id="feesTable">
             <thead>
@@ -27,7 +50,7 @@
             <tbody>
                 {% for fee in pending_fees %}
                 <tr>
-                    <td><input type="checkbox" class="fee-checkbox" name="selected_fees" value="{{ fee.id }}"></td>
+                    <td><input type="checkbox" class="fee-checkbox" name="selected_fees" value="{{ fee.id }}" disabled></td>
                     <td>{{ fee.name }}</td>
                     <td>{{ fee.year }}</td>
                     <td>{{ fee.expiration_date }}</td>
@@ -37,38 +60,27 @@
             </tbody>
         </table>
 
-        <h2>Matrículas Pendientes</h2>
-        <table class="table table-hover table-bordered table-striped" id="enrollment_detail_detailsTable">
-            <thead>
-                <tr>
-                    <th scope="col">Seleccionar</th>
-                    <th scope="col">Nombre</th>
-                    <th scope="col">Matrícula</th>
-                    <th scope="col">Monto</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for enrollment_detail_detail in pending_enrollment_detail_details %}
-                <tr>
-                    <td><input type="checkbox" class="enrollment_detail-checkbox" name="selected_enrollment_detail_details" value="{{ enrollment_detail.id }}"></td>
-                    <td>{{ enrollment_detail_detail.name }}</td>
-                    <td>{{ enrollment_detail_detail.enrollment.name }}</td>
-                    <td>{{ enrollment_detail_detail.amount }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-
-        <button type="submit" class="btn btn-success">Crear factura</button>
+        <button type="submit" class="btn btn-success">Mostrar resumen de pago</button>
     </form>
 </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
     const feeCheckboxes = document.querySelectorAll('.fee-checkbox');
-    const enrollment_detailCheckboxes = document.querySelectorAll('.enrollment_detail-checkbox');
+    const enrollmentCheckboxes = document.querySelectorAll('.enrollment-checkbox');
 
-    function toggleCheckboxes(checkboxes) {
+    function toggleFeeCheckboxes(enable) {
+        feeCheckboxes.forEach((checkbox, index) => {
+            if (!enable) {
+                checkbox.disabled = true;
+                checkbox.checked = false;
+            } else {
+                checkbox.disabled = index > 0; // Only enable the first checkbox initially
+            }
+        });
+    }
+
+    function manageSequentialSelection(checkboxes) {
         for (let i = 0; i < checkboxes.length; i++) {
             if (i > 0) {
                 checkboxes[i].disabled = true;
@@ -88,8 +100,16 @@ document.addEventListener('DOMContentLoaded', (event) => {
         }
     }
 
-    toggleCheckboxes(feeCheckboxes);
-    toggleCheckboxes(enrollment_detailCheckboxes);
+    enrollmentCheckboxes.forEach(enrollmentCheckbox => {
+        enrollmentCheckbox.addEventListener('change', () => {
+            const anyEnrollmentChecked = Array.from(enrollmentCheckboxes).some(checkbox => checkbox.checked);
+            toggleFeeCheckboxes(anyEnrollmentChecked);
+        });
+    });
+
+    // Disable all fee checkboxes by default and manage sequential selection
+    toggleFeeCheckboxes(false);
+    manageSequentialSelection(feeCheckboxes);
 });
 </script>
 {% endblock %}

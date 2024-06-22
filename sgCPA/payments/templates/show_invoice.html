@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 
-{% block title %} Detalles de la Factura {% endblock %}
+{% block title %} Detalles del pago {% endblock %}
 
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <form method="POST" class="form">
         {% csrf_token %}
         <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/invoices/'" style="cursor: pointer;"></i>
-        <h1>Factura {{ invoice.name }}</h1>
+        <h1>Detalles del pago</h1>
         <div class="form-group">
             <label for="id_date" class="form-label">Fecha:</label>
             <input type="date" class="form-control" id="id_date" name="date" value="{{ invoice.date }}" readonly>
@@ -21,27 +21,16 @@
             <input type="text" step="0.01" class="form-control" id="id_amount" name="amount" value="{{ invoice.amount }}" readonly>
         </div>
         <div class="form-group">
-            <label for="id_valid_until" class="form-label">Válida Hasta:</label>
-            <input type="date" class="form-control" id="id_valid_until" name="valid_until" value="{{ invoice.valid_until }}" {% if is_invoice_paid %} readonly {% endif %}>
-        </div>
-        <div class="form-group">
             <label for="id_cash_box" class="form-label">Caja:</label>
             <input type="text" class="form-control" id="id_cash_box" name="cash_box" value="{{ invoice.cash_box.name }}" readonly>
         </div>
-        <div class="form-group">
-            <label for="id_stamping" class="form-label">Timbrado:</label>
-            <input type="text" class="form-control" id="id_stamping" name="stamping" value="{{ invoice.stamping.number }}" readonly>
-        </div>
 
-        <h2>Detalles de la Factura</h2>
+        <h2>Detalles del pago</h2>
         <table class="table table-hover table-bordered table-striped">
             <thead>
                 <tr>
                     <th scope="col">Concepto</th>
                     <th scope="col">Monto</th>
-                    <th scope="col">Excentas</th>
-                    <th scope="col">IVA 5%</th>
-                    <th scope="col">IVA 10%</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,27 +38,12 @@
                 <tr>
                     <td>{{ detail.concept.name }}</td>
                     <td>{{ detail.amount }}</td>
-                    {% if detail.concept.iva == '0' %}
-                        <td>{{ detail.amount }}</td>
-                    {% else %}
-                        <td>0</td>
-                    {% endif %}
-                    {% if detail.concept.iva == '5' %}
-                        <td>{{ detail.amount }}</td>
-                    {% else %}
-                        <td>0</td>
-                    {% endif %}
-                    {% if detail.concept.iva == '10' %}
-                        <td>{{ detail.amount }}</td>
-                    {% else %}
-                        <td>0</td>
-                    {% endif %}
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
         {% if not is_invoice_paid %}
-        <button type="submit" class="btn btn-primary">Guardar y Pagar factura</button>
+        <button type="submit" class="btn btn-primary">Guardar y Crear pago</button>
         {% endif %}
         {% if is_invoice_paid %}
         <button type="button" class="btn btn-secundary" onclick= "window.location.href = '/download_invoice/{{ invoice.id }}'">Descargar factura</button>

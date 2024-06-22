@@ -68,18 +68,18 @@ def pending_payments(request, pk):
         selected_fees = request.POST.getlist('selected_fees')
         selected_enrollment_details = request.POST.getlist('selected_enrollment_details')
 
-        fees = []
+        pending_fees = []
         pending_enrollment_details = []
 
         for fee_id in selected_fees:
             fee = Fee.objects.get(id=fee_id)
-            fees.append(fee)
+            pending_fees.append(fee)
 
         for enrollment_detail_id in selected_enrollment_details:
             enrollment_detail = EnrollmentDetail.objects.get(id=enrollment_detail_id)
             pending_enrollment_details.append(enrollment_detail)
 
-        invoice = create_invoice(fees, selected_enrollment_details, student, request.user)
+        invoice = create_invoice(pending_fees, pending_enrollment_details, student, request.user)
 
         return redirect('show_invoice', pk=invoice.id)
 
@@ -91,7 +91,7 @@ def pending_payments(request, pk):
         return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollment_details': pending_enrollment_details, 'student': student})
 
 
-def create_invoice(fees, selected_enrollment_details, student, user):
+def create_invoice(pending_fees, pending_enrollment_details, student, user):
 
     cash_box = CashBox.objects.get(active=True, user=user)
 
@@ -112,7 +112,7 @@ def create_invoice(fees, selected_enrollment_details, student, user):
 
     total_iva = 0
 
-    for fee in fees:
+    for fee in pending_fees:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
         invoice_detail.amount = fee.fee_amount
@@ -132,25 +132,25 @@ def create_invoice(fees, selected_enrollment_details, student, user):
         else:
             invoice.sub_total_iva_0 += fee.fee_amount
 
-    for enrollment_detail in selected_enrollment_details:
+    for enrollment_detail in pending_enrollment_details:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
-        invoice_detail.amount = enrollment_detail.enrollment_amount
+        invoice_detail.amount = enrollment_detail.amount
         invoice_detail.concept = Concept.objects.get(related_to='enrollment')
         invoice_detail.created_at = datetime.now()
         invoice_detail.enrollment_detail = enrollment_detail
         invoice_detail.save()
 
-        invoice.amount += enrollment_detail.enrollment_amount
+        invoice.amount += enrollment_detail.amount
 
         if invoice_detail.concept.iva == '10':
-            invoice.iva_10 += enrollment_detail.enrollment_amount * Decimal(str(0.1))
-            invoice.sub_total_iva_10 += enrollment_detail.enrollment_amount
+            invoice.iva_10 += enrollment_detail.amount * Decimal(str(0.1))
+            invoice.sub_total_iva_10 += enrollment_detail.amount
         elif invoice_detail.concept.iva == '5':
-            invoice.iva_5 += enrollment_detail.enrollment_amount * Decimal(str(0.05))
-            invoice.sub_total_iva_5 += enrollment_detail.enrollment_amount
+            invoice.iva_5 += enrollment_detail.amount * Decimal(str(0.05))
+            invoice.sub_total_iva_5 += enrollment_detail.amount
         else:
-            invoice.sub_total_iva_0 += enrollment_detail.enrollment_amount
+            invoice.sub_total_iva_0 += enrollment_detail.amount
 
     total_iva = invoice.iva_10 + invoice.iva_5
     invoice.iva_total = total_iva
@@ -162,17 +162,12 @@ def create_invoice(fees, selected_enrollment_details, student, user):
 def show_invoice(request, pk):
     if request.method == 'POST':
         invoice = Invoice.objects.get(id=pk)
-        invoice.valid_until = request.POST['valid_until']
         invoice.save()
 
         return redirect('payment_invoice_create', pk=pk)
     else:
         # Obtener la factura por ID, lanzando un error 404 si no se encuentra
         invoice = get_object_or_404(Invoice, id=pk)
-        formated_invoice_date = invoice.date.strftime('%Y-%m-%d')
-        invoice.date = formated_invoice_date
-        formated_valid_until = invoice.valid_until.strftime('%Y-%m-%d')
-        invoice.valid_until = formated_valid_until
         # Obtener los detalles de la factura
         invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
@@ -266,10 +261,10 @@ def payment_invoice_create(request, pk):
                 invoice_detail.fee.state = State.objects.get(name='paid')
                 invoice_detail.fee.fee_paid_amount = invoice_detail.amount
                 invoice_detail.fee.save()
-            elif invoice_detail.enrollment:
-                invoice_detail.enrollment.state = State.objects.get(name='paid')
-                invoice_detail.enrollment.enrollment_paid_amount = invoice_detail.amount
-                invoice_detail.enrollment.save()
+            elif invoice_detail.enrollment_detail:
+                invoice_detail.enrollment_detail.state = State.objects.get(name='paid')
+                invoice_detail.enrollment_detail.paid_amount = invoice_detail.amount
+                invoice_detail.enrollment_detail.save()
 
         return render(request, 'payment_detail.html', {'payment': payment})
     else:
