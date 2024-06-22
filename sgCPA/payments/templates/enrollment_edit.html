@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %} Matricular Alumnos {% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'styles/formStyles.css' %}">
+<div class="container card" style="padding: 1%;">
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/enrollments'"
+        style="cursor: pointer;"></i>
+    <h1>Matricular Alumnos: </h1>
+    <form method="post" class="form p-1 py-4" id="enrollment_form" action="{% url 'enrollment_detail' enrollment_id %}">
+        {% csrf_token %}
+        <div class="form-group w-100 d-flex align-items-center justify-content-center gap-4">
+            <article class="w-100">
+                <label for="id_course" class="form-label">Nombre del curso: {{enrollment.course.name}}</label>
+                <input id="course_id" class="course_id" value="{{enrollment.course.id}}" />
+                <!-- <select class="form-select w-100" id="id_course" name="course" style="width: 40%" required>
+                    <option value="" selected disabled>Seleccionar curso</option>
+                    {% for course in courses %}
+                    <option value="{{ course.id }}">{{ course.name }}</option>
+                    {% endfor %}
+                </select> -->
+            </article>
+            <!-- <article class="w-50">
+                <label for="id_enrollment_date" class="form-label">Fecha:</label>
+                <input type="date" class="form-control" id="id_enrollment_date" disabled name="enrollment_date" required>
+            </article> -->
+        </div>
+
+        <div class="form-group w-100 d-flex gap-4">
+
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto Matricula </label>
+                <input type="text" class="form-control" id="id_enrollment_amount" disabled value="{{enrollment.course.enrollment_amount}}" />
+            </article>
+
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto Cuota</label>
+                <input type="text" class="form-control" id="id_fee_amount" disabled value="{{enrollment.course.fee_amount}}" />
+            </article>
+        </div>
+
+
+        <div class="form-group d-flex gap-4 mb-4">
+
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Cantidad Minima de alumnos</label>
+                <input type="text" class="form-control" id="minStudentsNumber" disabled value="{{enrollment.course.minStudentsNumber}}" />
+            </article>
+
+            <article class="w-50">
+                <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Cantidad Maxima de alumnos</label>
+                <input type="text" class="form-control" id="maxStudentsNumber" disabled value="{{enrollment.course.maxStudentsNumber}}" />
+            </article>
+        </div>
+
+        <div class="form-group d-flex gap-4 mb-4 w-100">
+            <article class="w-50">
+                <label for="space_available" class="form-label mb-2 mt-2">Cantidad de cupos disponibles</label>
+                <input type="text" class="form-control" id="space_available" disabled value="{{enrollment.course.space_available}}" />
+            </article>
+            <!-- <article class="w-50">
+                <label for="student_quantity" class="form-label mb-2 mt-2">Cantidad de alumnos seleccionados</label>
+                <input type="text" class="form-control" id="student_quantity" value="0" disabled />
+            </article> -->
+        </div>
+
+        {% if form.errors %}
+        <div class="alert alert-danger mt-3">
+            <ul>
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        {% if error %}
+        <div class="alert alert-danger mt-3">
+            <ul>
+                <li>{{ error }}</li>
+            </ul>
+        </div>
+        {% endif %}
+        <div class="text-start  w-100 mb-2 d-flex align-items-stretch">
+            <article class="w-50 px-1 h-full">
+                <label class="">Buscar por CI</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="ci_input" />
+                    <button class="btn btn-primary input-group-text" type="button" id="ci_button">
+                        <i class="fa-solid fa-magnifying-glass "></i>
+                    </button>
+                </div>
+                <span id="notFoundStudent" class="notFoundStudent">Esta busqueda no obtuvo resultados.</span>
+            </article>
+        </div>
+        <div class="form-group d-flex w-100 align-items-center mb-2 mt-2 flex-column table-container">
+            <table id="student_table" name="student_table" class="table table-hover table-bordered">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Numero de Cedula</th>
+                        <!-- <th>Matricular</th> -->
+                    </tr>
+                </thead>
+                <tbody class="tbody-table">
+                    <!-- {% for student in students %}
+                    <tr>
+                        <td>{{student.name}}</td>
+                        <td>{{student.lastName}}</td>
+                        <td>{{student.ciNumber}}</td>
+                        <td>
+                            <input value="{{student.id}}" name="{{student.id}}"  type="checkbox"/>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    <tr></tr> -->
+                </tbody>
+            </table>
+            <input name="student_id" id="student_id" class="student_id" />
+        </div>
+
+        <div class="d-flex flex-column align-items-center justify-content-center">
+            <button type="submit" class="btn btn-primary" disabled id="create_enrollment_button">Matricular alumno</button>
+            <span id="enrollment_message"></span>
+        </div>
+    </form>
+</div>
+<script src="{% static 'scripts/edit_enrollment.js' %}"></script>
+
+{% endblock %}

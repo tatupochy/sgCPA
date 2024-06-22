@@ -3,6 +3,8 @@ from django.db.models.signals import post_migrate
 from django.dispatch import receiver
 from students.models import Student, Course
 from django.contrib.auth.models import User
+from django.utils import timezone
+
 
 # Create your models here.
 
@@ -52,10 +54,12 @@ class Fee(models.Model):
 
 class Enrollment(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
-    enrollment_date = models.DateField()
+    enrollment_date = models.DateField(default=timezone.now)
     enrollment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     active = models.BooleanField(null=True, default=True)
+    enrollment_start_date = models.DateField(blank=True, null=True)
+    enrollment_end_date = models.DateField(blank=True, null=True)
 
     class Meta:
         permissions = [
@@ -74,6 +78,7 @@ class EnrollmentDetail(models.Model):
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     state = models.ForeignKey(State, on_delete=models.CASCADE, default=1)
     active = models.BooleanField(default=True)
+    student_enrollment_date = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.enrollment.name

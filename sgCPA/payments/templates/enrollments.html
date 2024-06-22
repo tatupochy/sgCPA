@@ -40,9 +40,9 @@
 
                 <td class="acciones-container">
                     <div class="acciones">
-                        <button class="btn btn-primary editar" data-id={{enrollment.id}}>
+                        <a class="btn btn-primary editar" href="{% url 'enrollment_detail' enrollment.id %}" data-id={{enrollment.id}}>
                             <i class="fa-solid fa-pencil editar" data-id={{enrollment.id}}></i>
-                        </button>
+                        </a>
                         <button data-id={{enrollment.id}} type="button" class="btn btn-danger" data-bs-toggle="modal" id="deleteButton"
                             data-bs-target="#staticBackdrop">
                             <i class="fa-solid fa-trash-can"></i>

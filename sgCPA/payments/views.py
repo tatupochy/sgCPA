@@ -1,6 +1,8 @@
 from datetime import datetime
 from decimal import Decimal
 from django.utils import timezone
+from django.db.models import Count
+
 
 
 from django.contrib.auth.models import User
@@ -370,11 +372,41 @@ def enrollments(request):
 
 
 def enrollment_detail(request, enrollment_id):
-    enrollment = Enrollment.objects.get(id=enrollment_id)
-    has_fees = False
-    if Fee.objects.filter(enrollment=enrollment):
-        has_fees = True
-    return render(request, 'enrollment_detail.html', {'enrollment': enrollment, 'has_fees': has_fees})
+    if request.method == 'POST':
+        student_id = request.POST['student_id']
+        student = Student.objects.get(id=student_id)
+        enrollment = Enrollment.objects.get(id=enrollment_id)
+        course = Course.objects.get(id=enrollment.course.id)
+        if student:
+            enrollment_exists = EnrollmentDetail.objects.filter(
+                student=student,
+                enrollment__course=course
+            ).exists()    
+            if enrollment_exists:
+                return JsonResponse({'message': 'Estudiante ya matriculado al curso'});
+                
+            else:
+                if course.space_available > 0:
+                    enrollment_details = EnrollmentDetail(
+                        name='Matricula' + '/' + student.name,
+                        enrollment=enrollment,
+                        amount=enrollment.enrollment_amount,
+                        student=student
+                    )
+                    enrollment_details.save()
+                    course.space_available -= 1;
+                    course.save()
+                    return JsonResponse({'message': 'Alumno matriculado correctamente'})
+                else:
+                    return JsonResponse({"message": 'Ya no hay cupos disponibles'})
+        else:
+            JsonResponse({"message": "No se encontraron estudiantes con ese número de cédula"}, status=404)
+    else:    
+        enrollment = Enrollment.objects.get(id=enrollment_id)
+        has_fees = False
+        if Fee.objects.filter(enrollment=enrollment):
+            has_fees = True
+        return render(request, 'enrollment_edit.html', {'enrollment': enrollment, 'has_fees': has_fees, 'enrollment_id': enrollment.id})
 
 
 def enrollment_detail_payment(request, enrollment_id):
@@ -392,51 +424,75 @@ def enrollment_create(request):
         states = State.objects.all()
 
         course_id = form_data['course']
-        enrollment_date = form_data['enrollment_date']
+        enrollment_start_date = form_data['enrollment_start_date']
+        enrollment_end_date = form_data['enrollment_end_date']
+        # student_id = form_data['student_id']
+        # student = Student.objects.get(id=student_id)
 
-        students = Student.objects.all()
+        # students = Student.objects.all()
+        
+        
+        try:
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return JsonResponse({'status': 'error', 'message': 'El curso no existe'}, status=400)
         
         course = Course.objects.get(id=course_id)
+        enrollment = Enrollment(
+            name = 'Matricula' + '/' + course.name,
+            course = course,
+            enrollment_start_date = enrollment_start_date,
+            enrollment_end_date = enrollment_end_date
+        )
         
-        for student in students:
-            studentId = request.POST.get(str(student.id))
-            if studentId  is not None and course.space_available > 0:
-                enrollment = Enrollment()
-                enrollment.course_id = course_id
-                enrollment.enrollment_date = enrollment_date
-                enrollment.state_id = states.get(name='pending').id
-                enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
-                enrollment.student_id = studentId
-                enrollment.enrollment_amount = course.enrollment_amount
-                enrollment.save()
-                courseDates = CourseDates.objects.filter(course=course)
+        enrollment.save()
+        
+        
+        return JsonResponse({'id': enrollment.id});
+        
+        # for student in students:
+            # studentId = request.POST.get(str(student.id))
+            # if studentId  is not None and course.space_available > 0:
+            #     enrollment.course_id = course_id
+            #     # enrollment.enrollment_date = enrollment_date
+            #     enrollment.state_id = states.get(name='pending').id
+            #     enrollment.name = 'Matrícula' + '/' + student.ciNumber + '/' + course.name
+            #     enrollment.student_id = studentId
+            #     enrollment.enrollment_amount = course.enrollment_amount
+            #     enrollment.save()
+            #     courseDates = CourseDates.objects.filter(course=course)
                 
-                for courseDate in courseDates:
-                    attendance = Attendance.objects.filter(course_id=course_id, date=courseDate.date).first()
-                    AttendanceStudent.objects.create(attendance=attendance, student=student)
+            #     for courseDate in courseDates:
+            #         attendance = Attendance.objects.filter(course_id=course_id, date=courseDate.date).first()
+            #         AttendanceStudent.objects.create(attendance=attendance, student=student)
                     
-                if course.space_available > 0:
-                    course.space_available -= 1
-                    course.save()
+            #     if course.space_available > 0:
+            #         course.space_available -= 1
+            #         course.save()
 
-                create_fees(request, studentId, enrollment.id)
+            #     create_fees(request, studentId, enrollment.id)
+            #     enrollmentDetail = EnrollmentDetail(
+            #         name
+            #     )
+                
                     
-            elif studentId is not None and course.space_available <= 0:
-                # Si no hay cupos disponibles, maneja la situación de alguna forma adecuada
-                return JsonResponse({"status": "error", "message": "No hay cupos disponibles para el curso"}, status=400)
+            # elif studentId is not None and course.space_available <= 0:
+            #     # Si no hay cupos disponibles, maneja la situación de alguna forma adecuada
+            #     return JsonResponse({"status": "error", "message": "No hay cupos disponibles para el curso"}, status=400)
 
-        return redirect(reverse('enrollment_create'))
+        # return redirect(reverse('enrollment_create'))
     else:
         states = State.objects.all()
         students = Student.objects.all()
         fecha_actual = timezone.now().date()
     
     # Filtrar cursos cuyas fechas de inicio y fin de matriculación están en el rango de la fecha actual
-        courses = Course.objects.filter(
-            enrollment_start_date__lte=fecha_actual,
-            enrollment_end_date__gte=fecha_actual
-        )
+        # courses = Course.objects.filter(
+        #     enrollment_start_date__lte=fecha_actual,
+        #     enrollment_end_date__gte=fecha_actual
+        # )
         # courses = Course.objects.all()
+        courses = Course.objects.annotate(num_enrollments=Count('enrollment')).filter(num_enrollments=0)
         return render(request, 'enrollment_create.html', {'states': states, 'students': students, 'courses': courses})
 
 def enrollment_eliminar(request, id):

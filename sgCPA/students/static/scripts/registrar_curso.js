@@ -16,8 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const start_date = d.getElementById('start_date')
     const end_date = d.getElementById('end_date')
-    const enrollment_start_date = d.getElementById('enrollment_start_date')
-    const enrollment_end_date = d.getElementById('enrollment_end_date')
+    // const enrollment_start_date = d.getElementById('enrollment_start_date')
+    // const enrollment_end_date = d.getElementById('enrollment_end_date')
     
     const form = d.getElementById('cursoForm')
     
@@ -33,8 +33,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const startDateValue = new Date(start_date.value);
         const endDateValue = new Date(end_date.value);
-        const enrollmentStartDateValue = new Date(enrollment_start_date.value);
-        const enrollmentEndDateValue = new Date(enrollment_end_date.value);
+        // const enrollmentStartDateValue = new Date(enrollment_start_date.value);
+        // const enrollmentEndDateValue = new Date(enrollment_end_date.value);
 
 
         if (startDateValue > endDateValue) {
@@ -43,24 +43,24 @@ document.addEventListener('DOMContentLoaded', () => {
             isValid = false;
         }
 
-        if (enrollmentStartDateValue > enrollmentEndDateValue) {
-            const errorSpan = enrollment_start_date.nextElementSibling;
-            errorSpan.textContent = 'La fecha inicio de matriculacion no puede ser mayor a la fecha fin de matriculacion'
-            isValid = false;
-        }
+        // if (enrollmentStartDateValue > enrollmentEndDateValue) {
+        //     const errorSpan = enrollment_start_date.nextElementSibling;
+        //     errorSpan.textContent = 'La fecha inicio de matriculacion no puede ser mayor a la fecha fin de matriculacion'
+        //     isValid = false;
+        // }
 
 
-        if (isMoreThanNDaysApart(enrollmentEndDateValue, startDateValue, 7)) {
-            const errorSpan = enrollment_end_date.nextElementSibling;
-            errorSpan.textContent = 'La fecha fin de matriculacion no puede ser mayor a una semana despues del inicio de clases'
-            isValid = false;
-        }
+        // if (isMoreThanNDaysApart(enrollmentEndDateValue, startDateValue, 7)) {
+        //     const errorSpan = enrollment_end_date.nextElementSibling;
+        //     errorSpan.textContent = 'La fecha fin de matriculacion no puede ser mayor a una semana despues del inicio de clases'
+        //     isValid = false;
+        // }
 
-        if (enrollmentStartDateValue >= startDateValue) {
-            const errorSpan = enrollment_start_date.nextElementSibling;
-            errorSpan.textContent = 'La fecha inicio de matriculacion no puede ser mayor o igual a la fecha de inicio de clases'
-            isValid = false;
-        }
+        // if (enrollmentStartDateValue >= startDateValue) {
+        //     const errorSpan = enrollment_start_date.nextElementSibling;
+        //     errorSpan.textContent = 'La fecha inicio de matriculacion no puede ser mayor o igual a la fecha de inicio de clases'
+        //     isValid = false;
+        // }
 
         if(isValid){
             form.submit()

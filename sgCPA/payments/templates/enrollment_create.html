@@ -9,10 +9,10 @@
     <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/enrollments'"
         style="cursor: pointer;"></i>
     <h1>Crear matrícula: </h1>
-    <form method="post" class="form p-1">
+    <form method="post" class="form p-1 py-4" id="enrollment_form" action="/enrollments/create/">
         {% csrf_token %}
         <div class="form-group w-100 d-flex align-items-center justify-content-center gap-4">
-            <article class="w-50">
+            <article class="w-100">
                 <label for="id_course" class="form-label">Curso:</label>
                 <select class="form-select w-100" id="id_course" name="course" style="width: 40%" required>
                     <option value="" selected disabled>Seleccionar curso</option>
@@ -21,48 +21,80 @@
                     {% endfor %}
                 </select>
             </article>
-            <article class="w-50">
+            <!-- <article class="w-50">
                 <label for="id_enrollment_date" class="form-label">Fecha:</label>
                 <input type="date" class="form-control" id="id_enrollment_date" disabled name="enrollment_date" required>
+            </article> -->
+        </div>
+
+        <div class="form-group w-100 d-flex gap-4 mt-4">
+            <article class="w-50">
+                <label class="form-label">Fecha de inicio de matriculacion</label>
+                <input type="date" name="enrollment_start_date" id="enrollment_start_date" class="form-control"
+                    value="{{curso.enrollment_start_date}}" required disabled 
+                    title="Esta campo es obligatorio"
+                     />
+                <span class="error-message"></span>
+            </article>
+            <article class="w-50">
+                <label class="mb-2 form-label">Fecha fin de matriculacion</label>
+                <input type="date" name="enrollment_end_date" id="enrollment_end_date" class="form-control"
+                    value="{{curso.enrollment_end_date}}" required disabled />
+                <span class="error-message"></span>
+            </article>
+
+        </div>
+
+        <div class="form-group w-100 d-flex gap-4 mt-4">
+            <article class="w-50">
+                <label for="start_date" class="form-label">Fecha de Inicio de las clases</label>
+                <input  disabled class="form-control" value="{{curso.start_date}}" id="start_date" type="date" name="start_date" required />
+                <span class="error-message"></span>
+            </article>
+            <article class="w-50">
+                <label for="end_date" class="form-label">Fecha de Fin de las clases</label>
+                <input  disabled class="form-control" id="end_date" type="date" name="end_date" value="{{curso.end_date}}" required />
+                <span class="error-message"></span>
             </article>
         </div>
-        
+
+
         <div class="form-group w-100 d-flex gap-4">
-            
+
             <article class="w-50">
                 <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto Matricula</label>
-                <input type="text" class="form-control" id="id_enrollment_amount"  disabled />
+                <input type="text" class="form-control" id="id_enrollment_amount" disabled />
             </article>
 
             <article class="w-50">
                 <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Monto Cuota</label>
-                <input type="text" class="form-control" id="id_fee_amount"  disabled />
+                <input type="text" class="form-control" id="id_fee_amount" disabled />
             </article>
         </div>
-        
+
 
         <div class="form-group d-flex gap-4 mb-4">
-            
+
             <article class="w-50">
                 <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Cantidad Minima de alumnos</label>
-                <input type="text" class="form-control" id="minStudentsNumber"  disabled />
+                <input type="text" class="form-control" id="minStudentsNumber" disabled />
             </article>
 
             <article class="w-50">
                 <label for="id_enrollment_amount" class="form-label mb-2 mt-2">Cantidad Maxima de alumnos</label>
-                <input type="text" class="form-control" id="maxStudentsNumber"  disabled />
+                <input type="text" class="form-control" id="maxStudentsNumber" disabled />
             </article>
         </div>
 
         <div class="form-group d-flex gap-4 mb-4 w-100">
             <article class="w-50">
-                <label for="space_available" class="form-label mb-2 mt-2">Cantidad de cupos disponibles</label>
-                <input type="text" class="form-control" id="space_available"  disabled />
+                <label for="space_available" class="form-label mb-2 mt-2">Cantidad de cupos</label>
+                <input type="text" class="form-control" id="space_available" disabled />
             </article>
-            <article class="w-50">
+            <!-- <article class="w-50">
                 <label for="student_quantity" class="form-label mb-2 mt-2">Cantidad de alumnos seleccionados</label>
-                <input type="text" class="form-control" id="student_quantity" value="0"  disabled />
-            </article>
+                <input type="text" class="form-control" id="student_quantity" value="0" disabled />
+            </article> -->
         </div>
 
         {% if form.errors %}
@@ -83,45 +115,10 @@
             </ul>
         </div>
         {% endif %}
-        <div class="text-start  w-100 mb-2">
-            <article class="w-50 py-2 px-1 ">
-                <label class="mb-2">Buscar por CI</label>
-                <div  class="input-group w-50">
-                    <input type="text" class="form-control" id="ci_input" />
-                    <button class="btn btn-primary input-group-text" type="button" id="ci_button">
-                        <i class="fa-solid fa-magnifying-glass "></i>
-                    </button>
-                </div>
-            </article>
-        </div>
-        <div class="form-group d-flex w-100 align-items-center mb-2 mt-2 flex-column table-container">
-            <table id="student_table" class="table table-hover table-bordered">
-                <thead>
-                    <tr>
-                        <th>Nombre</th>
-                        <th>Apellido</th>
-                        <th>Numero de Cedula</th>
-                        <th>Matricular</th>
-                    </tr>
-                </thead>
-                <tbody class="tbody-table">
-                    <!-- {% for student in students %}
-                    <tr>
-                        <td>{{student.name}}</td>
-                        <td>{{student.lastName}}</td>
-                        <td>{{student.ciNumber}}</td>
-                        <td>
-                            <input value="{{student.id}}" name="{{student.id}}"  type="checkbox"/>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    <tr></tr> -->
-                </tbody>
-            </table>
-        </div>
 
-        <div>
-            <button type="submit" class="btn btn-primary">Matricular</button>
+        <div class="d-flex flex-column align-items-center justify-content-center">
+            <button type="submit" class="btn btn-primary" disabled id="create_enrollment_button">Crear matricula</button>
+            <span id="succes_message"></span>
         </div>
     </form>
 </div>

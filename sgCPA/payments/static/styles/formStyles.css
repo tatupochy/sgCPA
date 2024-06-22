@@ -1,6 +1,19 @@
 .table-container{
-    height: 200px;
+    height: 100px;
     overflow: auto;
+}
+
+.student_id {
+    display: none;
+}
+
+.notFoundStudent {
+    color: red;
+    display: none;
+}
+
+.course_id{
+    display: none;
 }
 
 /* .tbody-table{
