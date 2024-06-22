@@ -5,7 +5,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, Http
 from countries.models import Country
 from cities.models import Cities
 from attendances.models import Attendance, AttendanceStudent
-from payments.models import Enrollment
+from payments.models import Enrollment, EnrollmentDetail, Fee, State
 from utils.utils import calculate_class_days
 from .models import CourseDates, Student, Course, Shift, Section
 from subjects.models import Subject
@@ -186,8 +186,8 @@ def registrar_curso(request):
         teacher = request.POST.get('teacher')
         minStudentsNumber = request.POST.get('minStudentsNumber')
         maxStudentsNumber = request.POST.get('maxStudentsNumber')
-        enrollment_start_date = request.POST.get('enrollment_start_date')
-        enrollment_end_date = request.POST.get('enrollment_end_date')
+        # enrollment_start_date = request.POST.get('enrollment_start_date')
+        # enrollment_end_date = request.POST.get('enrollment_end_date')
         enrollment_amount = request.POST.get('enrollment_amount')
         
         
@@ -195,24 +195,24 @@ def registrar_curso(request):
         start_date = datetime.datetime.strptime(start_date_str, '%Y-%m-%d').date() if start_date_str else None
         end_date = datetime.datetime.strptime(end_date_str, '%Y-%m-%d').date() if end_date_str else None
         
-        enrollment_start_date = datetime.datetime.strptime(enrollment_start_date, '%Y-%m-%d').date() if enrollment_start_date else None
+        # enrollment_start_date = datetime.datetime.strptime(enrollment_start_date, '%Y-%m-%d').date() if enrollment_start_date else None
         
-        enrollment_end_date = datetime.datetime.strptime(enrollment_end_date, '%Y-%m-%d').date() if enrollment_end_date else None
+        # enrollment_end_date = datetime.datetime.strptime(enrollment_end_date, '%Y-%m-%d').date() if enrollment_end_date else None
         
 
         class_days = list(map(int, days_per_week))
 
         teacher = Teacher.objects.get(pk=teacher)
         total_days, class_dates = calculate_class_days(start_date=start_date, end_date=end_date, class_days=class_days)
-        print((enrollment_end_date - start_date).days)
+        # print((enrollment_end_date - start_date).days)
         # Verificar si todos los campos requeridos están presentes
         if name and shift and start_date and end_date and fee_amount and days_per_week:
             # Verificar que la fecha fin de la matriculación no sea mayor a una semana de la fecha de inicio de las clases
-            if (enrollment_end_date - start_date).days > 7:
-                errors = {
-                    'enrollment_end_date': 'La fecha de fin de matriculacion no puede ser mayor a una semana de la fecha de inicio de clases'
-                }
-                return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list, 'teachers': teachers, 'errors': errors})
+            # if (enrollment_end_date - start_date).days > 7:
+            #     errors = {
+            #         'enrollment_end_date': 'La fecha de fin de matriculacion no puede ser mayor a una semana de la fecha de inicio de clases'
+            #     }
+            #     return render(request, 'courses/registrar_curso.html', {'CHOICE_SHIFTS': CHOICE_SHIFTS, 'CHOICES_SECTIONS': CHOICES_SECTIONS, 'subject_list': subject_list, 'teachers': teachers, 'errors': errors})
             # Crear una instancia de Course
             curso = Course(
                 name=name,
@@ -227,8 +227,8 @@ def registrar_curso(request):
                 teacher=teacher,
                 minStudentsNumber=minStudentsNumber,
                 maxStudentsNumber=maxStudentsNumber,
-                enrollment_start_date=enrollment_start_date,
-                enrollment_end_date=enrollment_end_date,
+                # enrollment_start_date=enrollment_start_date,
+                # enrollment_end_date=enrollment_end_date,
                 enrollment_amount=enrollment_amount
             )
             # Guardar el curso en la base de datos
@@ -263,8 +263,8 @@ def editar_curso(request, id):
         section = Section.objects.get(pk=request.POST.get('section'))
         active = request.POST.get('active') == 'on'
         
-        enrollment_start_date = request.POST.get('enrollment_start_date')
-        enrollment_end_date = request.POST.get('enrollment_end_date')
+        # enrollment_start_date = request.POST.get('enrollment_start_date')
+        # enrollment_end_date = request.POST.get('enrollment_end_date')
         minStudentsNumber=request.POST.get('minStudentsNumber')
         maxStudentsNumber=request.POST.get('maxStudentsNumber')
         
@@ -273,8 +273,8 @@ def editar_curso(request, id):
        
         curso.section = section
         curso.active = active
-        curso.enrollment_start_date = enrollment_start_date
-        curso.enrollment_end_date = enrollment_end_date
+        # curso.enrollment_start_date = enrollment_start_date
+        # curso.enrollment_end_date = enrollment_end_date
         curso.minStudentsNumber = minStudentsNumber
         curso.maxStudentsNumber = maxStudentsNumber
         curso.teacher = teacher
@@ -291,8 +291,8 @@ def editar_curso(request, id):
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
         
-        curso.enrollment_start_date = curso.enrollment_start_date.strftime("%Y-%m-%d")
-        curso.enrollment_end_date = curso.enrollment_end_date.strftime("%Y-%m-%d")
+        # curso.enrollment_start_date = curso.enrollment_start_date.strftime("%Y-%m-%d")
+        # curso.enrollment_end_date = curso.enrollment_end_date.strftime("%Y-%m-%d")
         
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
         
@@ -325,17 +325,13 @@ def obtener_curso(request, id):
     
     course = Course.objects.get(id=id)
     
-    # Verificar si hay algún registro de Enrollment para el curso
-    if Enrollment.objects.filter(course_id=id).exists():
-        # Si hay registros, obtener los estudiantes que no están matriculados en el curso
-        estudiantes_matriculados = Enrollment.objects.filter(course_id=id).values('student_id')
-        estudiantes_no_matriculados = Student.objects.exclude(id__in=estudiantes_matriculados)
-    else:
-        # Si no hay registros, obtener todos los estudiantes
-        estudiantes_no_matriculados = Student.objects.all()
+    # if Enrollment.objects.filter(course_id=id).exists():
+    #     estudiantes_matriculados = Enrollment.objects.filter(course_id=id).values('student_id')
+    #     estudiantes_no_matriculados = Student.objects.exclude(id__in=estudiantes_matriculados)
+    # else:
+    #     estudiantes_no_matriculados = Student.objects.all()
     
-    # Convertir a lista de diccionarios para el JSON
-    estudiantes_no_matriculados_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
+    # estudiantes_no_matriculados_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
    
     
     data = {
@@ -345,31 +341,59 @@ def obtener_curso(request, id):
         'fee_amount': course.fee_amount,
         'minStudentsNumber': course.minStudentsNumber,
         'maxStudentsNumber': course.maxStudentsNumber,
-        'student_list': estudiantes_no_matriculados_list,
+        'start_date': course.start_date,
+        'end_date': course.end_date,
+        # 'student_list': estudiantes_no_matriculados_list,
         'space_available': course.space_available,
-        'enrollment_start_date': course.enrollment_start_date,
-        'enrollment_end_date': course.enrollment_end_date
+        # 'enrollment_start_date': course.enrollment_start_date,
+        # 'enrollment_end_date': course.enrollment_end_date
         
     }
     return JsonResponse({"course_data":data})
 
+
+
 def obtener_alumno_por_ci(request, ci, course_id):
     
-    students = Student.objects.filter(ciNumber__icontains=ci)
+    student = Student.objects.filter(ciNumber__icontains=ci).first()
     
-     # Filtrar los estudiantes que no están matriculados en el curso especificado
-    estudiantes_matriculados = Enrollment.objects.filter(course_id=course_id).values('student_id')
+    course = get_object_or_404(Course, id=course_id)
     
-    estudiantes_no_matriculados = students.exclude(id__in=estudiantes_matriculados)
+    # Verifica si existe una matrícula para este curso y estudiante
     
-    students_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
-
-    # Si hay estudiantes que coinciden, serializarlos y devolver la respuesta
-    # if students.exists():
-    return JsonResponse(students_list, safe=False)
+    if student:
+        # Serializar el estudiante encontrado en un diccionario
+        enrollment_exists = EnrollmentDetail.objects.filter(
+            student=student,
+            enrollment__course=course
+        ).exists()
         
-    # Si no hay coincidencias, devolver un mensaje indicando que no se encontraron estudiantes
-    # return JsonResponse({"message": "No se encontraron estudiantes con ese número de cédula"}, status=404)
+        if enrollment_exists:
+            return JsonResponse({"message": "El estudiante ya está matriculado en este curso"}, status=400)
+        
+        # Verificar si el estudiante tiene deudas pendientes
+        unpaid_fees = Fee.objects.filter(
+            student=student,
+            state__name=State.objects.get(name='pending')
+        ).exists()
+
+        if unpaid_fees:
+            return JsonResponse({"message": "El estudiante tiene deudas pendientes"}, status=400)
+        
+        
+        else:
+            student_data = {
+                'id': student.id,
+                'name': student.name,
+                'lastName': student.lastName,
+                'ciNumber': student.ciNumber,
+            }
+            return JsonResponse(student_data, safe=False)
+             
+        
+    
+    # Si no se encontró ningún estudiante, devolver un mensaje indicando que no se encontraron estudiantes
+    return JsonResponse({"message": "No se encontraron estudiantes con ese número de cédula"}, status=404)
 
 
 ###### Turnos ######   
