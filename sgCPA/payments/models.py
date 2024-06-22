@@ -52,14 +52,8 @@ class Fee(models.Model):
 
 class Enrollment(models.Model):
     name = models.CharField(max_length=255, blank=True, null=True)
-    student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True, null=True)
-    # year = models.IntegerField()
-
-    # year = models.IntegerField()
     enrollment_date = models.DateField()
     enrollment_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    enrollment_paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    state = models.ForeignKey(State, on_delete=models.CASCADE)
     course = models.ForeignKey(Course, on_delete=models.CASCADE)
     active = models.BooleanField(null=True, default=True)
 
@@ -70,6 +64,19 @@ class Enrollment(models.Model):
             ('xyz_puede_modificar_matriculas', 'Puede modificar matrículas'),
             ('xyz_puede_eliminar_matriculas', 'Puede eliminar matrículas'),
         ]
+
+
+class EnrollmentDetail(models.Model):
+    name = models.CharField(max_length=255, blank=True, null=True)
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    state = models.ForeignKey(State, on_delete=models.CASCADE, default=1)
+    active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.enrollment.name
 
 
 class PaymentMethod(models.Model):
@@ -217,7 +224,7 @@ class InvoiceDetail(models.Model):
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     concept = models.ForeignKey(Concept, on_delete=models.CASCADE)
     fee = models.ForeignKey(Fee, on_delete=models.CASCADE, null=True, blank=True)
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, null=True, blank=True)
+    enrollment_detail = models.ForeignKey(EnrollmentDetail, on_delete=models.CASCADE, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     active = models.BooleanField(default=True)
 

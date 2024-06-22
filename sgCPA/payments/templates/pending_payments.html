@@ -38,24 +38,22 @@
         </table>
 
         <h2>Matrículas Pendientes</h2>
-        <table class="table table-hover table-bordered table-striped" id="enrollmentsTable">
+        <table class="table table-hover table-bordered table-striped" id="enrollment_detail_detailsTable">
             <thead>
                 <tr>
                     <th scope="col">Seleccionar</th>
                     <th scope="col">Nombre</th>
-                    <th scope="col">Año</th>
-                    <th scope="col">Fecha de Matrícula</th>
+                    <th scope="col">Matrícula</th>
                     <th scope="col">Monto</th>
                 </tr>
             </thead>
             <tbody>
-                {% for enrollment in pending_enrollments %}
+                {% for enrollment_detail_detail in pending_enrollment_detail_details %}
                 <tr>
-                    <td><input type="checkbox" class="enrollment-checkbox" name="selected_enrollments" value="{{ enrollment.id }}"></td>
-                    <td>{{ enrollment.name }}</td>
-                    <td>{{ enrollment.year }}</td>
-                    <td>{{ enrollment.enrollment_date }}</td>
-                    <td>{{ enrollment.enrollment_amount }}</td>
+                    <td><input type="checkbox" class="enrollment_detail-checkbox" name="selected_enrollment_detail_details" value="{{ enrollment_detail.id }}"></td>
+                    <td>{{ enrollment_detail_detail.name }}</td>
+                    <td>{{ enrollment_detail_detail.enrollment.name }}</td>
+                    <td>{{ enrollment_detail_detail.amount }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -68,7 +66,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', (event) => {
     const feeCheckboxes = document.querySelectorAll('.fee-checkbox');
-    const enrollmentCheckboxes = document.querySelectorAll('.enrollment-checkbox');
+    const enrollment_detailCheckboxes = document.querySelectorAll('.enrollment_detail-checkbox');
 
     function toggleCheckboxes(checkboxes) {
         for (let i = 0; i < checkboxes.length; i++) {
@@ -91,7 +89,7 @@ document.addEventListener('DOMContentLoaded', (event) => {
     }
 
     toggleCheckboxes(feeCheckboxes);
-    toggleCheckboxes(enrollmentCheckboxes);
+    toggleCheckboxes(enrollment_detailCheckboxes);
 });
 </script>
 {% endblock %}

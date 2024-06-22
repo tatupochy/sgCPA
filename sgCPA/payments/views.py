@@ -14,7 +14,7 @@ from students.models import CourseDates, Student, Course
 from xhtml2pdf import pisa
 
 from .models import Concept, Payment, PaymentMethod, PaymentType, State, Fee, Enrollment, PaymentMethod2, CashBox, \
-    Stamping, Invoice, InvoiceDetail
+    Stamping, Invoice, InvoiceDetail, EnrollmentDetail
 import calendar
 from dateutil.relativedelta import relativedelta
 from django.shortcuts import redirect,get_object_or_404
@@ -66,32 +66,32 @@ def pending_payments(request, pk):
         student = Student.objects.get(ciNumber=student_ci)
 
         selected_fees = request.POST.getlist('selected_fees')
-        selected_enrollments = request.POST.getlist('selected_enrollments')
+        selected_enrollment_details = request.POST.getlist('selected_enrollment_details')
 
         fees = []
-        enrollments = []
+        pending_enrollment_details = []
 
         for fee_id in selected_fees:
             fee = Fee.objects.get(id=fee_id)
             fees.append(fee)
 
-        for enrollment_id in selected_enrollments:
-            enrollment = Enrollment.objects.get(id=enrollment_id)
-            enrollments.append(enrollment)
+        for enrollment_detail_id in selected_enrollment_details:
+            enrollment_detail = EnrollmentDetail.objects.get(id=enrollment_detail_id)
+            pending_enrollment_details.append(enrollment_detail)
 
-        invoice = create_invoice(fees, enrollments, student, request.user)
+        invoice = create_invoice(fees, selected_enrollment_details, student, request.user)
 
         return redirect('show_invoice', pk=invoice.id)
 
     else:
         student = Student.objects.get(id=pk)
         pending_fees = Fee.objects.filter(student_id=pk, state_id=State.objects.get(name='pending').id)
-        pending_enrollments = Enrollment.objects.filter(student_id=pk, state_id=State.objects.get(name='pending').id)
+        pending_enrollment_details = EnrollmentDetail.objects.filter(student_id=pk, state_id=State.objects.get(name='pending').id)
 
-        return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollments': pending_enrollments, 'student': student})
+        return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollment_details': pending_enrollment_details, 'student': student})
 
 
-def create_invoice(fees, enrollments, student, user):
+def create_invoice(fees, selected_enrollment_details, student, user):
 
     cash_box = CashBox.objects.get(active=True, user=user)
 
@@ -132,25 +132,25 @@ def create_invoice(fees, enrollments, student, user):
         else:
             invoice.sub_total_iva_0 += fee.fee_amount
 
-    for enrollment in enrollments:
+    for enrollment_detail in selected_enrollment_details:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
-        invoice_detail.amount = enrollment.enrollment_amount
+        invoice_detail.amount = enrollment_detail.enrollment_amount
         invoice_detail.concept = Concept.objects.get(related_to='enrollment')
         invoice_detail.created_at = datetime.now()
-        invoice_detail.enrollment = enrollment
+        invoice_detail.enrollment_detail = enrollment_detail
         invoice_detail.save()
 
-        invoice.amount += enrollment.enrollment_amount
+        invoice.amount += enrollment_detail.enrollment_amount
 
         if invoice_detail.concept.iva == '10':
-            invoice.iva_10 += enrollment.enrollment_amount * Decimal(str(0.1))
-            invoice.sub_total_iva_10 += enrollment.enrollment_amount
+            invoice.iva_10 += enrollment_detail.enrollment_amount * Decimal(str(0.1))
+            invoice.sub_total_iva_10 += enrollment_detail.enrollment_amount
         elif invoice_detail.concept.iva == '5':
-            invoice.iva_5 += enrollment.enrollment_amount * Decimal(str(0.05))
-            invoice.sub_total_iva_5 += enrollment.enrollment_amount
+            invoice.iva_5 += enrollment_detail.enrollment_amount * Decimal(str(0.05))
+            invoice.sub_total_iva_5 += enrollment_detail.enrollment_amount
         else:
-            invoice.sub_total_iva_0 += enrollment.enrollment_amount
+            invoice.sub_total_iva_0 += enrollment_detail.enrollment_amount
 
     total_iva = invoice.iva_10 + invoice.iva_5
     invoice.iva_total = total_iva
