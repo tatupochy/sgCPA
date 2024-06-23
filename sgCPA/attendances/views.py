@@ -277,8 +277,6 @@ def descargar_asistencias_pdf(request):
     except ValueError:
         return HttpResponse("Formato de fecha incorrecto", status=400)
     
-    print(fecha)
-    print(curso)
     
     attendance = get_object_or_404(Attendance, course=curso, date=fecha)
     asistencias = attendance.attendancestudent_set.all()

@@ -2,6 +2,7 @@ from datetime import datetime
 from decimal import Decimal
 from django.utils import timezone
 from django.db.models import Count
+import json
 
 
 
@@ -412,7 +413,7 @@ def enrollments(request):
     return render(request, 'enrollments.html', {'enrollments': enrollments})
 
 
-def enrollment_detail(request, enrollment_id):
+def enrollment_edit(request, enrollment_id):
     if request.method == 'POST':
         student_id = request.POST['student_id']
         student = Student.objects.get(id=student_id)
@@ -452,6 +453,30 @@ def enrollment_detail(request, enrollment_id):
         # if Fee.objects.filter(enrollment_detail=enrollment_details.first()):
             # has_fees = True
         return render(request, 'enrollment_edit.html', {'enrollment': enrollment, 'has_fees': has_fees, 'enrollment_id': enrollment.id})
+
+
+
+def enrollment_detail(request, enrollment_id):
+    
+    enrollment = Enrollment.objects.get(id=enrollment_id)
+    enrollmentDetails = EnrollmentDetail.objects.filter(enrollment=enrollment)
+    
+    if request.method == 'POST':
+
+        # Renderizar el template a HTML
+        html = render_to_string('enrollment_detail_pdf.html', {'enrollments': enrollmentDetails})
+
+        # # Crear un objeto de respuesta PDF
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="matriculados_{enrollment.course.name}.pdf"'
+
+        # Convertir HTML a PDF
+        pisa_status = pisa.CreatePDF(html, dest=response)
+        if pisa_status.err:
+            return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+        return response
+    else:    
+        return render(request, 'enrollment_detail.html', {'enrollments': enrollmentDetails})
 
 
 def enrollment_detail_payment(request, enrollment_id):
