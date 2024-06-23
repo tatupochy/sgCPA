@@ -24,7 +24,7 @@
                 <th scope="col">Descripción</th>
                 <th scope="col">Timbrado</th>
                 <th scope="col">Activa</th>
-                {% if cash_boxes.length < 1 %}
+                {% if not is_cash_boxes %}
                 <th scope="col" class="col-md-2 text-center"><button class="btn btn-primary" onclick= "window.location.href = '/cash_boxes/create'"><i class="fa fa-plus"></i></button></th>
                 {% endif %}
             </tr>

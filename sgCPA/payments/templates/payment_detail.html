@@ -32,6 +32,13 @@
             <label for="id_payment_type" class="form-label">Tipo:</label>
             <input type="text" class="form-control" id="id_payment_type" value="{{ payment.payment_type.description }}" name="payment_type" disabled readonly>
         </div>
+        {% if invoice %}
+        <div class="form-group">
+            <label for="id_invoice" class="form-label">Factura:</label>
+            <input type="text" class="form-control" id="id_invoice" value="{{ invoice.name }}" name="invoice" disabled readonly>
+        </div>
+        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/download_invoice/{{ invoice.id }}'">Descargar factura</button>
+        {% endif %}
     </form>
 </div>
 {% endblock %}
