@@ -64,6 +64,7 @@
                     <th>Nombres</th>
                     <th>Apellidos</th>
                     <th>Numero de Cedula</th>
+                    <th>Fecha de matriculacion</th>
                 </tr>
             </thead>
             <tbody>
@@ -72,6 +73,7 @@
                     <td>{{ enrollment.student.name }}</td>
                     <td>{{ enrollment.student.lastName }}</td>
                     <td>{{ enrollment.student.ciNumber }}</td>
+                    <td>{{ enrollment.student_enrollment_date  }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
