@@ -8,7 +8,7 @@
     {% csrf_token %}
     <h1>Matrículas</h1>
     
-    <button type="button" class="btn btn-primary">+ Agregar matrícula</button>
+    <button type="button" class="btn btn-primary" onclick="window.location.href='{% url 'enrollment_create' %}'">+ Agregar matrícula</button>
     <table id="enrollmentTable" class="table table-hover table-bordered table-striped">
         <thead>
             <tr>

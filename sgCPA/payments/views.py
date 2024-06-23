@@ -49,18 +49,33 @@ def payment_detail(request, payment_id):
     payment = Payment.objects.get(id=payment_id)
     formated_payment_date = payment.payment_date.strftime('%Y-%m-%d')
     payment.payment_date = formated_payment_date
-    return render(request, 'payment_detail.html', {'payment': payment})
+    invoice = Invoice.objects.get(id=payment.invoice.id)
+    return render(request, 'payment_detail.html', {'payment': payment, 'invoice': invoice})
 
 
 def search_pending_payments(request):
     if request.method == 'POST':
+
+        cas_boxes = CashBox.objects.all()
+        is_cash_boxes = False
+        if cas_boxes and cas_boxes.first().stamping:
+            is_cash_boxes = True
+
         student_ci = request.POST['student']
-        student = Student.objects.get(ciNumber=student_ci)
+        student = Student.objects.filter(ciNumber=student_ci).first()
+
+        if not student:
+            return render(request, 'search_pending_payments.html', {'error': 'No se encontró un estudiante con ese número de cédula', 'is_cash_boxes': is_cash_boxes})
 
         return redirect('pending_payments', pk=student.id)
 
     else:
-        return render(request, 'search_pending_payments.html')
+        cas_boxes = CashBox.objects.all()
+        is_cash_boxes = False
+        if cas_boxes and cas_boxes.first().stamping:
+            is_cash_boxes = True
+
+        return render(request, 'search_pending_payments.html', {'is_cash_boxes': is_cash_boxes})
 
 
 def pending_payments(request, pk):
@@ -71,20 +86,20 @@ def pending_payments(request, pk):
         selected_fees = request.POST.getlist('selected_fees')
         selected_enrollment_details = request.POST.getlist('selected_enrollment_details')
 
-        fees = []
+        pending_fees = []
         pending_enrollment_details = []
 
         for fee_id in selected_fees:
             fee = Fee.objects.get(id=fee_id)
-            fees.append(fee)
+            pending_fees.append(fee)
 
         for enrollment_detail_id in selected_enrollment_details:
             enrollment_detail = EnrollmentDetail.objects.get(id=enrollment_detail_id)
             pending_enrollment_details.append(enrollment_detail)
 
-        invoice = create_invoice(fees, selected_enrollment_details, student, request.user)
+        invoice = create_invoice(pending_fees, pending_enrollment_details, student, request.user)
 
-        return redirect('show_invoice', pk=invoice.id)
+        return redirect('show_payment_resume', pk=invoice.id)
 
     else:
         student = Student.objects.get(id=pk)
@@ -94,7 +109,7 @@ def pending_payments(request, pk):
         return render(request, 'pending_payments.html', {'pending_fees': pending_fees, 'pending_enrollment_details': pending_enrollment_details, 'student': student})
 
 
-def create_invoice(fees, selected_enrollment_details, student, user):
+def create_invoice(pending_fees, pending_enrollment_details, student, user):
 
     cash_box = CashBox.objects.get(active=True, user=user)
 
@@ -115,7 +130,7 @@ def create_invoice(fees, selected_enrollment_details, student, user):
 
     total_iva = 0
 
-    for fee in fees:
+    for fee in pending_fees:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
         invoice_detail.amount = fee.fee_amount
@@ -135,25 +150,25 @@ def create_invoice(fees, selected_enrollment_details, student, user):
         else:
             invoice.sub_total_iva_0 += fee.fee_amount
 
-    for enrollment_detail in selected_enrollment_details:
+    for enrollment_detail in pending_enrollment_details:
         invoice_detail = InvoiceDetail()
         invoice_detail.invoice = invoice
-        invoice_detail.amount = enrollment_detail.enrollment_amount
+        invoice_detail.amount = enrollment_detail.amount
         invoice_detail.concept = Concept.objects.get(related_to='enrollment')
         invoice_detail.created_at = datetime.now()
         invoice_detail.enrollment_detail = enrollment_detail
         invoice_detail.save()
 
-        invoice.amount += enrollment_detail.enrollment_amount
+        invoice.amount += enrollment_detail.amount
 
         if invoice_detail.concept.iva == '10':
-            invoice.iva_10 += enrollment_detail.enrollment_amount * Decimal(str(0.1))
-            invoice.sub_total_iva_10 += enrollment_detail.enrollment_amount
+            invoice.iva_10 += enrollment_detail.amount * Decimal(str(0.1))
+            invoice.sub_total_iva_10 += enrollment_detail.amount
         elif invoice_detail.concept.iva == '5':
-            invoice.iva_5 += enrollment_detail.enrollment_amount * Decimal(str(0.05))
-            invoice.sub_total_iva_5 += enrollment_detail.enrollment_amount
+            invoice.iva_5 += enrollment_detail.amount * Decimal(str(0.05))
+            invoice.sub_total_iva_5 += enrollment_detail.amount
         else:
-            invoice.sub_total_iva_0 += enrollment_detail.enrollment_amount
+            invoice.sub_total_iva_0 += enrollment_detail.amount
 
     total_iva = invoice.iva_10 + invoice.iva_5
     invoice.iva_total = total_iva
@@ -165,17 +180,14 @@ def create_invoice(fees, selected_enrollment_details, student, user):
 def show_invoice(request, pk):
     if request.method == 'POST':
         invoice = Invoice.objects.get(id=pk)
-        invoice.valid_until = request.POST['valid_until']
         invoice.save()
 
         return redirect('payment_invoice_create', pk=pk)
     else:
         # Obtener la factura por ID, lanzando un error 404 si no se encuentra
         invoice = get_object_or_404(Invoice, id=pk)
-        formated_invoice_date = invoice.date.strftime('%Y-%m-%d')
-        invoice.date = formated_invoice_date
-        formated_valid_until = invoice.valid_until.strftime('%Y-%m-%d')
-        invoice.valid_until = formated_valid_until
+        formatted_invoice_date = invoice.date.strftime('%Y-%m-%d')
+        invoice.date = formatted_invoice_date
         # Obtener los detalles de la factura
         invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
@@ -190,6 +202,33 @@ def show_invoice(request, pk):
             'is_invoice_paid': is_invoice_paid
         }
         return render(request, 'show_invoice.html', context)
+
+
+def show_payment_resume(request, pk):
+    if request.method == 'POST':
+        invoice = Invoice.objects.get(id=pk)
+        invoice.save()
+
+        return redirect('payment_invoice_create', pk=pk)
+    else:
+        # Obtener la factura por ID, lanzando un error 404 si no se encuentra
+        invoice = get_object_or_404(Invoice, id=pk)
+        formatted_invoice_date = invoice.date.strftime('%Y-%m-%d')
+        invoice.date = formatted_invoice_date
+        # Obtener los detalles de la factura
+        invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
+
+        is_invoice_paid = False
+        payment = Payment.objects.filter(invoice=invoice).first()
+        if payment:
+            is_invoice_paid = True
+
+        context = {
+            'invoice': invoice,
+            'invoice_details': invoice_details,
+            'is_invoice_paid': is_invoice_paid
+        }
+        return render(request, 'show_payment_resume.html', context)
 
 
 def invoices(request):
@@ -269,12 +308,12 @@ def payment_invoice_create(request, pk):
                 invoice_detail.fee.state = State.objects.get(name='paid')
                 invoice_detail.fee.fee_paid_amount = invoice_detail.amount
                 invoice_detail.fee.save()
-            elif invoice_detail.enrollment:
-                invoice_detail.enrollment.state = State.objects.get(name='paid')
-                invoice_detail.enrollment.enrollment_paid_amount = invoice_detail.amount
-                invoice_detail.enrollment.save()
+            elif invoice_detail.enrollment_detail:
+                invoice_detail.enrollment_detail.state = State.objects.get(name='paid')
+                invoice_detail.enrollment_detail.paid_amount = invoice_detail.amount
+                invoice_detail.enrollment_detail.save()
 
-        return render(request, 'payment_detail.html', {'payment': payment})
+        return render(request, 'payment_detail.html', {'payment': payment, 'invoice': invoice})
     else:
         invoice = Invoice.objects.get(id=pk)
         student = Student.objects.get(id=invoice.client.id)
@@ -343,16 +382,16 @@ def calculate_fees_quantity(start_date, end_date):
     return total_months
 
 
-def create_fees(request, student_id, enrollment_id):
-    enrollment = Enrollment.objects.get(id=enrollment_id)
-    course = enrollment.course
+def create_fees(request, student_id, enrollment_detail_id):
+    enrollment_detail = EnrollmentDetail.objects.get(id=enrollment_detail_id)
+    course = Course.objects.get(id=enrollment_detail.enrollment.course.id)
     student = Student.objects.get(id=student_id)
-    start_date = enrollment.enrollment_date
+    start_date = course.start_date
     end_date = course.end_date
 
     fees_quantity = calculate_fees_quantity(start_date, end_date)
 
-    fee_amount = enrollment.course.fee_amount
+    fee_amount = course.fee_amount
 
     for i in range(fees_quantity):
         fee = Fee()
@@ -362,15 +401,12 @@ def create_fees(request, student_id, enrollment_id):
         fee.expiration_date = start_date + relativedelta(months=1)
         fee.fee_amount = fee_amount
         fee.state = State.objects.get(name='pending')
-        fee.name = 'Cuota' + '/' + str(i + 1) + '/' + student.ciNumber
-        fee.enrollment = enrollment
+        fee.name = 'Cuota' + '/' + str(i + 1) + '/' + student.ciNumber + '/' + course.name
+        fee.enrollment_detail = enrollment_detail
         fee.save()
 
         start_date = start_date + relativedelta(months=1)
 
-    fees = Fee.objects.all()
-
-    return render(request, 'enrollment_detail.html', {'enrollment': enrollment, 'fees': fees})
 
 def enrollments(request):
     enrollments = Enrollment.objects.all()
@@ -402,6 +438,9 @@ def enrollment_edit(request, enrollment_id):
                     enrollment_details.save()
                     course.space_available -= 1;
                     course.save()
+
+                    create_fees(request, student_id, enrollment_details.id)
+
                     return JsonResponse({'message': 'Alumno matriculado correctamente'})
                 else:
                     return JsonResponse({"message": 'Ya no hay cupos disponibles'})
@@ -410,8 +449,9 @@ def enrollment_edit(request, enrollment_id):
     else:    
         enrollment = Enrollment.objects.get(id=enrollment_id)
         has_fees = False
-        if Fee.objects.filter(enrollment=enrollment):
-            has_fees = True
+        # enrollment_details = EnrollmentDetail.objects.filter(enrollment=enrollment)
+        # if Fee.objects.filter(enrollment_detail=enrollment_details.first()):
+            # has_fees = True
         return render(request, 'enrollment_edit.html', {'enrollment': enrollment, 'has_fees': has_fees, 'enrollment_id': enrollment.id})
 
 
@@ -472,7 +512,8 @@ def enrollment_create(request):
             name = 'Matricula' + '/' + course.name,
             course = course,
             enrollment_start_date = enrollment_start_date,
-            enrollment_end_date = enrollment_end_date
+            enrollment_end_date = enrollment_end_date,
+            enrollment_amount = course.enrollment_amount
         )
         
         enrollment.save()
@@ -736,7 +777,10 @@ def cash_box_create(request):
 
 def cash_box_list(request):
     cash_boxes = CashBox.objects.all()
-    return render(request, 'cash_boxes.html', {'cash_boxes': cash_boxes})
+    is_cash_boxes = False
+    if cash_boxes:
+        is_cash_boxes = True
+    return render(request, 'cash_boxes.html', {'cash_boxes': cash_boxes, 'is_cash_boxes': is_cash_boxes})
 
 
 def cash_box_detail(request, cash_box_id):
