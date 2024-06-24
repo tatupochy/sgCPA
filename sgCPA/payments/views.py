@@ -822,6 +822,18 @@ def stamping_create(request):
         end_number = request.POST.get('end_number')
         actual_number = 1
 
+        # check if there is a stamping with the same number
+        if Stamping.objects.filter(number=number).exists():
+            return render(request, 'stamping_create.html', {'error': 'Ya existe un timbrado con ese número'})
+
+        # check if the start number is greater than the end number
+        if int(start_number) > int(end_number):
+            return render(request, 'stamping_create.html', {'error': 'El número de inicio debe ser menor al número de fin'})
+
+        # check if the valid from date is greater than the valid until date
+        if valid_from > valid_until:
+            return render(request, 'stamping_create.html', {'error': 'La fecha de inicio debe ser menor a la fecha de fin'})
+
         Stamping.objects.create(number=number, valid_from=valid_from, valid_until=valid_until, establishment_number=establishment_number, expedition_point=expedition_point, start_number=start_number, end_number=end_number, actual_number=actual_number)
         return redirect('stamping_list')
     else:
