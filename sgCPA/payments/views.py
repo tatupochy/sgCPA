@@ -413,13 +413,14 @@ def enrollments(request):
     today = date.today()
     
     for enrollment in enrollments:
-        if enrollment.enrollment_start_date and enrollment.enrollment_end_date:
-            if enrollment.enrollment_start_date <= today <= enrollment.enrollment_end_date:
-                enrollment.can_edit = True
+        if enrollment.course.space_available:    
+            if enrollment.enrollment_start_date and enrollment.enrollment_end_date and enrollment.course.space_available > 0:
+                if enrollment.enrollment_start_date <= today <= enrollment.enrollment_end_date:
+                    enrollment.can_edit = True
+                else:
+                    enrollment.can_edit = False
             else:
                 enrollment.can_edit = False
-        else:
-            enrollment.can_edit = False
     
     
     return render(request, 'enrollments.html', {'enrollments': enrollments})

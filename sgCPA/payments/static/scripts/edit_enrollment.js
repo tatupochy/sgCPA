@@ -96,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 const { message } = await response.json()
                 student_table.innerHTML = '';
                 enrollment_message.textContent = message;
-                space_available.value = Number(space_available.value)-1;
+                space_available.value = Number(space_available.value)-1 < 0 ? 0 : Number(space_available.value)-1;
                 setTimeout(() => {
                     enrollment_message.textContent = '';
                 }, 1000);
