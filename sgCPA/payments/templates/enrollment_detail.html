@@ -1,12 +1,47 @@
 {% extends 'base.html' %}
 
 {% block title %} Matrícula {% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="container card" style="padding: 1%;">
+<form class="container card" style="padding: 1%;" id="form">
+    {% csrf_token %}
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/enrollments'" style="cursor: pointer;"></i>
-    <h1>Matrícula: {{ enrollment.name }} </h1>
-    <form method="post" class="form">
+    <div class="d-flex  flex-column w-full">
+        <h1>Matrícula: {{ enrollments.0.enrollment.name }} </h1>
+        <label>Fecha inicio de matriculacion: {{enrollments.0.enrollment.enrollment_start_date}}</label>
+        <label>Fecha fin de matriculacion: {{enrollments.0.enrollment.enrollment_end_date}}</label>
+        <label>Cantidad de cupos: {{enrollments.0.enrollment.course.space_available}}</label>
+        <div class="d-flex align-items-center justify-content-start w-full gap-4 my-4">
+            <h2 class="m-0">Alumnos matriculados</h2>
+            
+            <button id="submit_button" type="submit" class="btn btn-primary" data-course="{{enrollments.0.enrollment.course.name}}" >Descargar PDF</button>
+        </div>
+    </div>
+    <table id="student_table" name="student_table" class="table table-hover table-bordered">
+        <thead>
+            <tr>
+                <th>Nombres</th>
+                <th>Apellidos</th>
+                <th>Numero de Cedula</th>
+                <!-- <th>Matricular</th> -->
+            </tr>
+        </thead>
+        <tbody class="tbody-table">
+            {% for enrollment in enrollments %}
+            <tr>
+                <td>{{enrollment.student.name}}</td>
+                <td>{{enrollment.student.lastName}}</td>
+                <td>{{enrollment.student.ciNumber}}</td>
+                <!-- <td>
+                    <input value="{{student.id}}" name="{{student.id}}"  type="checkbox"/>
+                </td> -->
+            </tr>
+            {% endfor %}
+            <tr></tr>
+        </tbody>
+    </table>
+    <!-- <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
             <label for="id_student" class="form-label">Estudiante:</label>
@@ -38,6 +73,7 @@
         {% if has_fees %}
         <button type="button" class="btn btn-primary" onclick= "window.location.href = '/enrollments/{{ enrollment.id }}/detail_payment'">Ver detalle de pago</button>
         {% endif %}
-    </form>
-</div>
+    </form> -->
+</form>
+<script src="{% static 'scripts/detail_enrollment.js' %}"></script>
 {% endblock %}

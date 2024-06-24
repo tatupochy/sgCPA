@@ -12,6 +12,7 @@ from .views import (
     enrollment_detail,
     enrollment_detail_payment,
     enrollment_create,
+    enrollment_edit,
     enrollment_eliminar,
     create_fees,
     payment_method_create,
@@ -21,7 +22,8 @@ from .views import (
     concept_edit,
     concept_delete,
     concept_detail,
-    get_students
+    get_students,
+    enrollment_detail_create
 )
 urlpatterns = [
     path('payments/', payments, name='payments'),
@@ -29,6 +31,7 @@ urlpatterns = [
     path('payments/search_pending_payments/', search_pending_payments, name='search_pending_payments'),
     path('payments/pending_payments/<int:pk>/', views.pending_payments, name='pending_payments'),
     path('payments/create/invoice/<int:pk>', payment_invoice_create, name='payment_invoice_create'),
+    path('show_payment_resume/<int:pk>', views.show_payment_resume, name='show_payment_resume'),
     ########
     path('invoices/', views.invoices, name='invoices'),
     path('show_invoice/<int:pk>', views.show_invoice, name='show_invoice'),
@@ -40,11 +43,13 @@ urlpatterns = [
     path('fees/create_fees/<int:student_id>', create_fees, name='create_fees'),
     ########
     path('enrollments/', enrollments, name='enrollments'),
-    path('enrollments/<int:enrollment_id>/', enrollment_detail, name='enrollment_detail'),
+    path('enrollments/<int:enrollment_id>/', enrollment_edit, name='enrollment_edit'),
+    path('enrollments/details/<int:enrollment_id>/', enrollment_detail, name='enrollment_detail'),
     path('enrollments/<int:enrollment_id>/detail_payment', enrollment_detail_payment, name='enrollment_detail_payment'),
     path('enrollments/create/', enrollment_create, name='enrollment_create'),
     path('enrollments/get_students/<int:courseId>/', views.get_students),
     path('enrollment_eliminar/<int:id>/', views.enrollment_eliminar, name='enrollment_eliminar'),
+    path('enrollment_detail_create/<int:enrollment_id>/', enrollment_detail_create, name='enrollment_detail_create'),
 
     ########
     path('payment_methods/create/', views.payment_method_create, name='payment_method_create'),

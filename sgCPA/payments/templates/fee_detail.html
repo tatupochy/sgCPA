@@ -32,6 +32,10 @@
             <label for="id_state" class="form-label">Estado:</label>
             <input type="text" class="form-control" id="id_state" value="{{ fee.state.description }}" name="id_state" disabled readonly>
         </div>
+        <div class="form-group">
+            <label for="id_enrollment_detail" class="form-label">Detalle de matrícula:</label>
+            <input type="text" class="form-control" id="id_enrollment_detail" value="{{ fee.enrollment_detail.name }}" name="enrollment_detail" disabled readonly>
+        </div>
     </form>
 </div>
 {% endblock %}

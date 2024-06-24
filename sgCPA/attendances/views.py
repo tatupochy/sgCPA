@@ -272,7 +272,6 @@ def descargar_asistencias_pdf(request):
     except ValueError:
         return HttpResponse("Formato de fecha incorrecto", status=400)
     
-    
     print(fecha)
     print(curso)
     

@@ -8,9 +8,14 @@
     <h1>Buscar pagos: </h1>
     <form method="POST" class="form">
         {% csrf_token %}
+        {% if not is_cash_boxes %}
+        <div class="alert alert-warning">
+            <p>Debes tener una caja activa con al menos un timbrado.</p>
+        </div>
+        {% endif %}
         <div class="form-group">
             <label for="id_student" class="form-label">Ci. Estudiante:</label>
-            <input type="number" class="form-control" id="id_student" name="student" required>
+            <input type="number" class="form-control" id="id_student" name="student" required {% if not is_cash_boxes %} disabled {% endif %}>
         </div>
         <button type="submit" class="btn btn-primary">Buscar pagos pendientes</button>
         {% if form.errors %}
@@ -21,6 +26,13 @@
                     <li>{{ error }}</li>
                     {% endfor %}
                     {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        {% if error %}
+            <div class="alert alert-danger mt-3">
+                <ul>
+                    <li>{{ error }}</li>
                 </ul>
             </div>
         {% endif %}

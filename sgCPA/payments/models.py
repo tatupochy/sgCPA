@@ -37,7 +37,7 @@ class Fee(models.Model):
     fee_amount = models.DecimalField(max_digits=10, decimal_places=2)
     fee_paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     state = models.ForeignKey(State, on_delete=models.CASCADE)
-    enrollment = models.ForeignKey('Enrollment', on_delete=models.CASCADE, null=True, blank=True)
+    enrollment_detail = models.ForeignKey('EnrollmentDetail', on_delete=models.CASCADE, null=True, blank=True)
 
     def is_overdue(self):
         return self.expiration_date < self.fee_date

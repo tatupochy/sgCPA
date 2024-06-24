@@ -30,10 +30,7 @@
         <div class="form-group w-100 d-flex gap-4 mt-4">
             <article class="w-50">
                 <label class="form-label">Fecha de inicio de matriculacion</label>
-                <input type="date" name="enrollment_start_date" id="enrollment_start_date" class="form-control"
-                    value="{{curso.enrollment_start_date}}" required disabled 
-                    title="Esta campo es obligatorio"
-                     />
+                <input type="date" id="enrollment_start_date" value="{{current_date}}" class="form-control" disabled />
                 <span class="error-message"></span>
             </article>
             <article class="w-50">

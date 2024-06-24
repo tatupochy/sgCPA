@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            padding: 1%;
+        }
+        .container.card {
+            padding: 1%;
+        }
+        .back-icon {
+            cursor: pointer;
+        }
+        .main-content {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        .header-content {
+            display: flex;
+            align-items: center;
+            justify-content: start;
+            width: 100%;
+            gap: 4%;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+        }
+        .header-content h2 {
+            margin: 0;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        #student_table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        #student_table th, #student_table td {
+            border: 1px solid #dee2e6;
+            padding: 0.75rem;
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <form class="container card" id="form">
+        <div class="main-content">
+            <h1>Curso: {{ enrollments.0.enrollment.course.name }} </h1>
+            <div class="header-content">
+                <h2>Alumnos matriculados</h2>
+                <label>{{ enrollments.0.course.id }}</label>
+            </div>
+        </div>
+        <table id="student_table" name="student_table">
+            <thead>
+                <tr>
+                    <th>Nombres</th>
+                    <th>Apellidos</th>
+                    <th>Numero de Cedula</th>
+                    <th>Fecha de matriculacion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in enrollments %}
+                <tr>
+                    <td>{{ enrollment.student.name }}</td>
+                    <td>{{ enrollment.student.lastName }}</td>
+                    <td>{{ enrollment.student.ciNumber }}</td>
+                    <td>{{ enrollment.student_enrollment_date  }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </form>
+</body>
+
+</html>
