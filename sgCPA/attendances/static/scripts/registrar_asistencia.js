@@ -1,59 +1,4 @@
-//sgCPA\attendances\static\scripts\registrar_asistencia.js
-// Función para actualizar la lista de alumnos
-// async function actualizarListaAlumnos(cursoId) {
-//     const response = await fetch(`/alumnos_por_curso/${cursoId}`);
-//     const alumnos = await response.json();
-//     const table = document.getElementById("tabla-asistencia");
-//     table.innerHTML = ""; // Limpiar contenido anterior de la tabla
-
-//     for (let i = 0; i < alumnos.length; i++) {
-//         const alumno = alumnos[i];
-//         const row = document.createElement("tr");
-
-//         const cellNombre = document.createElement("td");
-//         cellNombre.textContent = alumno.nombre;
-
-//         const cellApellido = document.createElement("td");
-//         cellApellido.textContent = alumno.apellido;
-        
-//         const cellCi = document.createElement("td");
-//         cellCi.textContent = alumno.ci;
-
-
-//         const cellCheckbox = document.createElement("td");
-//         const checkbox = document.createElement("input");
-//         checkbox.type = "checkbox";
-//         checkbox.name =  alumno.id;
-//         checkbox.value = "presente";
-//         checkbox.disabled = true;
-//         checkbox.addEventListener('change', function() {
-//             checkbox.value = this.checked ? 'True' : 'False'; // Establecer el valor del checkbox como 'true' o 'false' según esté marcado o desmarcado
-//         });
-//         cellCheckbox.appendChild(checkbox);
-
-//         row.appendChild(cellNombre);
-//         row.appendChild(cellApellido);
-//         row.appendChild(cellCi);
-//         row.appendChild(cellCheckbox);
-//         table.appendChild(row);
-//     }
-// }
-
-// // Agregar un evento `change` al campo de selección de curso
-// $('#curso').change(function() {
-//     var cursoId = $(this).val();
-//     actualizarListaAlumnos(cursoId);
-// });
-
-// // Actualizar la lista de alumnos al cargar la página
-// $(document).ready(function() {
-//     var cursoId = $('#curso').val();
-//     actualizarListaAlumnos(cursoId);
-// });
-
-
 document.addEventListener('DOMContentLoaded', () => {
-
 
     function getCookie(name) {
         let cookieValue = null;
@@ -61,7 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const cookies = document.cookie.split(';');
             for (let i = 0; i < cookies.length; i++) {
                 const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
                     break;
@@ -77,79 +21,115 @@ document.addEventListener('DOMContentLoaded', () => {
         'X-CSRFToken': csrftoken
     }
 
-
-
     const d = document;
-    const select = d.getElementById('curso')
-    const inputFecha = d.getElementById('fecha')
-    const tabla_asistencias = d.getElementById('asistencias_body')
+    const select = d.getElementById('curso');
+    const inputFecha = d.getElementById('fecha');
+    const tabla_asistencias = d.getElementById('asistencias_body');
+    const form = d.getElementById('attendanceForm');
+    const successMessage = d.getElementById('successMessage');
+
 
     select.addEventListener('change', async(e) => {
         const target = e.target.value;
-        const curso = await fetch(`/obtener_fechas_curso/${target}`)
-        const { fechas }  = await curso.json()
+        const cursoResponse = await fetch(`/obtener_fechas_curso/${target}`);
+        const { fechas } = await cursoResponse.json();
         const today = new Date().toISOString().split('T')[0];
-        if(curso){
-            inputFecha.disabled = false
-            inputFecha.value = today;
-            const fragment = d.createDocumentFragment()
-            fechas.map((fecha, index) => {
+        
+        if (fechas.length > 0) {
+            inputFecha.disabled = false;
+            inputFecha.innerHTML = '';
+            fechas.forEach(fecha => {
                 const parts = fecha.split('/');
-                const currentDate = new Date();
                 const fechaDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                if(fechaDate <=  currentDate){
-                    const option = d.createElement('option')
-                    option.text = fecha
-                    option.value = fecha
-                    fragment.append(option)
+                if (fechaDate <= new Date()) {
+                    const option = d.createElement('option');
+                    option.text = fecha;
+                    option.value = fecha;
+                    inputFecha.append(option);
                 }
-            })
-            inputFecha.append(fragment)
-            
-        }else{
-            inputFecha.disabled = true
+            });
+            inputFecha.value = today;
+            const event = new Event('change');
+            inputFecha.dispatchEvent(event);
+        } else {
+            inputFecha.disabled = true;
+            inputFecha.innerHTML = '<option>Seleccionar fecha</option>';
         }
-    })
+    });
 
     inputFecha.addEventListener('change', async(e) => {
-        const inputs = tabla_asistencias.querySelectorAll('tbody tr td input')
-        const curso = d.getElementById('curso').value
-        const body = JSON.stringify({value: e.target.value})
-        const response = await fetch(`/obtener_asistencias/${curso}`, {method: 'POST', headers, body})
-        const {asistencias} = await response.json()
-        tabla_asistencias.innerHTML = ''
-        const fragment = d.createDocumentFragment()
-        if(asistencias.length > 0){
-            asistencias.map(asistencia => { 
-                const tr = d.createElement('tr')
-                const tdName = d.createElement('td')
-                const tdLastName = d.createElement('td')
-                const tdCi = d.createElement('td')
-                const tdAttendance = d.createElement('td')
-                const checkbox = d.createElement('input')
-                checkbox.type = 'checkbox'
-                checkbox.checked = (asistencia.presente == 'A' || asistencia.presente == 'Indefinido') ? false : true
-                checkbox.name =  asistencia.id_alumno;
-                tdName.textContent = asistencia.nombre;
-                tdLastName.textContent  = asistencia.apellido
-                tdCi.textContent  = asistencia.ci
-                tdAttendance.append(checkbox)
-                tr.append(tdName)
-                tr.append(tdLastName)
-                tr.append(tdCi)
-                tr.append(tdAttendance)
-                fragment.append(tr)
-            })
-            tabla_asistencias.append(fragment)
-        }else{
-            tabla_asistencias.innerHTML = ''; // Limpiar la tabla antes de agregar nuevos datos
-        }
+        const curso = select.value;
+        const fechaSeleccionada = e.target.value;
+        const body = JSON.stringify({ value: fechaSeleccionada });
+        
+        try {
+            const response = await fetch(`/obtener_asistencias/${curso}`, {
+                method: 'POST',
+                headers,
+                body
+            });
+            
+            if (!response.ok) {
+                console.error('Error en la respuesta:', response.statusText);
+                return;
+            }
 
-        if(inputFecha){
-            inputs.forEach((input) => input.disabled = false)
-        }else{
-            inputs.forEach((input) => input.disabled = true)
-        }
-    })
+            const data = await response.json();
+            const { asistencias } = data;
+            console.log( { asistencias })
+            tabla_asistencias.innerHTML = '';
+            const fragment = d.createDocumentFragment();
+            
 
-})
+            if (asistencias.length > 0) {
+                asistencias.forEach(asistencia => {
+                    const tr = d.createElement('tr');
+                    const tdName = d.createElement('td');
+                    const tdLastName = d.createElement('td');
+                    const tdCi = d.createElement('td');
+                    const tdAttendance = d.createElement('td');
+                    const checkbox = d.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.checked = asistencia.presente === 'P';
+                    checkbox.name = asistencia.id_alumno;
+                    tdName.textContent = asistencia.nombre;
+                    tdLastName.textContent = asistencia.apellido;
+                    tdCi.textContent = asistencia.ci;
+                    tdAttendance.append(checkbox);
+                    tr.append(tdName);
+                    tr.append(tdLastName);
+                    tr.append(tdCi);
+                    tr.append(tdAttendance);
+                    fragment.append(tr);
+                });
+                tabla_asistencias.append(fragment);
+            } else {
+                tabla_asistencias.innerHTML = ''; // Limpiar la tabla antes de agregar nuevos datos
+            }
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    });
+
+   // mensaje de confirmacion cuando se guarda
+   form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(form);
+    const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: { 'X-CSRFToken': csrftoken }
+    });
+
+    if (response.ok) {
+        successMessage.classList.remove('d-none');
+        setTimeout(() => {
+            successMessage.classList.add('d-none');
+        }, 4000);
+    } else {
+        console.error('Error en la respuesta del servidor:', response.statusText);
+    }
+});
+
+
+} );

@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from functools import wraps
+from django.http import HttpResponseForbidden
 
 
 def attribute_required(view_func):
@@ -28,3 +29,12 @@ def login_required_custom(view_func):
         return view_func(request, *args, **kwargs)
 
     return _wrapped_view
+
+
+def admin_required(view_func):
+    def _wrapped_view_func(request, *args, **kwargs):
+        if request.user.is_authenticated and request.user.groups.filter(name='Administrador').exists():
+            return view_func(request, *args, **kwargs)
+        else:
+            return HttpResponseForbidden("No tienes permiso para acceder a esta página.")
+    return _wrapped_view_func

@@ -145,3 +145,17 @@ a.sidebar-link:hover {
 #black-text-option {
         color: black;
 }
+
+.fixed-top-right {
+    position: fixed;
+    top: 40px;
+    right: 20px;
+    z-index: 1050;  /* Asegúrate de que esté por encima de otros elementos */
+    width: auto;   /* Ajusta el ancho según sea necesario */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+    

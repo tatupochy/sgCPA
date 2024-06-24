@@ -3,7 +3,7 @@ from django.views.generic import CreateView, ListView, DetailView
 from django.shortcuts import render, get_object_or_404,redirect
 from django.http import JsonResponse
 from students.models import Course, CourseDates,Student
-from payments.models import Enrollment
+from payments.models import Enrollment, EnrollmentDetail
 from django.shortcuts import HttpResponse,HttpResponseRedirect
 from django.http import HttpResponseBadRequest
 from .models import Attendance, AttendanceStudent
@@ -30,28 +30,28 @@ def registrar_asistencia(request):
     if request.method == 'POST':
         fecha_str = request.POST.get('fecha')
         curso_id = request.POST['curso']
-        curso = Course.objects.get(pk=curso_id)
-        matriculaciones = Enrollment.objects.filter(course=curso)
+        curso = get_object_or_404(Course, pk=curso_id)
         
-        students = [matriculacion.student for matriculacion in matriculaciones]
+        # Obtener las matriculaciones activas del curso
+        matriculaciones = Enrollment.objects.filter(course=curso, active=True)
+        
+        # Obtener los alumnos matriculados a través de los detalles de matriculación
+        detalles_matriculaciones = EnrollmentDetail.objects.filter(enrollment__in=matriculaciones, active=True)
+        
+        students = [detalle.student for detalle in detalles_matriculaciones]
         fecha = datetime.strptime(fecha_str, "%d/%m/%Y").date()
         
-        attendance = Attendance.objects.get(date=fecha, course=curso)
+        attendance = get_object_or_404(Attendance, date=fecha, course=curso)
 
-        
         for student in students:
-            print(request.POST)
-            print(student.id)
             presente = request.POST.get(str(student.id)) is not None
             AttendanceStudent.objects.filter(attendance=attendance, student=student).update(present=presente)
     
-        # return render(request, 'attendances/registrar_asistencia.html', {'message': 'datos guardados correctamente'})
         return redirect(reverse('registrar_asistencia'))
     else:
         now = timezone.now().date()
         cursos = Course.objects.filter(start_date__lte=now, end_date__gte=now)
         return render(request, 'attendances/registrar_asistencia.html', {'cursos': cursos})
-
 
 def alumnos_por_curso(request, course_id):
     enrollments = Enrollment.objects.filter(course_id=course_id).select_related('student')
@@ -201,46 +201,39 @@ def obtener_fechas_curso(request, curso_id):
     return JsonResponse({'fechas': fechas_formateadas})
 
 def obtener_asistencias(request, id):
-    body = json.loads(request.body)
-    fecha_str = body.get('value')
-    fecha = datetime.strptime(fecha_str, '%d/%m/%Y').date()
-    
-    course = get_object_or_404(Course, pk=id)
-    
-    try:    
+    try:
+        # Parsear el cuerpo de la solicitud
+        body = json.loads(request.body)
+        fecha_str = body.get('value')
+        fecha = datetime.strptime(fecha_str, '%d/%m/%Y').date()
+        
+        # Obtener el curso
+        course = get_object_or_404(Course, pk=id)
+        
+        # Obtener la asistencia para el curso y la fecha especificados
         attendance = get_object_or_404(Attendance, course=course, date=fecha)
         
-        
+        # Obtener todas las relaciones AttendanceStudent para esta asistencia
         alumnos_asistencias = attendance.attendancestudent_set.all()
         datos_asistencia = []
+        
+        # Construir la lista de datos de asistencia para enviar como respuesta JSON
         for registro in alumnos_asistencias:
             alumno = registro.student
-            nombre_alumno = alumno.name
-            apellido = alumno.lastName
-            ci = alumno.ciNumber
-            presente = registro.present
-            id_alumno = alumno.id
-            
-            # Validación del campo 'presente'
-            if presente is True:
-                estado_asistencia = 'P'
-            elif presente is False:
-                estado_asistencia = 'A'
-            else:
-                estado_asistencia = 'Indefinido'
-            
             datos_alumno = {
-                'nombre': nombre_alumno,
-                'apellido': apellido,
-                'presente': estado_asistencia,
-                'ci':ci,
-                'id_alumno': id_alumno
+                'nombre': alumno.name,
+                'apellido': alumno.lastName,
+                'presente': 'P' if registro.present else 'A' if registro.present is False else 'Indefinido',
+                'ci': alumno.ciNumber,
+                'id_alumno': alumno.id
             }
             datos_asistencia.append(datos_alumno)
-    
+        
+        # Retornar la respuesta JSON con los datos de asistencia
         return JsonResponse({'asistencias': datos_asistencia})
     except:
         return JsonResponse({'asistencias': []})
+        
 
 def obtener_rango_curso(request, id):
    curso = get_object_or_404(Course, pk=id)
@@ -266,16 +259,19 @@ def obtener_rango_curso(request, id):
                 
    return JsonResponse({'rango':range, 'fechas': fechas_formateadas})
 
-# def obtener_asistencia(request, )
+#PDF
 def descargar_asistencias_pdf(request):
     body = json.loads(request.body)
     curso_id = body.get('curso_id')
     fecha_str = body.get('fecha')
     curso = get_object_or_404(Course, pk=curso_id)
+    profesor = curso.teacher.name + " " + curso.teacher.lastName
+  
     try:
         fecha = datetime.strptime(fecha_str, "%d/%m/%Y").date()  # Cambiado a '%d/%m/%Y'
     except ValueError:
         return HttpResponse("Formato de fecha incorrecto", status=400)
+    
     
     print(fecha)
     print(curso)
@@ -283,14 +279,12 @@ def descargar_asistencias_pdf(request):
     attendance = get_object_or_404(Attendance, course=curso, date=fecha)
     asistencias = attendance.attendancestudent_set.all()
     
-    
-    
-
     # Preparar el contexto para el template
     context = {
         'curso': curso,
         'fecha': fecha,
         'asistencias': asistencias,
+        'profesor':profesor,
         'total_presentes': sum(1 for asistencia in asistencias if asistencia.present)
     }
 
@@ -306,3 +300,55 @@ def descargar_asistencias_pdf(request):
     if pisa_status.err:
         return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
     return response
+
+
+
+###################################################################
+def registrar_asistencia2(request):
+    if request.method == 'POST':
+        fecha_str = request.POST.get('fecha')
+        curso_id = request.POST['curso']
+        curso = get_object_or_404(Course, pk=curso_id)
+        
+        # Obtener las matriculaciones activas del curso
+        matriculaciones = Enrollment.objects.filter(course=curso, active=True)
+        
+        # Obtener los alumnos matriculados a través de los detalles de matriculación
+        detalles_matriculaciones = EnrollmentDetail.objects.filter(enrollment__in=matriculaciones, active=True)
+        
+        students = [detalle.student for detalle in detalles_matriculaciones]
+        fecha = datetime.strptime(fecha_str, "%d/%m/%Y").date()
+        
+        attendance = get_object_or_404(Attendance, date=fecha, course=curso)
+
+        for student in students:
+            presente = request.POST.get(str(student.id)) is not None
+            AttendanceStudent.objects.filter(attendance=attendance, student=student).update(present=presente)
+    
+        return redirect(reverse('registrar_asistencia2'))
+    else:
+        now = timezone.now().date()
+        cursos = Course.objects.filter(start_date__lte=now, end_date__gte=now)
+        return render(request, 'attendances/registrar_asistencia2.html', {'cursos': cursos})
+
+def obtener_fechas_curso2(request, curso_id):
+    curso = get_object_or_404(Course, pk=curso_id)
+    fechas = CourseDates.objects.filter(course=curso)
+    today = timezone.now().date()
+
+    #prueba
+    #today = datetime.strptime("2024-06-22", "%Y-%m-%d").date()
+
+    # # # Debug: Imprimir fechas y fecha actual
+    # print("Curso ID:", curso_id)
+    # print("Fechas del curso:", [fecha.date for fecha in fechas])
+    # print("Fecha actual:", today)
+
+    # Comprobar si alguna fecha del curso coincide con la fecha actual
+    fecha_hoy_en_curso = any(fecha.date == today for fecha in fechas)
+    # print("Fecha hoy en curso:", fecha_hoy_en_curso)
+    if fecha_hoy_en_curso:
+        return JsonResponse({'fecha': today.strftime("%d/%m/%Y")})
+    else:
+        return JsonResponse({'fecha': None})
+    

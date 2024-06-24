@@ -5,7 +5,7 @@
 <div class="container">
   <h1 class="mt-5">Registrar Asistencia</h1>
   <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-  <form id="attendanceForm" action="/registrar_asistencia/" method="post" class="mt-4"  >
+  <form id="attendanceForm2" action="/registrar_asistencia2/" method="post" class="mt-4">
       {% csrf_token %}
 
       <div class="row mb-3 d-flex align-items-center justify-content-center flex-column">
@@ -44,8 +44,8 @@
         </table>
     </div>
 
-    <div class="alert alert-success d-none fixed-top-right" id="successMessage">Asistencia registrada</div>
-    
+    <div class="alert alert-success d-none fixed-top-right" id="successMessage2">Asistencia registrada</div>
+
       <br>
       <div class="mt-3">
         <button type="submit" class="btn btn-primary">Registrar</button>
@@ -56,6 +56,6 @@
   </form>
 </div>
 
-<script src="{% static 'scripts/registrar_asistencia.js' %}"></script>
+<script src="{% static 'scripts/registrar_asistencia2.js' %}"></script>
 
 {% endblock %}

@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const d = document;
 
     const curso = d.getElementById('id_course')
-    // const student_table = d.getElementById('student_table').querySelector('tbody')
     const id_enrollment_amount = d.getElementById('id_enrollment_amount')
     const id_fee_amount = d.getElementById('id_fee_amount')
     const minStudentsNumber = d.getElementById('minStudentsNumber')
@@ -60,125 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
         start_date.value = course_data.start_date;
         end_date.value = course_data.end_date;
 
-        // student_list = course_data.student_list;
+   
 
 
     })
 
-    // ci_input.addEventListener('input', (e) => {
-    //     // Obtener el valor actual del input
-    //     const inputValue = e.target.value;
 
-    //     // Remover caracteres no numéricos
-    //     const numericValue = inputValue.replace(/\D/g, '');
-
-    //     // Actualizar el valor del input con los caracteres numéricos
-    //     ci_input.value = numericValue;
-    // })
-
-    // let timeoutId; // Variable para almacenar el ID del timeout
-    // ci_button.addEventListener('click', async (e) => {
-    //     const value = ci_input.value;
-
-    //     if (!value) {
-    //         create_enrollment_button.disabled = true;
-    //         return student_table.innerHTML = '';
-    //     }
-
-    //     const url = `/obtener_alumno_por_ci/${value}/${courseId}`
-    //     try {
-    //         const response = await fetch(url)
-    //         if (!response.ok) {
-    //             throw new Error('Esta busqueda no obtuvo resultados')
-    //         }
-    //         const json = await response.json()
-    //         fillStudentTable(json)
-    //         create_enrollment_button.disabled = false;
-    //         student_id.value = json.id;
-    //         ci_input.value = '';
-    //         console.log(json.id)
-    //     } catch (error) {
-    //         notFoundStudent.style.display = 'block';
-
-    //         // Si hay un timeout activo, cancelarlo antes de iniciar uno nuevo
-    //         if (timeoutId) {
-    //             clearTimeout(timeoutId);
-    //         }
-
-    //         // Configurar el timeout para ocultar el mensaje después de 2 segundos
-    //         timeoutId = setTimeout(() => {
-    //             notFoundStudent.style.display = 'none';
-    //         }, 2000);
-
-    //         // create_enrollment_button.disabled = true;
-    //         // student_table.innerHTML = ''
-    //         // const tr = d.createElement('tr')
-    //         // const td = d.createElement('td')
-    //         // td.colSpan = 3;
-    //         // td.textContent = error.message;
-    //         // td.style.textAlign = 'center';
-    //         // tr.append(td);
-    //         // student_table.append(tr);
-    //     }
-    // })
-
-
-    // const fillStudentTable = (student) => {
-    //     // student_table.innerHTML = '';
-
-    //     const tr = d.createElement('tr')
-    //     const tdName = d.createElement('td')
-    //     const tdLastName = d.createElement('td')
-    //     const tdCI = d.createElement('td')
-    //     tdName.textContent = student.name;
-    //     tdLastName.textContent = student.lastName;
-    //     tdCI.textContent = student.ciNumber;
-    //     tr.append(tdName)
-    //     tr.append(tdLastName)
-    //     tr.append(tdCI)
-    //     student_table.append(tr)
-    // }
-
-    // enrollment_form.addEventListener('submit', (e) => {
-    //     e.preventDefault();
-    //     let validation = false;
-
-       
-
-    //     const enrollment_start_date = new Date(enrollment_start.value);
-    //     const enrollment_end_date = new Date(enrollment_end.value);
-
-    //     const start_date_date = new Date(start_date.value);
-    //     const end_date_date = new Date(end_date.value);
-
-    //     if (enrollment_start_date > enrollment_end_date) {
-    //         const errorSpan = enrollment_start.nextElementSibling;
-    //         errorSpan.textContent = 'La fecha inicio de matriculacion no puede ser mayor a la fecha fin de matriculacion'
-    //         validation = false;
-    //     }
-
-    //     if (enrollment_start_date > start_date_date){
-    //         const errorSpan = enrollment_start.nextElementSibling;
-    //         errorSpan.textContent = 'La fecha inicio de matriculacion no puede ser mayor a la fecha de inicio de clases'
-    //         validation = false;
-    //     }
-
-    //     if (isMoreThanNDaysApart(enrollment_end_date, start_date_date, 10)) {
-    //         const errorSpan = enrollment_end.nextElementSibling;
-    //         errorSpan.textContent = 'La fecha fin de matriculacion no puede ser mayor a una semana y media despues del inicio de clases'
-    //         isValid = false;
-    //     }
-
-
-
-    //     // const enrollment_start_date = d.getElementById('enrollment_start_date')
-    //     // const enrollment_end_date = d.getElementById('enrollment_end_date')
-
-    //     e.preventDefault()
-    //     if (validation) {
-    //         enrollment_form.submit()
-    //     }
-    // })
 
     const errorTimeouts = {}; // Objeto para almacenar los timeouts
 

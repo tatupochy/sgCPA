@@ -1,0 +1,19 @@
+<!-- templates/attendances/settings.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Configuración de Envío Automático</title>
+</head>
+<body>
+    <h1>Configuración de Envío Automático</h1>
+    <form method="post" action="{% url 'settings_view' %}">
+        {% csrf_token %}
+        <label for="automatic_email">Enviar correos automáticamente:</label>
+        <input type="checkbox" id="automatic_email" name="automatic_email" {% if settings.automatic_email %}checked{% endif %}>
+        <br>
+        <button type="submit" class="btn btn-primary">Guardar configuración</button>
+    </form>
+    <br>
+    <a href="{% url 'manual_send_emails' %}" class="btn btn-secondary">Enviar correos manualmente</a>
+</body>
+</html>

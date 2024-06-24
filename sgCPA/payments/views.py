@@ -381,7 +381,9 @@ def enrollment_detail(request, enrollment_id):
         student_id = request.POST['student_id']
         student = Student.objects.get(id=student_id)
         enrollment = Enrollment.objects.get(id=enrollment_id)
-        course = Course.objects.get(id=enrollment.course.id)
+        #course = Course.objects.get(id=enrollment.course.id)
+        course = enrollment.course
+
         if student:
             enrollment_exists = EnrollmentDetail.objects.filter(
                 student=student,
@@ -401,6 +403,13 @@ def enrollment_detail(request, enrollment_id):
                     enrollment_details.save()
                     course.space_available -= 1;
                     course.save()
+
+                    #al matricular, crea las fechas en la que debe asistir el alumno dependiendo del curso en AttendanceStudent
+                    course_dates = CourseDates.objects.filter(course=course)
+                    for course_date in course_dates:
+                        attendance, created = Attendance.objects.get_or_create(course=course, date=course_date.date)
+                        AttendanceStudent.objects.create(attendance=attendance, student=student)
+
                     return JsonResponse({'message': 'Alumno matriculado correctamente'})
                 else:
                     return JsonResponse({"message": 'Ya no hay cupos disponibles'})
