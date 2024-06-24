@@ -9,7 +9,7 @@
     <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/enrollments'"
         style="cursor: pointer;"></i>
     <h1>Matricular Alumnos: </h1>
-    <form method="post" class="form p-1 py-4" id="enrollment_form" action="{% url 'enrollment_detail' enrollment_id %}">
+    <form method="post" class="form p-1 py-4" id="enrollment_form" action="{% url 'enrollment_detail_create' enrollment_id %}">
         {% csrf_token %}
         <div class="form-group w-100 d-flex align-items-center justify-content-center gap-4">
             <article class="w-100">

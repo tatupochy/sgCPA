@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = `/obtener_curso/${value}`
         const response = await fetch(url)
         const { course_data } = await response.json()
-        enrollment_start.disabled = false;
+        // enrollment_start.disabled = false;
         enrollment_end.disabled = false;
         create_enrollment_button.disabled = false;
         id_enrollment_amount.value = course_data.enrollment_amount;
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
     
         // Validaciones
         if (enrollment_start_date > enrollment_end_date) {
-            showErrorWithTimeout(enrollment_start, 'La fecha inicio de matriculación no puede ser mayor a la fecha fin de matriculación');
+            showErrorWithTimeout(enrollment_end, 'La fecha fin de matriculación no puede ser menor a la fecha inicio de matriculación');
             validation = false;
         }
     

@@ -10,7 +10,7 @@ from utils.utils import calculate_class_days
 from .models import CourseDates, Student, Course, Shift, Section
 from subjects.models import Subject
 from django.db.models import Q
-from datetime import datetime
+from datetime import datetime, date
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 import datetime
 from teachers.models import Teacher
@@ -323,16 +323,8 @@ def listar_curso(request):
 
 def obtener_curso(request, id):
     
-    course = Course.objects.get(id=id)
-    
-    # if Enrollment.objects.filter(course_id=id).exists():
-    #     estudiantes_matriculados = Enrollment.objects.filter(course_id=id).values('student_id')
-    #     estudiantes_no_matriculados = Student.objects.exclude(id__in=estudiantes_matriculados)
-    # else:
-    #     estudiantes_no_matriculados = Student.objects.all()
-    
-    # estudiantes_no_matriculados_list = list(estudiantes_no_matriculados.values('id', 'name', 'lastName', 'ciNumber'))
-   
+    course = Course.objects.get(id=id, start_date__gte=date.today())
+       
     
     data = {
         'enrollment_amount': course.enrollment_amount,
@@ -343,10 +335,7 @@ def obtener_curso(request, id):
         'maxStudentsNumber': course.maxStudentsNumber,
         'start_date': course.start_date,
         'end_date': course.end_date,
-        # 'student_list': estudiantes_no_matriculados_list,
         'space_available': course.space_available,
-        # 'enrollment_start_date': course.enrollment_start_date,
-        # 'enrollment_end_date': course.enrollment_end_date
         
     }
     return JsonResponse({"course_data":data})

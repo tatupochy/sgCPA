@@ -9,6 +9,9 @@
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/enrollments'" style="cursor: pointer;"></i>
     <div class="d-flex  flex-column w-full">
         <h1>Matrícula: {{ enrollments.0.enrollment.name }} </h1>
+        <label>Fecha inicio de matriculacion: {{enrollments.0.enrollment.enrollment_start_date}}</label>
+        <label>Fecha fin de matriculacion: {{enrollments.0.enrollment.enrollment_end_date}}</label>
+        <label>Cantidad de cupos: {{enrollments.0.enrollment.course.space_available}}</label>
         <div class="d-flex align-items-center justify-content-start w-full gap-4 my-4">
             <h2 class="m-0">Alumnos matriculados</h2>
             
