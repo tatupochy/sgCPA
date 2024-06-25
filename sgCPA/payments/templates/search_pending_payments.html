@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container card" style="padding: 1%;">
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/payments'" style="cursor: pointer;"></i>
-    <h1>Buscar pagos: </h1>
+    <h1>Buscar cuotas y matrículas pendientes: </h1>
     <form method="POST" class="form">
         {% csrf_token %}
         {% if not is_cash_boxes %}
@@ -17,7 +17,7 @@
             <label for="id_student" class="form-label">Ci. Estudiante:</label>
             <input type="number" class="form-control" id="id_student" name="student" required {% if not is_cash_boxes %} disabled {% endif %}>
         </div>
-        <button type="submit" class="btn btn-primary">Buscar pagos pendientes</button>
+        <button type="submit" class="btn btn-primary">Buscar</button>
         {% if form.errors %}
             <div class="alert alert-danger mt-3">
                 <ul>
