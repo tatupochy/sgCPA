@@ -333,7 +333,7 @@ def registrar_asistencia2(request):
 def obtener_fechas_curso2(request, curso_id):
     curso = get_object_or_404(Course, pk=curso_id)
     fechas = CourseDates.objects.filter(course=curso)
-    today = timezone.now().date()
+    today = timezone.localdate()
 
     #prueba
     #today = datetime.strptime("2024-06-22", "%Y-%m-%d").date()

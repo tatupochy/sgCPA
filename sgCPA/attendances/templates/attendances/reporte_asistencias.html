@@ -16,11 +16,16 @@
         }
         th, td {
             border: 1px solid black;
-            padding: 8px;
+            padding: 4px; /* Reduce el padding para hacer las filas más compactas */
             text-align: center;
+            line-height: 1.2; /* Ajusta la altura de línea para hacer las filas más compactas */
         }
         th {
             background-color: #f2f2f2;
+        }
+        th.numero, td.numero {
+            white-space: nowrap;
+            width: 3%; /* Ajusta la anchura para que sea tan estrecha como su contenido */
         }
         .total {
             font-weight: bold;
@@ -31,11 +36,12 @@
     <h1>Reporte de Asistencias</h1>
     <h2>Nombre del curso: {{ curso.name }}</h2>
     <h2>Profesor/es: {{ profesor }}</h2>
-    <p>Fecha: {{ fecha }}</p>
+    <p><font SIZE=4> Fecha: {{ fecha }} </font></p>
 
     <table>
         <thead>
             <tr>
+                <th class="numero">#</th>
                 <th>Apellido</th>
                 <th>Nombre</th>
                 <th>Número de Cédula</th>
@@ -45,6 +51,7 @@
         <tbody>
             {% for asistencia in asistencias %}
             <tr>
+                <td class="numero">{{ forloop.counter }}</td>
                 <td>{{ asistencia.student.lastName }}</td>
                 <td>{{ asistencia.student.name }}</td>
                 <td>{{ asistencia.student.ciNumber }}</td>
@@ -52,7 +59,7 @@
             </tr>
             {% endfor %}
             <tr class="total">
-                <td colspan="3">Total de presentes:</td>
+                <td colspan="4">Total de presentes:</td>
                 <td>{{ total_presentes }}</td>
             </tr>
         </tbody>

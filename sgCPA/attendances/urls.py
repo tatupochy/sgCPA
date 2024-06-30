@@ -16,5 +16,5 @@ urlpatterns = [
     path('obtener_asistencias/<int:id>', views.obtener_asistencias,name='obtener_asistencias'),
     # path('obtener_meses_curso/<int:curso_id>/',  views.obtener_meses_curso, name='obtener_meses_curso'),
     # path('ver_asistencias_fecha/', views.ver_asistencias_fecha, name='ver_asistencias_fecha'),
-    path('descargar_asistencias_pdf', views.descargar_asistencias_pdf, name='descargar_asistencias_pdf')
+    path('descargar_asistencias_pdf/', views.descargar_asistencias_pdf, name='descargar_asistencias_pdf')
 ]

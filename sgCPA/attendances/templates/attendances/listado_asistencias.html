@@ -9,7 +9,6 @@
         {% csrf_token %}
         <div class="w-100 mb-4 d-flex align-items-center justify-content-center gap-4">
             <div class="w-70 flex-grow-1">
-                <!-- <label for="curso_id">Seleccione un curso</label> -->
                 <select id="curso" name="curso_id" class="form-select">
                     <option selected disabled>Seleccione un curso</option>
                     {% for curso in cursos %}
@@ -17,75 +16,31 @@
                     {% endfor %}
                 </select>
             </div>
-            <div class="">
+            <!-- <div class="">
                 <button class="btn btn-primary">Descargar PDF</button>
-            </div>
+            </div> -->
         </div>
 
-        <!-- {% if meses_curso %}
-        <div class="row mb-3" id="meses-container">
-            <label for="mes" class="col-sm-2 col-form-label">Mes:</label>
-            <div class="col-sm-4 w-100">
-                <select id="mes" name="mes" class="form-select">
-                    <option value="">Seleccione un mes</option>
-                    {% for mes, mes_nombre in meses_curso %}
-                        <option value="{{ mes }}" {% if selected_mes and selected_mes == mes %}selected{% endif %}>{{ mes_nombre }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        {% endif %} -->
         <div>
             <select id="fecha" class="form-control" disabled></select>
         </div>
     </form>
 
     <div class="table-responsive mt-4">
-        <table class="table table-bordered">
+        <table id="asistencias_table" class="display nowrap" style="width:100%">
             <thead>
                 <tr>
                     <th>Nombre</th>
                     <th>Apellido</th>
                     <th>Cédula</th>
                     <th>Asistencia</th>
-                    <!-- <th>Advertencia</th> -->
-                    <!-- <th>Acciones</th> -->
                 </tr>
             </thead>
             <tbody id="asistencias_body">
-                <!-- {% for asistencia in asistencias %}
-                <tr>
-                    <td>{{ asistencia.student.name }}</td>
-                    <td>{{ asistencia.student.lastName }}</td>
-                    <td>{{ asistencia.student.ciNumber }}</td>
-                    <td>{{ asistencia.date }}</td>
-                    <td>
-                        {% if asistencia.present %}
-                            P
-                        {% else %}
-                            A
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if asistencia.student.id in low_attendance_students %}
-                            <div class="alert alert-danger" role="alert">
-                                Alumno con menos del 70% de asistencia
-                            </div>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'actualizar_asistencia' asistencia.id %}">Actualizar</a>
-                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal{{ asistencia.id }}">Eliminar</button>
-                    </td>
-                </tr>
-                {% endfor %} -->
-                
+                <!-- Se llena con javascript -->
             </tbody>
         </table>
     </div>
-
-   
-    
 
     {% for asistencia in asistencias %}
     <div class="modal fade" id="confirmDeleteModal{{ asistencia.id }}" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
@@ -111,9 +66,17 @@
         Asistencia eliminada!
     </div>
 
-    <!-- <script src="{% static 'scripts/eliminar_asistencia.js' %}"></script> -->
-     
-    <script src="{% static 'scripts/listado_asistencia.js'  %}"></script>
-    
+    <!-- DataTables CSS and JS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+    <script src="{% static 'scripts/listado_asistencia.js' %}"></script>
 </div>
 {% endblock %}
