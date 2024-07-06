@@ -6,6 +6,7 @@ from countries.models import Country
 from cities.models import Cities
 from attendances.models import Attendance, AttendanceStudent
 from payments.models import Enrollment, EnrollmentDetail, Fee, State
+from countries.views import paises_con_ciudades
 from utils.utils import calculate_class_days
 from .models import CourseDates, Student, Course, Shift, Section
 from subjects.models import Subject
@@ -18,7 +19,9 @@ from teachers.models import Teacher
 
 def registrar_alumno(request):
     if request.method == "GET":
-        country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
+        # country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
+        country_list = paises_con_ciudades(request)
+        print(country_list)
         return render(request, 'students/registrar_alumno.html', {'country_list': country_list})
     
     form_data = request.POST.dict()

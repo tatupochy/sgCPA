@@ -6,5 +6,6 @@ urlpatterns = [
     path('listado_paises', views.listado_paises),
     path('listado_paises/buscar/<str:id>', views.buscar),
     path('inhabilitar_pais/<int:id>', views.borrar_pais),
-    path('editar_pais/<int:id>', views.editar_pais)   
+    path('editar_pais/<int:id>', views.editar_pais),
+    path('paises_con_ciudades', views.paises_con_ciudades)   
 ]

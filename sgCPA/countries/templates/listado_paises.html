@@ -6,7 +6,7 @@
 {% block content %}
 <script src="{% static '../../static/scripts/listado_paises.js' %}" type="module"></script>
 
-<div class="heading d-flex align-items-center justify-content-center">
+<div class="heading d-flex align-items-center justify-content-center flex-column mb-3">
     <h1>Listado de Paises</h1>
     <div class="d-flex align-items-center justify-content-center">
         <div class="input-group  buscar">
@@ -14,8 +14,8 @@
                 autocomplete="off">
             <button class="input-group-text" id="searchButton"><i class="fa-solid fa-magnifying-glass"></i></button>
         </div>
-        <div class="">
-            <a href="/registrar_pais" class="border mb-3" id="add">
+        <div class="w-100">
+            <a href="/registrar_pais" class="btn btn-primary" id="add">
                 Crear Pais
             </a>
         </div>

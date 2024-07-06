@@ -14,13 +14,13 @@
         {% endif %}
     </legend>
 
-    <section class="d-flex gap-3 justify-content-center align-items-end border w-100">
-        <article class="w-50 border">
+    <section class="d-flex gap-3 justify-content-center align-items-end  w-100">
+        <article class="w-50">
             <label for="name" class="mb-2 form-label">Nombre</label>
-            <input value="{{city.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" />
+            <input value="{{city.name}}" class="form-control" id="name" name="name" type="text" autocomplete="off" required />
         </article>
-        <article class="w-50 border">
-            <select class="form-select" id="section" name="country">
+        <article class="w-50">
+            <select class="form-select" id="section" name="country" required>
                 <option value="{{country_id}}">Seleccionar Pais</option>
                 {% for country in country_list %}
                 {% if country.id == country_id %}
