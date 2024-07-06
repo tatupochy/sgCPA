@@ -170,3 +170,23 @@ a.sidebar-link:hover {
 .error-message{
     color: red;
 }
+
+.reports-container{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .5rem;
+}
+
+.report-item{
+    border: 1px blue solid;
+    padding: .5rem;
+    cursor: pointer;
+    color: white;
+    border-radius: 10px;
+    background-color:  #0d6efd;
+}
+
+.report-item:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+

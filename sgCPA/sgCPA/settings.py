@@ -47,7 +47,8 @@ INSTALLED_APPS = [
     'countries',
     'cities',
     'teachers',
-    'shift'
+    'shift',
+    'reports'
      
 ]
 
@@ -75,7 +76,8 @@ TEMPLATES = [
             os.path.join(BASE_DIR, 'attendances', 'templates'),
             os.path.join(BASE_DIR, 'countries', 'templates'),
             os.path.join(BASE_DIR, 'cities', 'templates'),
-            os.path.join(BASE_DIR, 'shift', 'templates')
+            os.path.join(BASE_DIR, 'shift', 'templates'),
+            os.path.join(BASE_DIR, 'reports', 'templates')
             ],
         'APP_DIRS': True,
         'OPTIONS': {
