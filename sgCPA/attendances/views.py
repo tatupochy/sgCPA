@@ -22,7 +22,9 @@ from django.core.exceptions import ObjectDoesNotExist
 import json
 from xhtml2pdf import pisa
 from django.template.loader import render_to_string
-
+from django.db.models import Count, Q, F, Value
+from django.db.models.functions import Concat
+from django.db import models
 
 
 # sgCPA\attendances\views.py
@@ -351,3 +353,28 @@ def obtener_fechas_curso2(request, curso_id):
     else:
         return JsonResponse({'fecha': None})
     
+
+##dashboard
+def dashboard(request):
+    courses = Course.objects.all()
+    course_id = request.GET.get('course_id')
+    if course_id:
+        attendances = Attendance.objects.filter(course_id=course_id)
+    else:
+        attendances = Attendance.objects.all()
+
+    data_by_month = attendances.annotate(
+        month_year=Concat(
+            F('date__month'), Value('-'), F('date__year'),
+            output_field=models.CharField()
+        )
+    ).values('month_year').annotate(
+        present_count=Count('attendancestudent', filter=Q(attendancestudent__present=True)),
+        absent_count=Count('attendancestudent', filter=Q(attendancestudent__present=False))
+    ).order_by('date__year', 'date__month')
+
+    context = {
+        'courses': courses,
+        'data_by_month': data_by_month,
+    }
+    return render(request, 'attendances/dashboard.html', context)

@@ -2,13 +2,38 @@
 {% load static %}
 
 {% block content %}
-<link rel="stylesheet" href="reports.css">
-<h1 class="mb-4">Seleccionar reportes</h1>
-<div class="reports-container">
-    <a class="report-item">Morosidad</a>
-    <a class="report-item">Ranking de cursos</a>
-    <a class="report-item">Ausencias</a>
-    <a class="report-item">Ingresos</a>
-    <a class="report-item">Ranking de alumnos</a>
+<div class="container mt-4">
+    <h1>Reportes Gerenciales</h1>
+    <div class="row">
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('matriculas')">Reporte de Pagos de Matrículas</button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('cuotas')">Reporte de Pagos de Cuotas</button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('asistencias')">Reporte de Asistencias por Curso</button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('rendimiento')">Reporte de Rendimiento Académico</button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('ingresos')">Reporte de Ingresos Totales</button>
+        </div>
+        <div class="col-md-4">
+            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('activos')">Reporte de Estudiantes Activos</button>
+        </div>
+    </div>
+    <div id="report-container" class="mt-4"></div>
 </div>
+
+<script>
+function loadReport(reportType) {
+    fetch(`/reports/${reportType}/`)
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('report-container').innerHTML = html;
+        });
+}
+</script>
 {% endblock %}
