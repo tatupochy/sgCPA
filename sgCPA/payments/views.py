@@ -503,7 +503,7 @@ def enrollment_detail_create(request, enrollment_id):
                     for course_date in course_dates:
                         attendance, created = Attendance.objects.get_or_create(course=course, date=course_date.date)
                         AttendanceStudent.objects.create(attendance=attendance, student=student)
-
+                    create_fees(request, student_id, enrollment_details.id)
                     return JsonResponse({'message': 'Alumno matriculado correctamente'})
                 else:
                     return JsonResponse({"message": 'Ya no hay cupos disponibles'})

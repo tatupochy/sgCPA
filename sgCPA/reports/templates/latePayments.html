@@ -1,0 +1,50 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div>
+    <h1>Morosidad</h1>
+    <table class="table table-bordered" id="debt-data-table">
+        <thead>
+            <tr>
+                <th>Numero de cedula</th>
+                <th>Nombre</th>
+                <th>Deuda total</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for studentDebts in studentsDebts %}
+            <tr>
+                <td>{{studentDebts.ciNumber}}</td>
+                <td>{{studentDebts.name}}</td>
+                <td>{{studentDebts.totalDebt}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('#debt-data-table').DataTable({
+            language: {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    });
+    </script>
+{% endblock %}
