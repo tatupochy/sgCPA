@@ -340,27 +340,152 @@
                         </a>
                     </div>
                 {% endif %}
-                <!-- if user group is Teacher
+                <!-- if user group is Usuario -->
+                {% if user.groups.all.0.name == 'Usuario' %}
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#students" aria-expanded="false" aria-controls="students">
+                            <i class="lni lni-users"></i>
+                            <span>Alumnos</span>
+                        </a>
+                        <ul id="students" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listado_alumnos" class="sidebar-link">Listar Alumnos</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_alumno" class="sidebar-link">Registrar Alumno</a>
+                            </li>
+                        </ul>
+                    </li>
 
+                    <!-- Cursos -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
+                            <i class="lni lni-agenda"></i>
+                            <span>Cursos</span>
+                        </a>
+
+                        <ul id="courses" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listar_curso" class="sidebar-link">Listar Cursos</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_curso" class="sidebar-link">Registrar Curso</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Materias -->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#subjects" aria-expanded="false" aria-controls="subjects">
+                            <i class="lni lni-agenda"></i>
+                            <span>Materias</span>
+                        </a>
+
+                        <ul id="subjects" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listado_materias" class="sidebar-link">Listar Materias</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_materia" class="sidebar-link">Registrar Materia</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Asistencias -->
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                             data-bs-target="#asistencias" aria-expanded="false" aria-controls="asistencias">
                             <i class="lni lni-license"></i>
-                            <span>asistencias</span>
+                            <span>Asistencias</span>
                         </a>
                         <ul id="asistencias" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                             <li class="sidebar-item">
-                                <a href="/listado_asistencias/" class="sidebar-link">listar asistencias</a>
+                                <a href="/listado_asistencias/" class="sidebar-link">Listar asistencias</a>
                             </li>
                             <li class="sidebar-item">
-                                <a href="/registrar_asistencia" class="sidebar-link">registrar asistencia</a>
+                                <a href="/registrar_asistencia" class="sidebar-link">Registrar asistencia</a>
                             </li>
                         </ul>
                     </li>
+
+                    <!-- Secciones-->
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
-                            data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
-                            <i class="lni lni-ag -->
+                            data-bs-target="#secciones" aria-expanded="false" aria-controls="secciones">
+                            <i class="lni lni-license"></i>
+                            <span>Secciones</span>
+                        </a>
+                        <ul id="secciones" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/sections/" class="sidebar-link">Listar secciones</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/sections/create/" class="sidebar-link">Registrar sección</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- Turnos-->
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#turnos" aria-expanded="false" aria-controls="turnos">
+                            <i class="lni lni-license"></i>
+                            <span>Turnos</span>
+                        </a>
+                        <ul id="turnos" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/shifts/" class="sidebar-link">Listar turnos</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/shifts/create/" class="sidebar-link">Registrar turnos</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                <li class="sidebar-item">
+                    <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                    data-bs-target="#teachers" aria-expanded="false" aria-controls="teachers">
+                        <i class="lni lni-graduation"></i>
+                        <span>Profesores</span>
+                    </a>
+                    <ul id="teachers" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                        <li class="sidebar-item">
+                            <a href="/teachers" class="sidebar-link">Listar profesores</a>
+                        </li>
+                        <li class="sidebar-item">
+                            <a href="/teachers/create/" class="sidebar-link">Registrar profesor</a>
+                        </li>
+                    </ul>
+                </li>
+
+                    <!-- Reportes -->
+
+                    <li class="sidebar-item">
+                        <a href="/reports" class="sidebar-link">
+                            <i class="lni lni-stats-up"></i>
+                            <span>Reportes</span>
+                        </a>
+                    </li>
+
+                    <div class="sidebar-footer">
+                        <a href="#" class="sidebar-link">
+                            <i class="lni lni-popup"></i>
+                            <span>Notificaciones</span>
+                        </a>
+                        <a href="#" class="sidebar-link">
+                            <i class="lni lni-cog"></i>
+                            <span>Configuracion</span>
+                        </a>
+                        <a href="{% url 'logout' %}" class="sidebar-link">
+                            <i class="lni lni-exit"></i>
+                            <span>Salir</span>
+                        </a>
+                    </div>
+                {% endif %}
+
                 </ul>
             </div>
         </aside>
