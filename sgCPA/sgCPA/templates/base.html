@@ -35,7 +35,8 @@
 
                 <!-- Alumnos -->
                 <ul class="sidebar-nav">
-
+                <!-- if user group is Admin -->
+                {% if user.groups.all.0.name == 'Administrador' %}
                     <li class="sidebar-item">
                         <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
                             data-bs-target="#students" aria-expanded="false" aria-controls="students">
@@ -338,6 +339,28 @@
                             <span>Salir</span>
                         </a>
                     </div>
+                {% endif %}
+                <!-- if user group is Teacher
+
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#asistencias" aria-expanded="false" aria-controls="asistencias">
+                            <i class="lni lni-license"></i>
+                            <span>asistencias</span>
+                        </a>
+                        <ul id="asistencias" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                            <li class="sidebar-item">
+                                <a href="/listado_asistencias/" class="sidebar-link">listar asistencias</a>
+                            </li>
+                            <li class="sidebar-item">
+                                <a href="/registrar_asistencia" class="sidebar-link">registrar asistencia</a>
+                            </li>
+                        </ul>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link collapsed has-dropdown" data-bs-toggle="collapse"
+                            data-bs-target="#courses" aria-expanded="false" aria-controls="courses">
+                            <i class="lni lni-ag -->
                 </ul>
             </div>
         </aside>

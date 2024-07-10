@@ -55,6 +55,9 @@ def create_groups(sender, **kwargs):
 
         if not Group.objects.filter(name='Usuario').exists():
             Group.objects.create(name='Usuario')
+
+        if not Group.objects.filter(name='Cajero').exists():
+            Group.objects.create(name='Cajero')
         
         os.environ['GROUPS_CREATED'] = 'True'
 
