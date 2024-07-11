@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div>
+    <h1>Ingresos</h1>
+    <div class="d-flex gap-4 w-full flex-column justify-content-center">
+        <select class="form-control w-50" id="year">
+            <option disabled selected>Seleccionar año</option>
+            {% for year in years %}
+            <option value="{{ year }}">{{ year }}</option>
+            {% endfor %}
+        </select>
+        
+        <div class="text-align-center d-flex flex-column gap-4">
+            <div class="text-align-center border d-flex w-50 justify-content-between align-items-center p-2">
+                <p class="m-0">Ganancia total</p>
+                <span id="total_revenue"></span>
+            </div>
+            <table id="revenues-table" class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Mes</th>
+                        <th>Ganancia</th>
+                    </tr>
+                </thead>
+                <tbody id="revenues-table-body">
+
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script src="{% static 'scripts/revenues.js' %}"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#enrollments-data-table').DataTable({
+            dom: 'Bfrtip',
+            searching: true,
+            buttons: [
+                'excel', 'csv',
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    pageLength: 4, //para que solo se muestren 4 
+                    title: 'Listado de total de matriculaciones por curso',
+                    filename: function () {
+                        var d = new Date();
+                        var datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "_" + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2);
+                        return 'Listado_total_matriculaciones_por_curso_' + datestring;
+                    },
+                    exportOptions: {
+                        columns: [0, 1]
+                    },
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'left';
+                        // Ensure table widths are set
+                        if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
+                            doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                        }
+                    }
+                },
+            ],
+            language: {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
