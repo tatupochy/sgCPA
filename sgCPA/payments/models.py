@@ -154,6 +154,12 @@ class PaymentMethod2(models.Model):
     def __str__(self):
         return self.name
 
+@receiver(post_migrate)
+def create_concept(sender, **kwargs):
+    if sender.name == 'payments':
+        Concept.objects.get_or_create(name='Matrícula', description='Pago de matrícula', related_to='enrollment')
+        Concept.objects.get_or_create(name='Cuota', description='Pago de cuota', related_to='fee')
+        Concept.objects.get_or_create(name='Otro', description='Otro', related_to='other')
 
 class Concept(models.Model):
     iva_choices = (
