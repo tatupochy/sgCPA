@@ -36,7 +36,7 @@ def report_cursos_mas_ausencias(request):
 
     # Calcular el rango de años basado en start_date
     min_start_date = Course.objects.aggregate(min_start_date=Min('start_date'))['min_start_date']
-    current_year = datetime.now().year
+    current_year = datetime.datetime.now().year
     years = list(range(min_start_date.year, current_year + 1))
 
     # Filtrar solo los meses y años con asistencias registradas

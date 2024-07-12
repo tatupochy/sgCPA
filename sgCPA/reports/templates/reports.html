@@ -6,34 +6,23 @@
     <h1>Reportes Gerenciales</h1>
     <div class="row">
         <div class="col-md-4">
-            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('matriculas')">Reporte de Pagos de Matrículas</button>
+            <a href="{% url 'report_cursos_mas_ausencias' %}" class="btn btn-primary w-100 mb-2">Ranking de ausencias</a>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('cuotas')">Reporte de Pagos de Cuotas</button>
+            <a href="{% url 'latePayments' %}" class="btn btn-primary w-100 mb-2">Control de morosidad</a>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('asistencias')">Reporte de Asistencias por Curso</button>
+            <a href="{% url 'coursesRanking' %}" class="btn btn-primary w-100 mb-2">Ranking de cursos con mas matriculados</a>
         </div>
         <div class="col-md-4">
-            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('rendimiento')">Reporte de Rendimiento Académico</button>
+            <a href="{% url 'reporte_matriculas' %}" class="btn btn-primary w-100 mb-2">Alumnos matriculados por año</a>    
         </div>
         <div class="col-md-4">
-            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('ingresos')">Reporte de Ingresos Totales</button>
-        </div>
-        <div class="col-md-4">
-            <button class="btn btn-primary w-100 mb-2" onclick="loadReport('activos')">Reporte de Estudiantes Activos</button>
+            <a href="{% url 'revenues' %}" class="btn btn-primary w-100 mb-2">Ingresos totales</a> 
         </div>
     </div>
     <div id="report-container" class="mt-4"></div>
 </div>
 
-<script>
-function loadReport(reportType) {
-    fetch(`/reports/${reportType}/`)
-        .then(response => response.text())
-        .then(html => {
-            document.getElementById('report-container').innerHTML = html;
-        });
-}
-</script>
+
 {% endblock %}
