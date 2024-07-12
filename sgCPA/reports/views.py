@@ -16,7 +16,6 @@ from payments.models import EnrollmentDetail, Fee, Payment
 from constans.paymentStates import StateEnum
 from students.models import Course, Student
 from django.db.models import Count
-import datetime
 
 # Create your views here.
 
