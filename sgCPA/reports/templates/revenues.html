@@ -4,13 +4,15 @@
 {% block content %}
 <div>
     <h1>Ingresos</h1>
-    <div class="d-flex gap-4 w-full flex-column justify-content-center">
-        <select class="form-control w-50" id="year">
-            <option disabled selected>Seleccionar año</option>
-            {% for year in years %}
-            <option value="{{ year }}">{{ year }}</option>
-            {% endfor %}
-        </select>
+    <div class="d-flex gap-4 w-full flex-column justify-content-center mt-4">
+        <div class="w-50">
+            <select class="form-control" id="year">
+                <option disabled selected>Seleccionar año</option>
+                {% for year in years %}
+                <option value="{{ year }}">{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
         
         <div class="text-align-center d-flex flex-column gap-4">
             <div class="text-align-center border d-flex w-50 justify-content-between align-items-center p-2">
