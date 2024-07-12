@@ -21,7 +21,7 @@
                 <td  onclick= "window.location.href = '/accounts/persons/{{ person.id }}'" style="cursor: pointer;">{{ person.name }}</td>
                 <td>{{ person.last_name }}</td>
                 <td>{{ person.email }}</td>
-                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-person-id="{{ person.id }}"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/person/{{ person.id }}/edit'"><i class="fa fa-pencil"></i></button></td>
+                <td class="text-center"><button class="btn btn-danger" style="margin-top: 1%;" data-bs-toggle="modal" data-bs-target="#deleteModal" data-person-id="{{ person.id }}"><i class="fa fa-trash"></i></button><button class="btn btn-primary" style="margin-top: 1%; margin-left: 1%;"  onclick= "window.location.href = '/accounts/persons/{{ person.id }}/edit'"><i class="fa fa-pencil"></i></button></td>
             </tr>
             {%  endfor %}
         </tbody>
