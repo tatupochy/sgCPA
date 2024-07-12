@@ -9,6 +9,10 @@
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
+            <label for="id_ci" class="form-label">Ci.:</label>
+            <input type="text" class="form-control" id="id_ci" name="ci" required>
+        </div>
+        <div class="form-group">
             <label for="id_name" class="form-label">Nombre:</label>
             <input type="text" class="form-control" id="id_name" name="name" required>
         </div>

@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container card" style="padding: 1%;">
-    <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
+    <i class="fa fa-arrow-left" aria-hidden="true" onclick="window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
     <h1>Crear usuario:</h1>
     <div class="alert alert-warning" style="align-self: center; width: 85%;">  
         <p>Nota: la contraseña debe cambiarse obligatoriamente una vez realizado el primer inicio de sesión. El nombre de usuario 
@@ -16,11 +16,15 @@
     <form method="post" class="form">
         {% csrf_token %}
         <div class="form-group">
+            <label for="searchInput" class="form-label">Buscar persona:</label>
+            <input type="text" id="searchInput" placeholder="Buscar persona" style="width: 40%; margin-bottom: 10px;" class="form-control">
+        </div>
+        <div class="form-group">
             <label for="id_person" class="form-label">Persona:</label>
             <select class="form-select" id="id_person" name="person" style="width: 40%" required>
                 <option value="" selected>Seleccionar persona</option>
                 {% for person in persons %}
-                    <option value="{{ person.id }}">{{ person.name }} {{ person.last_name }}</option>
+                    <option value="{{ person.id }}">{{ person.ci }} - {{ person.name }} {{ person.last_name }}</option>
                 {% endfor %}
             </select>
         </div>
@@ -32,7 +36,6 @@
             <label for="id_password" class="form-label">Contraseña:</label>
             <input type="text" class="form-control" id="id_password" name="password" readonly required>
         </div>
-        <!-- Agregar campos del formulario UserRolesForm -->
         <div class="form-group">
             <label for="id_group" class="form-label">Rol:</label>
             <select class="form-select" id="id_group" name="group" style="width: 40%" required>
@@ -41,7 +44,6 @@
                 {% endfor %}
             </select>
         </div>        
-        <!-- Fin de los campos del formulario UserRolesForm -->
         <button type="submit" class="btn btn-primary">Guardar cambios</button>
         {% if form.errors %}
             <div class="alert alert-danger mt-3">
@@ -67,33 +69,32 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        // Escuchar el evento de cambio en el campo id_person
         $('#id_person').on('change', function() {
             console.log('Cambio');
             console.log($('#id_person').val());
             if ($('#id_person').val() == '') {
                 $('#id_username').val('');
                 $('#id_password').val('');
-                $('#id_password2').val('');
             } else {
-                // Obtener el objeto seleccionado
                 var person = $('#id_person option:selected').text();
-                // Dividir el texto en nombre y apellido
                 var names = person.split(' ');
-                // Construir el nombre de usuario usando la primera letra del nombre y el apellido
                 var username = names[0].charAt(0) + names[1];
-                // Establecer el valor del campo de nombre de usuario
                 $('#id_username').val(username.toLowerCase());
-    
                 var password = names[0].charAt(0) + names[1] + '123';
                 $('#id_password').val(password.toLowerCase());
             }
         });
-    
-        // Ejecutar el evento de cambio una vez al cargar la página
+        
+        $('#searchInput').on('input', function() {
+            var filter = $(this).val().toLowerCase();
+            $('#id_person option').each(function() {
+                var optionText = $(this).text().toLowerCase();
+                $(this).toggle(optionText.includes(filter));
+            });
+        });
+        
         $('#id_person').change();
     });
-    
 </script>
 
 {% endblock %}

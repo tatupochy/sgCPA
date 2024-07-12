@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.dispatch import receiver
 from django.db.models.signals import post_migrate
+from cities.models import Cities as City
+from countries.models import Country
 
 # Create your models here.
 
@@ -14,10 +16,11 @@ class Person(models.Model):
     email = models.EmailField(max_length=100, unique=True)
     phone = models.CharField(max_length=20, blank=True, null=True)
     address = models.CharField(max_length=100, blank=True, null=True)
-    city = models.CharField(max_length=100, blank=True, null=True)
-    country = models.CharField(max_length=100, blank=True, null=True)
+    city = models.ForeignKey(City, on_delete=models.CASCADE, blank=True, null=True)
+    country = models.ForeignKey(Country, on_delete=models.CASCADE, blank=True, null=True)
     postal_code = models.CharField(max_length=20, blank=True, null=True)
-    birth_date = models.DateField(blank=True , null=True)
+    birth_date = models.DateField(blank=True, null=True)
+    ci = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         permissions = [
