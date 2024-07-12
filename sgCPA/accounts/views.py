@@ -126,6 +126,7 @@ def person_create_view(request):
         print('form_data', form_data)
 
         person = Person(user=None,
+                        ci = form_data['ci'],
                         name=form_data['name'],
                         last_name=form_data['last_name'],
                         email=form_data['email'],
@@ -158,11 +159,15 @@ def person_edit_view(request, pk):
     if request.method == "GET":
         # print json of person
         print("person", person.__dict__)
+        birth_date = person.birth_date.strftime('%Y-%m-%d')
+        formatted_birth_date = person.birth_date.strftime('%Y-%m-%d')
+        person.birth_date = formatted_birth_date
         return render(request, "person_edit.html", {'person': person, 'countries': countries, 'cities': cities})
     else:
         form_data = request.POST.dict()
         print('form_data', form_data)
 
+        person.ci = form_data['ci']
         person.name = form_data['name']
         person.last_name = form_data['last_name']
         person.email = form_data['email']
