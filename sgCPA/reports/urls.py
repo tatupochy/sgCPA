@@ -8,5 +8,7 @@ urlpatterns = [
     path('reports/latePayments/', views.latePayments, name='latePayments'),
     path('reports/coursesRanking', views.coursesRanking, name='coursesRanking'),
     path('reports/revenues', views.revenues, name='revenues'),
-    path('reports/get_revenues_per_year/<int:year>', views.get_revenues_per_year, name='get_revenues_per_year')
+    path('reports/get_revenues_per_year/<int:year>', views.get_revenues_per_year, name='get_revenues_per_year'),
+    path('reporte_matriculas/', views.reporte_matriculas, name='reporte_matriculas'),
+    path('reports/download_pdf_report_matriculados_anho/', views.download_pdf_report_matriculados_anho, name='download_pdf_report_matriculados_anho'),
 ]

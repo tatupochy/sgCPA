@@ -9,16 +9,14 @@ from datetime import datetime
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
-
-
-
+from django.utils import timezone
+from collections import defaultdict
 import json
-
-
 from payments.models import EnrollmentDetail, Fee, Payment
 from constans.paymentStates import StateEnum
 from students.models import Course, Student
 from django.db.models import Count
+import datetime
 
 # Create your views here.
 
@@ -34,10 +32,11 @@ def report_cursos_mas_ausencias(request):
     months = [
         'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ]
+    month_lookup = {i: month for i, month in enumerate(months, 1)}
 
     # Calcular el rango de años basado en start_date
     min_start_date = Course.objects.aggregate(min_start_date=Min('start_date'))['min_start_date']
-    current_year = datetime.datetime.now().year
+    current_year = datetime.now().year
     years = list(range(min_start_date.year, current_year + 1))
 
     # Filtrar solo los meses y años con asistencias registradas
@@ -50,15 +49,14 @@ def report_cursos_mas_ausencias(request):
     ).distinct()
 
     # Convertir las fechas de los meses a nombres de meses en español y años
-    attendance_months_dict = {date.strftime('%Y-%m'): date.strftime('%B') for date in attendance_months}
-    translated_months = {calendar.month_name[i]: months[i-1] for i in range(1, 13)}
-    attendance_months_translated = {k: translated_months[v] for k, v in attendance_months_dict.items()}
+    unique_months = sorted(set((date.year, date.month) for date in attendance_months))
+    attendance_months_translated = [month_lookup[month] for year, month in unique_months]
 
     filter_args = {'present': False}
     if selected_month and selected_year:
-        month_number = list(translated_months.values()).index(selected_month) + 1
+        month_number = months.index(selected_month) + 1
         filter_args['attendance__date__month'] = month_number
-        filter_args['attendance__date__year'] = selected_year
+        filter_args['attendance__date__year'] = int(selected_year)
 
     data = AttendanceStudent.objects.filter(**filter_args).values(
         'attendance__course__name',
@@ -92,13 +90,12 @@ def report_cursos_mas_ausencias(request):
         'data': data,
         'labels': labels,
         'dataset': dataset,
-        'months': list(attendance_months_translated.values()),
+        'months': attendance_months_translated,
         'years': years,
         'selected_month': selected_month,
         'selected_year': selected_year,
         'no_data': not data.exists()
     })
-
 
 def report_cursos_mas_presentes(request):
     data = AttendanceStudent.objects.filter(present=True).values(
@@ -289,3 +286,61 @@ def get_revenues_per_year(request, year):
         "total_revenue": formatted_total_revenue,
         "monthly_revenues": formatted_monthly_revenues
     })
+
+#############################################
+# Alumnos matriculados por anho
+#############################################
+
+def reporte_matriculas(request):
+    enrollments = EnrollmentDetail.objects.all()
+    data = defaultdict(int)
+    
+    for enrollment in enrollments:
+        year = enrollment.student_enrollment_date.year
+        data[year] += 1
+    
+    total_general = sum(data.values())
+    
+    context = {
+        'data': dict(data),
+        'total_general': total_general,
+        'fecha': timezone.now().date(),
+        'hora': timezone.now().time(),
+        'years': list(data.keys()),  # Pasar los años disponibles al contexto
+        'selected_year': request.GET.get('year', '')  # Mantener el año seleccionado en el filtro
+    }
+    
+    return render(request, 'reporte_matriculas.html', context)
+
+
+def download_pdf_report_matriculados_anho(request):
+    body = json.loads(request.body)
+    year = body.get('year')
+
+    # Filtrar datos según el valor de year, si está vacío, traer todos los datos
+    matriculas = EnrollmentDetail.objects.all()
+    if year:
+        matriculas = matriculas.filter(student_enrollment_date__year=year)
+    
+    matriculas = matriculas.values('student_enrollment_date__year') \
+                         .annotate(total_matriculas=Count('id')).order_by('student_enrollment_date__year')
+
+    current_time = datetime.datetime.now()
+    context = {
+        'data': matriculas,
+        'current_date': current_time.strftime("%Y-%m-%d"),
+        'current_time': current_time.strftime("%H:%M:%S")
+    }
+
+    # Renderizar la plantilla HTML
+    html_string = render_to_string('report_pdf_matriculados_anho.html', context)
+
+    # Crear un objeto de respuesta PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="reporte_matriculas_{current_time.strftime("%Y-%m-%d")}.pdf"'
+
+    # Convertir HTML a PDF
+    pisa_status = pisa.CreatePDF(html_string, dest=response)
+    if pisa_status.err:
+        return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    return response
