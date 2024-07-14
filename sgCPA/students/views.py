@@ -347,7 +347,7 @@ def obtener_curso(request, id):
 
 def obtener_alumno_por_ci(request, ci, course_id):
     
-    student = Student.objects.filter(ciNumber__icontains=ci).first()
+    student = Student.objects.filter(ciNumber=ci).first()
     
     course = get_object_or_404(Course, id=course_id)
     

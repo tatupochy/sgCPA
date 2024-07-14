@@ -4,7 +4,7 @@
 {% block content %}
 <div>
     <h1>Morosidad</h1>
-    <table class="table table-bordered" id="debt-data-table">
+    <table class="table table-bordered w-full" id="debt-data-table">
         <thead>
             <tr>
                 <th>Numero de cedula</th>
@@ -35,34 +35,55 @@
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
 <script>
-    $(document).ready(function() {
+    $(document).ready(function () {
+
         $('#debt-data-table').DataTable({
             dom: 'Bfrtip',
             searching: false,
             buttons: [
-            'excel', 'csv',
-            {
-                extend: 'pdfHtml5',
-                text: 'PDF',
-                pageLength: 4, //para que solo se muestren 4 
-                title: 'Listado de alumnos morosos',
-                filename: function() {
-                    var d = new Date();
-                    var datestring = d.getFullYear() + "-" + ("0"+(d.getMonth()+1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "_" + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2);
-                    return 'Listado_Alumnos_morosos_' + datestring;
-                },
-                exportOptions: {
-                    columns: [0, 1, 2]
-                },
-                customize: function(doc) {
-                    doc.styles.tableHeader.alignment = 'left'; 
-                    // Ensure table widths are set
-                    if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
-                        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                'excel', 'csv',
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    pageLength: 4,
+                    title: 'Listado de alumnos morosos',
+                    filename: function () {
+                        let d = new Date();
+                        let datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "_" + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2);
+                        return 'Listado_Alumnos_morosos_' + datestring;
+                    },
+                    exportOptions: {
+                        columns: [0, 1, 2]
+                    },
+                    footer: true,
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'left';
+                        doc.header = function () {
+                            return {
+                                text: 'sgCPA',
+                                fontSize: 18,
+                                alignment: 'start',
+                                margin: [10, 15, 10, 10]
+                            };
+                        };
+
+                        if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
+                            doc.content[1].table.widths = ['*', '*', '*']
+                        }
+
+                        let totalPages = doc.content.length - 1;
+
+
+                        doc.footer = function (page, totalPages) {
+                            return {
+                                text: page.toString() + ' de ' + totalPages,
+                                alignment: 'center'
+                            };
+                        };
                     }
-                }
-            },
-        ],
+                },
+            ],
+            autoWidth: true,
             language: {
                 "lengthMenu": "Mostrar _MENU_ registros por página",
                 "zeroRecords": "No se encontraron resultados",
@@ -79,5 +100,5 @@
             }
         });
     });
-    </script>
+</script>
 {% endblock %}
