@@ -230,7 +230,8 @@ def obtener_asistencias(request, id):
                 'id_alumno': alumno.id
             }
             datos_asistencia.append(datos_alumno)
-        
+        print("hola")
+        print(datos_asistencia)
         # Retornar la respuesta JSON con los datos de asistencia
         return JsonResponse({'asistencias': datos_asistencia})
     except:

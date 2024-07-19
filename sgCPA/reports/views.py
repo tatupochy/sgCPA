@@ -1,7 +1,7 @@
 import locale
 from django.shortcuts import render
 from django.db.models import Count,Min, Sum
-from django.db.models.functions import TruncMonth
+from django.db.models.functions import TruncMonth,ExtractYear, ExtractMonth
 from attendances.models import AttendanceStudent
 from students.models import Course
 import calendar
@@ -16,7 +16,8 @@ from payments.models import EnrollmentDetail, Fee, Payment
 from constans.paymentStates import StateEnum
 from students.models import Course, Student
 from django.db.models import Count
-
+from io import BytesIO
+from PyPDF2 import PdfReader
 # Create your views here.
 
 #Menu principal
@@ -131,6 +132,7 @@ def report_cursos_mas_presentes(request):
         'dataset': dataset
     })
 
+# #reporte de asistencias
 
 def download_pdf_report(request):
     body = json.loads(request.body)
@@ -147,25 +149,56 @@ def download_pdf_report(request):
     ausencias = ausencias.values('attendance__course__name', 'attendance__date__month', 'attendance__date__year') \
                         .annotate(total_ausencias=Count('id')).order_by('-total_ausencias')
 
-    current_time = datetime.datetime.now()
+    current_time = datetime.now()
     context = {
         'data': ausencias,
         'current_date': current_time.strftime("%Y-%m-%d"),
-        'current_time': current_time.strftime("%H:%M:%S")
+        'current_time': current_time.strftime("%H:%M:%S"),
+        'page_number': '',  # Placeholder for page number
+        'total_pages': ''   # Placeholder for total pages
     }
 
-    # Renderizar la plantilla HTML
+    # Renderizar la plantilla HTML sin paginación para contar las páginas
     html_string = render_to_string('report_pdf_template.html', context)
-
-    # Crear un objeto de respuesta PDF
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="reporte_cursos_mas_ausencias_{current_time.strftime("%Y-%m-%d")}.pdf"'
-
-    # Convertir HTML a PDF
-    pisa_status = pisa.CreatePDF(html_string, dest=response)
+    
+    # Convertir HTML a PDF sin paginación para contar páginas
+    result = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=result)
     if pisa_status.err:
         return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    
+    # Contar el número total de páginas
+    pdf_content = result.getvalue()
+    total_pages = pdf_content.count(b'/Page')
+    result.seek(0)
+
+    # Renderizar HTML con paginación real
+    context['total_pages'] = total_pages
+    paginated_html_string = render_to_string('report_pdf_template.html', context)
+    result = BytesIO()
+    pisa_status = pisa.CreatePDF(paginated_html_string, dest=result)
+    
+    if pisa_status.err:
+        return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    
+    # Crear un objeto de respuesta PDF
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="reporte_cursos_mas_ausencias_{current_time.strftime("%Y-%m-%d")}.pdf"'
+
     return response
+
+#     # Renderizar la plantilla HTML
+#     html_string = render_to_string('report_pdf_template.html', context)
+
+#     # Crear un objeto de respuesta PDF
+#     response = HttpResponse(content_type='application/pdf')
+#     response['Content-Disposition'] = f'attachment; filename="reporte_cursos_mas_ausencias_{current_time.strftime("%Y-%m-%d")}.pdf"'
+
+#     # Convertir HTML a PDF
+#     pisa_status = pisa.CreatePDF(html_string, dest=response)
+#     if pisa_status.err:
+#         return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+#     return response
 
 #Morosidad
 def latePayments(request):
@@ -320,11 +353,13 @@ def download_pdf_report_matriculados_anho(request):
     matriculas = EnrollmentDetail.objects.all()
     if year:
         matriculas = matriculas.filter(student_enrollment_date__year=year)
-    
-    matriculas = matriculas.values('student_enrollment_date__year') \
-                         .annotate(total_matriculas=Count('id')).order_by('student_enrollment_date__year')
 
-    current_time = datetime.datetime.now()
+    matriculas = matriculas.annotate(
+        year=ExtractYear('student_enrollment_date'),
+        month=ExtractMonth('student_enrollment_date')
+    ).values('year', 'month').annotate(total_matriculas=Count('id')).order_by('year', 'month')
+
+    current_time = datetime.now()
     context = {
         'data': matriculas,
         'current_date': current_time.strftime("%Y-%m-%d"),
@@ -342,4 +377,59 @@ def download_pdf_report_matriculados_anho(request):
     pisa_status = pisa.CreatePDF(html_string, dest=response)
     if pisa_status.err:
         return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    return response
+
+#prueba
+def download_pdf_report(request):
+    body = json.loads(request.body)
+    month = body.get('month')
+    year = body.get('year')
+
+    # Filtrar datos según los valores de month y year, si están vacíos, traer todos los datos
+    ausencias = AttendanceStudent.objects.filter(present=False)
+    if month:
+        ausencias = ausencias.filter(attendance__date__month=month)
+    if year:
+        ausencias = ausencias.filter(attendance__date__year=year)
+    
+    ausencias = ausencias.values('attendance__course__name', 'attendance__date__month', 'attendance__date__year') \
+                        .annotate(total_ausencias=Count('id')).order_by('-total_ausencias')
+
+    current_time = datetime.now()
+    context = {
+        'data': ausencias,
+        'current_date': current_time.strftime("%Y-%m-%d"),
+        'current_time': current_time.strftime("%H:%M:%S"),
+        'page_number': '',  # Placeholder for page number
+        'total_pages': ''   # Placeholder for total pages
+    }
+
+    # Renderizar la plantilla HTML
+    html_string = render_to_string('report_pdf_template.html', context)
+    
+    # Convertir HTML a PDF para contar las páginas
+    result = BytesIO()
+    pisa_status = pisa.CreatePDF(html_string, dest=result)
+    if pisa_status.err:
+        return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    
+    # Contar el número total de páginas usando PdfReader
+    result.seek(0)
+    pdf_reader = PdfReader(result)
+    total_pages = len(pdf_reader.pages)
+    result.seek(0)
+
+    # Renderizar HTML con paginación real
+    context['total_pages'] = total_pages
+    paginated_html_string = render_to_string('report_pdf_template.html', context)
+    result = BytesIO()
+    pisa_status = pisa.CreatePDF(paginated_html_string, dest=result)
+    
+    if pisa_status.err:
+        return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
+    
+    # Crear un objeto de respuesta PDF
+    response = HttpResponse(result.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="reporte_cursos_mas_ausencias_{current_time.strftime("%Y-%m-%d")}.pdf"'
+
     return response
