@@ -5,7 +5,7 @@ from django.db.models.functions import TruncMonth,ExtractYear, ExtractMonth
 from attendances.models import AttendanceStudent
 from students.models import Course
 import calendar
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.http import HttpResponse, JsonResponse
 from django.template.loader import render_to_string
 from xhtml2pdf import pisa
@@ -16,8 +16,9 @@ from payments.models import EnrollmentDetail, Fee, Payment
 from constans.paymentStates import StateEnum
 from students.models import Course, Student
 from django.db.models import Count
-from io import BytesIO
-from PyPDF2 import PdfReader
+from dateutil.relativedelta import relativedelta
+# from io import BytesIO
+# from PyPDF2 import PdfReader
 # Create your views here.
 
 #Menu principal
@@ -134,7 +135,7 @@ def report_cursos_mas_presentes(request):
 
 # #reporte de asistencias
 
-def download_pdf_report(request):
+# def download_pdf_report(request):
     body = json.loads(request.body)
     month = body.get('month')
     year = body.get('year')
@@ -162,7 +163,7 @@ def download_pdf_report(request):
     html_string = render_to_string('report_pdf_template.html', context)
     
     # Convertir HTML a PDF sin paginación para contar páginas
-    result = BytesIO()
+    # result = BytesIO()
     pisa_status = pisa.CreatePDF(html_string, dest=result)
     if pisa_status.err:
         return HttpResponse(f'Error al generar el PDF: {pisa_status.err}', status=500)
@@ -175,7 +176,7 @@ def download_pdf_report(request):
     # Renderizar HTML con paginación real
     context['total_pages'] = total_pages
     paginated_html_string = render_to_string('report_pdf_template.html', context)
-    result = BytesIO()
+    # result = BytesIO()
     pisa_status = pisa.CreatePDF(paginated_html_string, dest=result)
     
     if pisa_status.err:
@@ -201,38 +202,84 @@ def download_pdf_report(request):
 #     return response
 
 #Morosidad
-def latePayments(request):
+def latePayments(request, year=None, month=None):
     students = Student.objects.all()
     studentsDebts = []
+
+    # Definir el rango de fechas si se proporcionan month y year
+    if month and year:
+        start_date = datetime(year, month, 1)
+        end_date = start_date + relativedelta(months=1) - timedelta(days=1)
+    else:
+        start_date = None
+        end_date = None
+
+    # Obtener el año actual
+    current_year = timezone.now().year
+
+    # Obtener el menor año con cuotas vencidas hasta el año actual en la tabla Fee
+    earliest_overdue_year_fee = Fee.objects.filter(
+        state__name=StateEnum.Vencido.value,
+        expiration_date__year__lte=current_year
+    ).aggregate(earliest_year=Min('expiration_date__year'))['earliest_year']
+
+    # Generar la lista de años desde el menor año con cuotas vencidas hasta el año actual
+    if earliest_overdue_year_fee:
+        years_range = list(range(earliest_overdue_year_fee, current_year + 1))
+    else:
+        years_range = []
+
     for student in students:
-        studentEnrollments = EnrollmentDetail.objects.filter(student=student)
-        
-        enrollmentsOverdueAmount = sum(
-            enrollment.enrollment_amount for enrollment in studentEnrollments if enrollment.state.name == StateEnum.Vencido.value
-        )
         
         studentFees = Fee.objects.filter(student=student)
-                
-        studentOverdueFees = sum(
-            fee.fee_amount for fee in studentFees if fee.state.name == StateEnum.Vencido.value
-        )
-
-        print(studentOverdueFees)
         
-        totalDebt = enrollmentsOverdueAmount + studentOverdueFees
-
-        studentDebts = {
-            'totalDebt': totalDebt,
-            'name': student.name,
-            'ciNumber': student.ciNumber
-        }
-
-        if totalDebt > 0: 
-            studentsDebts.append(studentDebts)
-            
-        studentsDebts_sorted = sorted(studentsDebts, key=lambda x: x['totalDebt'], reverse=True)
+        # Sumar cuotas de tarifas vencidas
+        if start_date and end_date:
+            studentOverdueFees = studentFees.filter(
+                state__name=StateEnum.Vencido.value,
+                expiration_date__range=(start_date, end_date)
+            ).aggregate(total_amount=Sum('fee_amount'))['total_amount'] or 0
+        else:
+            studentOverdueFees = studentFees.filter(
+                state__name=StateEnum.Vencido.value
+            ).aggregate(total_amount=Sum('fee_amount'))['total_amount'] or 0
         
-    return render(request, 'latePayments.html', {'studentsDebts': studentsDebts_sorted})
+        # Encontrar la fecha de la cuota más antigua que esté vencida
+        if start_date and end_date:
+            oldest_overdue_fee_date = studentFees.filter(
+                state__name=StateEnum.Vencido.value,
+                expiration_date__range=(start_date, end_date)
+            ).aggregate(Min('expiration_date'))['expiration_date__min']
+        else:
+            oldest_overdue_fee_date = studentFees.filter(
+                state__name=StateEnum.Vencido.value
+            ).aggregate(Min('expiration_date'))['expiration_date__min']
+        
+        if oldest_overdue_fee_date:
+            current_date = timezone.now().date()
+            days_overdue = (current_date - oldest_overdue_fee_date).days
+            days_overdue_interval = (days_overdue // 30) * 30
+        else:
+            days_overdue_interval = 0
+        
+        totalDebt = studentOverdueFees
+
+        if totalDebt > 0:
+            studentsDebts.append({
+                'totalDebt': totalDebt,
+                'name': student.name,
+                'ciNumber': student.ciNumber,
+                'atraso': days_overdue_interval
+            })
+    
+    studentsDebts_sorted = sorted(studentsDebts, key=lambda x: x['totalDebt'], reverse=True)
+    
+    return render(request, 'latePayments.html', {
+        'studentsDebts': studentsDebts_sorted,
+        'years_range': years_range,
+        'selected_year': year,
+        'selected_month': str(month) if month else None
+    })
 
 
 def coursesRanking(request):
@@ -380,7 +427,7 @@ def download_pdf_report_matriculados_anho(request):
     return response
 
 #prueba
-def download_pdf_report(request):
+# def download_pdf_report(request):
     body = json.loads(request.body)
     month = body.get('month')
     year = body.get('year')
