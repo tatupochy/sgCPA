@@ -125,6 +125,9 @@ def person_create_view(request):
         form_data = request.POST.dict()
         print('form_data', form_data)
 
+        country = Country.objects.get(pk=form_data['country'])
+        city = Cities.objects.get(pk=form_data['city'])
+
         person = Person(user=None,
                         ci = form_data['ci'],
                         name=form_data['name'],
@@ -132,8 +135,8 @@ def person_create_view(request):
                         email=form_data['email'],
                         phone=form_data['phone'],
                         address=form_data['address'],
-                        city=form_data['city'],
-                        country=form_data['country'],
+                        city=city,
+                        country=country,
                         postal_code=form_data['postal_code'],
                         birth_date=form_data['birth_date'])
         person.save()
@@ -167,14 +170,17 @@ def person_edit_view(request, pk):
         form_data = request.POST.dict()
         print('form_data', form_data)
 
+        country = Country.objects.get(pk=form_data['country'])
+        city = Cities.objects.get(pk=form_data['city'])
+
         person.ci = form_data['ci']
         person.name = form_data['name']
         person.last_name = form_data['last_name']
         person.email = form_data['email']
         person.phone = form_data['phone']
         person.address = form_data['address']
-        person.city = form_data['city']
-        person.country = form_data['country']
+        person.city = city
+        person.country = country
         person.postal_code = form_data['postal_code']
         person.birth_date = form_data['birth_date']
 
