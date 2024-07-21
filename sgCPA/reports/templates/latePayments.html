@@ -4,12 +4,48 @@
 {% block content %}
 <div>
     <h1>Morosidad</h1>
+    <div class="w-full d-flex gap-4 mb-4">
+        <div class="w-50">
+            <label>Año</label>
+            <select class="form-control" id="yearSelector">
+                <option disabled selected></option>
+                {% for year in years_range %}
+                <!-- <option value="{{ year }}">{{year}}</option> -->
+                <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="w-50">
+            <label>Mes</label>
+            <select class="form-control" id="monthSelector">
+                <option disabled selected></option>
+                <option value="1" {% if selected_month == "1" %}selected{% endif %}>Enero</option>
+                <option value="2" {% if selected_month == "2" %}selected{% endif %}>Febrero</option>
+                <option value="3" {% if selected_month == "3" %}selected{% endif %}>Marzo</option>
+                <option value="4" {% if selected_month == "4" %}selected{% endif %}>Abril</option>
+                <option value="5" {% if selected_month == "5" %}selected{% endif %}>Mayo</option>
+                <option value="6" {% if selected_month == "6" %}selected{% endif %}>Junio</option>
+                <option value="7" {% if selected_month == "7" %}selected{% endif %}>Julio</option>
+                <option value="8" {% if selected_month == "8" %}selected{% endif %}>Agosto</option>
+                <option value="9" {% if selected_month == "9" %}selected{% endif %}>Septiembre</option>
+                <option value="10" {% if selected_month == "10" %}selected{% endif %}>Octubre</option>
+                <option value="11" {% if selected_month == "11" %}selected{% endif %}>Noviembre</option>
+                <option value="12" {% if selected_month == "12" %}selected{% endif %}>Diciembre</option>
+            </select>
+        </div>
+    </div>
+    <div class="d-flex gap-4 mb-4">
+        <button class="btn btn-primary" id="filterButton">Filtrar</button>
+        <button class="btn btn-primary" id="clearfilterButton">Limpiar Filtros</button>
+    </div>
     <table class="table table-bordered w-full" id="debt-data-table">
         <thead>
             <tr>
                 <th>Numero de cedula</th>
                 <th>Nombre</th>
                 <th>Deuda total</th>
+                <th>Atraso</th>
             </tr>
         </thead>
         <tbody>
@@ -18,6 +54,7 @@
                 <td>{{studentDebts.ciNumber}}</td>
                 <td>{{studentDebts.name}}</td>
                 <td>{{studentDebts.totalDebt}}</td>
+                <td>{{studentDebts.atraso}} dias</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -36,6 +73,25 @@
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
 <script>
     $(document).ready(function () {
+
+        const yearSelector = $('#yearSelector');
+        const monthSelector = $('#monthSelector');
+
+        // Mapa de nombres de los meses en español
+        const monthNames = {
+            1: 'Enero',
+            2: 'Febrero',
+            3: 'Marzo',
+            4: 'Abril',
+            5: 'Mayo',
+            6: 'Junio',
+            7: 'Julio',
+            8: 'Agosto',
+            9: 'Septiembre',
+            10: 'Octubre',
+            11: 'Noviembre',
+            12: 'Diciembre'
+        };
 
         $('#debt-data-table').DataTable({
             dom: 'Bfrtip',
@@ -58,18 +114,55 @@
                     footer: true,
                     customize: function (doc) {
                         doc.styles.tableHeader.alignment = 'left';
-                        doc.header = function () {
+
+                        // Ajustar el ancho de las columnas para que ocupen el 100% del ancho disponible
+                        if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
+                            doc.content[1].table.widths = ['*', '*', '*']; // Ajustar el ancho de las columnas
+                        }
+
+                        doc.header = function (currentPage, pageCount) {
+                            let now = new Date();
+                            let formattedTime = now.getFullYear() + "-" +
+                                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                                ("0" + now.getDate()).slice(-2) + " " +
+                                                ("0" + now.getHours()).slice(-2) + ":" +
+                                                ("0" + now.getMinutes()).slice(-2);
                             return {
-                                text: 'sgCPA',
-                                fontSize: 18,
-                                alignment: 'start',
-                                margin: [10, 15, 10, 10]
+                                margin: [10, 10, 10, 0],
+                                columns: [
+                                    {
+                                        text: 'sgCPA',
+                                        fontSize: 18,
+                                        alignment: 'start'
+                                    },
+                                    {
+                                        text: 'Generado el: ' + formattedTime + '\n' +
+                                              'Página ' + currentPage.toString() + ' de ' + pageCount,
+                                        fontSize: 10,
+                                        alignment: 'center'
+                                    }
+                                ]
                             };
                         };
 
-                        if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
-                            doc.content[1].table.widths = ['*', '*', '*']
+                        // Verificar si se han seleccionado filtros
+                        const year = yearSelector.val();
+                        const month = monthSelector.val();
+                        if (year || month) {
+                            let filterText = 'Filtros aplicados: ';
+                            if (year) {
+                                filterText += 'Año: ' + year + ' ';
+                            }
+                            if (month) {
+                                filterText += 'Mes: ' + (monthNames[month] || month);
+                            }
+                            // Agregar texto de filtros solo si hay algún filtro seleccionado
+                            doc.content.unshift({
+                                text: filterText,
+                                margin: [10, 10, 10, 10]
+                            });
                         }
+
 
                         let totalPages = doc.content.length - 1;
 
@@ -101,4 +194,8 @@
         });
     });
 </script>
+
+<script src="{% static 'scripts/latePayments.js'  %}"></script>
+
+<!-- <script src="{% static 'scripts/script.js' %}"></script> -->
 {% endblock %}
