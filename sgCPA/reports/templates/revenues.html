@@ -44,6 +44,7 @@
                     <tr>
                         <th>Mes</th>
                         <th>Ingresos Brutos</th>
+                        <th>Cantidad de Cursos Activos</th>
                     </tr>
                 </thead>
                 <tbody id="revenues-table-body">
@@ -113,14 +114,14 @@
                         return 'Ingresos brutos totales_' + datestring;
                     },
                     exportOptions: {
-                        columns: [0, 1]
+                        columns: [0, 1, 2]
                     },
                     customize: function (doc) {
                         doc.styles.tableHeader.alignment = 'left';
 
                         // Ajustar el ancho de las columnas para que ocupen el 100% del ancho disponible
                         if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
-                            doc.content[1].table.widths = ['*', '*']; // Ajustar el ancho de las columnas
+                            doc.content[1].table.widths = ['*', '*', '*']; // Ajustar el ancho de las columnas
                         }
 
                         doc.header = function (currentPage, pageCount) {
@@ -151,42 +152,43 @@
                         // Agregar pie de página al contenido del PDF
                         var footerRow = [
                             { text: 'Ingresos brutos totales', bold: true },
-                            { text: $('#total-revenue-footer').text(), bold: true }
+                            { text: $('#total-revenue-footer').text(), bold: true },
+                            { text: '', bold: true }
                         ];
                         doc.content[1].table.body.push(footerRow);
 
-                        // Verificar si se han seleccionado filtros
+                        // // Verificar si se han seleccionado filtros
                         const year = yearSelector.val();
-                        const month = monthSelector.val();
-                        if (year || month) {
-                             let filterText = 'Filtros aplicados: ';
-                             if (year) {
-                                 filterText += 'Año: ' + year + ' ';
-                             }
-                             if (month) {
-                                 filterText += 'Mes: ' + (monthNames[month] || month);
-                             }
-                            
-                        //     // Agregar texto de filtros solo si hay algún filtro seleccionado
-                             doc.content.unshift({
-                                 text: filterText,
-                                 margin: [10, 10, 10, 10]
-                             });
-                        }
+                          const month = monthSelector.val();
+                          if (year || month) {
+                              let filterText = 'Filtros aplicados: ';
+                              if (year) {
+                                   filterText += 'Año: ' + year + ' ';
+                               }
+                               if (month) {
+                                   filterText += 'Mes: ' + (monthNames[month] || month);
+                               }
 
 
-                        let totalPages = doc.content.length - 1;
+                               doc.content.unshift({
+                                   text: filterText,
+                                   margin: [10, 10, 10, 10]
+                               });
+                          }
 
 
-                        doc.footer = function (page, totalPages) {
-                            return {
-                                text: page.toString() + ' de ' + totalPages,
-                                alignment: 'center'
-                            };
-                        };
+                          let totalPages = doc.content.length - 1;
 
 
-                        
+                          doc.footer = function (page, totalPages) {
+                              return {
+                                  text: page.toString() + ' de ' + totalPages,
+                                 alignment: 'center'
+                             };
+                          };
+
+
+
                     }
                 },
             ],
@@ -207,78 +209,90 @@
         });
 
         // Agregar el evento change al select year
-        $('#yearSelector').change(async function () {
-            const value = $(this).val();
-            const url = `get_revenues_per_year/${value}`;
-            const monthSelector = document.getElementById('monthSelector')
+        {
+            
 
-            monthSelector.disabled = false;
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+            $('#yearSelector').change(async function () {
+                const value = $(this).val();
+                const url = `get_revenues_per_year/${value}`;
+                const monthSelector = document.getElementById('monthSelector')
+    
+                monthSelector.disabled = false;
+    
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    const { monthly_revenues, total_revenue } = data;
+    
+                    // Limpiar la tabla
+                    table.clear().draw();
+    
+                    // Agregar las nuevas filas
+                    monthly_revenues.forEach(element => {
+                        table.row.add([
+                            element.month,
+                            parseFloat(element.revenue).toFixed(0),
+                            element.active_courses
+                        ]);
+                    });
+    
+                    // Dibujar la tabla con las nuevas filas
+                    table.draw();
+    
+                    // Actualizar el pie de página con la ganancia total
+                    $('#total-revenue-footer').text(total_revenue);
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
                 }
-                const data = await response.json();
-                const { monthly_revenues, total_revenue } = data;
+            });
+            
+        }
 
-                // Limpiar la tabla
-                table.clear().draw();
+        {
+            
 
-                // Agregar las nuevas filas
-                monthly_revenues.forEach(element => {
-                    table.row.add([
-                        element[0],
-                        parseFloat(element[1]).toFixed(0)
-                    ]);
-                });
-
-                // Dibujar la tabla con las nuevas filas
-                table.draw();
-
-                // Actualizar el pie de página con la ganancia total
-                $('#total-revenue-footer').text(total_revenue);
-            } catch (error) {
-                console.error('There was a problem with the fetch operation:', error);
-            }
-        });
-
-        $('#monthSelector').change(async function () {
-            const value = $(this).val();
-            if (!value) return;
-            const yearSelector = document.getElementById('yearSelector')
-            const year = yearSelector.value;
-            const url = `get_revenues_per_year/${year}/${value}`;
-
-
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+            $('#monthSelector').change(async function () {
+                const value = $(this).val();
+                if (!value) return;
+                const yearSelector = document.getElementById('yearSelector')
+                const year = yearSelector.value;
+                const url = `get_revenues_per_year/${year}/${value}`;
+    
+    
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    const { monthly_revenues, total_revenue } = data;
+    
+                    // Limpiar la tabla
+                    table.clear().draw();
+    
+                    // Agregar las nuevas filas
+                    monthly_revenues.forEach(element => {
+                        table.row.add([
+                            element.month,
+                            parseFloat(element.revenue).toFixed(0),
+                            element.active_courses
+                        ]);
+                    });
+    
+                    // Dibujar la tabla con las nuevas filas
+                    table.draw();
+    
+                    // Actualizar el pie de página con la ganancia total
+                    $('#total-revenue-footer').text(total_revenue);
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
                 }
-                const data = await response.json();
-                const { monthly_revenues, total_revenue } = data;
-
-                // Limpiar la tabla
-                table.clear().draw();
-
-                // Agregar las nuevas filas
-                monthly_revenues.forEach(element => {
-                    table.row.add([
-                        element[0],
-                        parseFloat(element[1]).toFixed(0)
-                    ]);
-                });
-
-                // Dibujar la tabla con las nuevas filas
-                table.draw();
-
-                // Actualizar el pie de página con la ganancia total
-                $('#total-revenue-footer').text(total_revenue);
-            } catch (error) {
-                console.error('There was a problem with the fetch operation:', error);
-            }
-        });
+            });
+            
+        }
     });
 </script>
 {% endblock %}

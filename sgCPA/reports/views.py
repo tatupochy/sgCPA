@@ -378,8 +378,16 @@ def get_revenues_per_year(request, year, month=None):
         # Formatear el total mensual con separadores de miles y sin decimales
         formatted_total_revenue = int(total_revenue)
 
-        # Filtrar pagos por año y mes y calcular el total mensual
-        monthly_revenues_dict = {month: formatted_total_revenue}
+        # Contar los cursos activos por mes
+        active_courses_count = Course.objects.filter(
+            active=True, 
+            start_date__year=year, 
+            start_date__month__lte=month, 
+            end_date__month__gte=month
+        ).count()
+        
+        # Crear un diccionario para almacenar las ganancias mensuales y cursos activos
+        monthly_revenues_dict = {month: {"revenue": formatted_total_revenue, "active_courses": active_courses_count}}
     else:
         # Filtrar pagos por año y calcular el total anual
         total_revenue = Payment.objects.filter(year=year).aggregate(total=Sum('payment_amount'))['total']
@@ -392,19 +400,34 @@ def get_revenues_per_year(request, year, month=None):
         # Filtrar pagos por año y mes y calcular los totales mensuales
         monthly_revenues = Payment.objects.filter(year=year).values('payment_date__month').annotate(total=Sum('payment_amount'))
 
-        # Crear un diccionario para almacenar las ganancias mensuales
-        monthly_revenues_dict = {month: 0 for month in range(1, 13)}
+        # Crear un diccionario para almacenar las ganancias mensuales y cursos activos
+        monthly_revenues_dict = {month: {"revenue": 0, "active_courses": 0} for month in range(1, 13)}
         for revenue in monthly_revenues:
             month = revenue['payment_date__month']
             total = revenue['total']
-            monthly_revenues_dict[month] = int(total)
+            monthly_revenues_dict[month]["revenue"] = int(total)
 
         # Limitar los datos hasta el mes actual si el año es el actual
         if year == current_year:
-            monthly_revenues_dict = {month: total for month, total in monthly_revenues_dict.items() if month <= current_month}
+            monthly_revenues_dict = {month: data for month, data in monthly_revenues_dict.items() if month <= current_month}
+
+        # Contar los cursos activos por mes
+        for month in range(1, 13):
+            if year == current_year and month > current_month:
+                break
+            active_courses_count = Course.objects.filter(
+                active=True, 
+                start_date__year=year, 
+                start_date__month__lte=month, 
+                end_date__month__gte=month
+            ).count()
+            monthly_revenues_dict[month]["active_courses"] = active_courses_count
 
     # Formatear las ganancias mensuales y cambiar los meses a letras en español
-    formatted_monthly_revenues = [(months_in_spanish[month], total) for month, total in monthly_revenues_dict.items()]
+    formatted_monthly_revenues = [
+        {"month": months_in_spanish[month], "revenue": data["revenue"], "active_courses": data["active_courses"]}
+        for month, data in monthly_revenues_dict.items()
+    ]
 
     return JsonResponse({
         "year": year,
