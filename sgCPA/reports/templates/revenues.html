@@ -3,27 +3,47 @@
 
 {% block content %}
 <div>
-    <h1>Ingresos Totales</h1>
+    <h1>Ingresos Brutos Totales</h1>
     <div class="d-flex gap-4 w-full flex-column justify-content-center mt-4">
-        <div class="w-50">
-            <select class="form-control" id="year">
-                <option disabled selected>Seleccionar año</option>
-                {% for year in years %}
-                <option value="{{ year }}">{{ year }}</option>
-                {% endfor %}
-            </select>
+        <div class="w-full d-flex gap-4">
+            <div class="w-50">
+                <label>Seleccionar Año</label>
+                <select class="form-control" id="yearSelector">
+                    <option disabled selected></option>
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="w-50">
+                <label>Seleccionar Mes</label>
+                <select disabled class="form-control" id="monthSelector">
+                    <option value="0" selected>Seleccionar mes</option>
+                    <option value="1" {% if selected_month == "1" %}selected{% endif %}>Enero</option>
+                    <option value="2" {% if selected_month == "2" %}selected{% endif %}>Febrero</option>
+                    <option value="3" {% if selected_month == "3" %}selected{% endif %}>Marzo</option>
+                    <option value="4" {% if selected_month == "4" %}selected{% endif %}>Abril</option>
+                    <option value="5" {% if selected_month == "5" %}selected{% endif %}>Mayo</option>
+                    <option value="6" {% if selected_month == "6" %}selected{% endif %}>Junio</option>
+                    <option value="7" {% if selected_month == "7" %}selected{% endif %}>Julio</option>
+                    <option value="8" {% if selected_month == "8" %}selected{% endif %}>Agosto</option>
+                    <option value="9" {% if selected_month == "9" %}selected{% endif %}>Septiembre</option>
+                    <option value="10" {% if selected_month == "10" %}selected{% endif %}>Octubre</option>
+                    <option value="11" {% if selected_month == "11" %}selected{% endif %}>Noviembre</option>
+                    <option value="12" {% if selected_month == "12" %}selected{% endif %}>Diciembre</option>
+                </select>
+
+            </div>
+
         </div>
-        
+
         <div class="text-align-center d-flex flex-column gap-4">
-            <!-- <div class="text-align-center border d-flex w-50 justify-content-between align-items-center p-2">
-                <p class="m-0">Ganancia total</p>
-                <span id="total_revenue"></span>
-            </div> -->
             <table class="table table-bordered" id="revenues-table">
                 <thead>
                     <tr>
                         <th>Mes</th>
-                        <th>Ganancia</th>
+                        <th>Ingresos Brutos</th>
                     </tr>
                 </thead>
                 <tbody id="revenues-table-body">
@@ -31,7 +51,7 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                        <th>Ganancia Total</th>
+                        <th>Ingresos brutos totales</th>
                         <th id="total-revenue-footer"></th>
                     </tr>
                 </tfoot>
@@ -51,95 +71,214 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
-<script src="{% static 'scripts/revenues.js' %}"></script>
 
 <script>
     $(document).ready(function () {
-    // Inicializar DataTable
-    var table = $('#revenues-table').DataTable({
-        dom: 'Bfrtip',
-        searching: false,
-        paginate: false,
-        buttons: [
-            'excel', 'csv',
-            {
-                extend: 'pdfHtml5',
-                text: 'PDF',
-                pageLength: 4,
-                title: 'Ingresos totales',
-                filename: function () {
-                    var d = new Date();
-                    var datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "_" + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2);
-                    return 'Ingresos totales_' + datestring;
-                },
-                exportOptions: {
-                    columns: [0, 1]
-                },
-                customize: function (doc) {
-                    doc.styles.tableHeader.alignment = 'left';
-                    if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
-                        doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+
+        const yearSelector = $('#yearSelector');
+        const monthSelector = $('#monthSelector');
+
+        // Mapa de nombres de los meses en español
+        const monthNames = {
+            0: 'Ninguno',
+            1: 'Enero',
+            2: 'Febrero',
+            3: 'Marzo',
+            4: 'Abril',
+            5: 'Mayo',
+            6: 'Junio',
+            7: 'Julio',
+            8: 'Agosto',
+            9: 'Septiembre',
+            10: 'Octubre',
+            11: 'Noviembre',
+            12: 'Diciembre'
+        };
+
+        // Inicializar DataTable
+        var table = $('#revenues-table').DataTable({
+            dom: 'Bfrtip',
+            searching: false,
+            paginate: false,
+            buttons: [
+                'excel', 'csv',
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    pageLength: 4,
+                    title: 'Ingresos brutos totales',
+                    filename: function () {
+                        var d = new Date();
+                        var datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "_" + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2);
+                        return 'Ingresos brutos totales_' + datestring;
+                    },
+                    exportOptions: {
+                        columns: [0, 1]
+                    },
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'left';
+
+                        // Ajustar el ancho de las columnas para que ocupen el 100% del ancho disponible
+                        if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
+                            doc.content[1].table.widths = ['*', '*']; // Ajustar el ancho de las columnas
+                        }
+
+                        doc.header = function (currentPage, pageCount) {
+                            let now = new Date();
+                            let formattedTime = now.getFullYear() + "-" +
+                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                ("0" + now.getDate()).slice(-2) + " " +
+                                ("0" + now.getHours()).slice(-2) + ":" +
+                                ("0" + now.getMinutes()).slice(-2);
+                            return {
+                                margin: [10, 10, 10, 0],
+                                columns: [
+                                    {
+                                        text: 'sgCPA',
+                                        fontSize: 18,
+                                        alignment: 'start'
+                                    },
+                                    {
+                                        text: 'Generado el: ' + formattedTime + '\n' +
+                                            'Página ' + currentPage.toString() + ' de ' + pageCount,
+                                        fontSize: 10,
+                                        alignment: 'center'
+                                    }
+                                ]
+                            };
+                        };
+
+                        // Agregar pie de página al contenido del PDF
+                        var footerRow = [
+                            { text: 'Ingresos brutos totales', bold: true },
+                            { text: $('#total-revenue-footer').text(), bold: true }
+                        ];
+                        doc.content[1].table.body.push(footerRow);
+
+                        // Verificar si se han seleccionado filtros
+                        const year = yearSelector.val();
+                        const month = monthSelector.val();
+                        if (year || month) {
+                             let filterText = 'Filtros aplicados: ';
+                             if (year) {
+                                 filterText += 'Año: ' + year + ' ';
+                             }
+                             if (month) {
+                                 filterText += 'Mes: ' + (monthNames[month] || month);
+                             }
+                            
+                        //     // Agregar texto de filtros solo si hay algún filtro seleccionado
+                             doc.content.unshift({
+                                 text: filterText,
+                                 margin: [10, 10, 10, 10]
+                             });
+                        }
+
+
+                        let totalPages = doc.content.length - 1;
+
+
+                        doc.footer = function (page, totalPages) {
+                            return {
+                                text: page.toString() + ' de ' + totalPages,
+                                alignment: 'center'
+                            };
+                        };
+
+
+                        
                     }
-                    
-                    // Agregar pie de página al contenido del PDF
-                    var footerRow = [
-                        { text: 'Ingreso Total', bold: true },
-                        { text: $('#total-revenue-footer').text(), bold: true }
-                    ];
-                    doc.content[1].table.body.push(footerRow);
+                },
+            ],
+            language: {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
                 }
-            },
-        ],
-        language: {
-            "lengthMenu": "Mostrar _MENU_ registros por página",
-            "zeroRecords": "No se encontraron resultados",
-            "info": "",
-            "infoEmpty": "No hay registros disponibles",
-            "infoFiltered": "(filtrado de _MAX_ registros totales)",
-            "search": "Buscar:",
-            "paginate": {
-                "first": "Primero",
-                "last": "Último",
-                "next": "Siguiente",
-                "previous": "Anterior"
             }
-        }
-    });
+        });
 
-    // Agregar el evento change al select year
-    $('#year').change(async function () {
-        const value = $(this).val();
-        const url = `get_revenues_per_year/${value}`;
+        // Agregar el evento change al select year
+        $('#yearSelector').change(async function () {
+            const value = $(this).val();
+            const url = `get_revenues_per_year/${value}`;
+            const monthSelector = document.getElementById('monthSelector')
 
-        try {
-            const response = await fetch(url);
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
+            monthSelector.disabled = false;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                const { monthly_revenues, total_revenue } = data;
+
+                // Limpiar la tabla
+                table.clear().draw();
+
+                // Agregar las nuevas filas
+                monthly_revenues.forEach(element => {
+                    table.row.add([
+                        element[0],
+                        parseFloat(element[1]).toFixed(0)
+                    ]);
+                });
+
+                // Dibujar la tabla con las nuevas filas
+                table.draw();
+
+                // Actualizar el pie de página con la ganancia total
+                $('#total-revenue-footer').text(total_revenue);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
             }
-            const data = await response.json();
-            const { monthly_revenues, total_revenue } = data;
+        });
 
-            // Limpiar la tabla
-            table.clear().draw();
+        $('#monthSelector').change(async function () {
+            const value = $(this).val();
+            if (!value) return;
+            const yearSelector = document.getElementById('yearSelector')
+            const year = yearSelector.value;
+            const url = `get_revenues_per_year/${year}/${value}`;
 
-            // Agregar las nuevas filas
-            monthly_revenues.forEach(element => {
-                table.row.add([
-                    element[0],
-                    parseFloat(element[1]).toFixed(0)
-                ]);
-            });
 
-            // Dibujar la tabla con las nuevas filas
-            table.draw();
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                const data = await response.json();
+                const { monthly_revenues, total_revenue } = data;
 
-            // Actualizar el pie de página con la ganancia total
-            $('#total-revenue-footer').text(total_revenue);
-        } catch (error) {
-            console.error('There was a problem with the fetch operation:', error);
-        }
+                // Limpiar la tabla
+                table.clear().draw();
+
+                // Agregar las nuevas filas
+                monthly_revenues.forEach(element => {
+                    table.row.add([
+                        element[0],
+                        parseFloat(element[1]).toFixed(0)
+                    ]);
+                });
+
+                // Dibujar la tabla con las nuevas filas
+                table.draw();
+
+                // Actualizar el pie de página con la ganancia total
+                $('#total-revenue-footer').text(total_revenue);
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+            }
+        });
     });
-});
-</script>
 </script>
 {% endblock %}

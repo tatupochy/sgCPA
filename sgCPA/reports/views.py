@@ -313,18 +313,8 @@ def revenues(request):
     return render(request, 'revenues.html', data)
 
 
+
 # def get_revenues_per_year(request, year):
-
-#     # Filtrar los pagos por el año especificado y sumar el monto de los pagos
-#     total_revenue = Payment.objects.filter(year=year).aggregate(total=Sum('payment_amount'))['total']
-
-#     # Formatear el total de ingresos con separadores de miles
-#     formatted_total_revenue = "{:,.0f}".format(total_revenue).replace(",", ".")
-
-
-#     return JsonResponse({"year": year, "total_revenue": formatted_total_revenue})
-
-def get_revenues_per_year(request, year):
     current_year = datetime.now().year
     current_month = datetime.now().month
 
@@ -356,6 +346,62 @@ def get_revenues_per_year(request, year):
     # Limitar los datos hasta el mes actual si el año es el actual
     if year == current_year:
         monthly_revenues_dict = {month: total for month, total in monthly_revenues_dict.items() if month <= current_month}
+
+    # Formatear las ganancias mensuales y cambiar los meses a letras en español
+    formatted_monthly_revenues = [(months_in_spanish[month], total) for month, total in monthly_revenues_dict.items()]
+
+    return JsonResponse({
+        "year": year,
+        "total_revenue": formatted_total_revenue,
+        "monthly_revenues": formatted_monthly_revenues
+    })
+
+
+def get_revenues_per_year(request, year, month=None):
+    current_year = datetime.now().year
+    current_month = datetime.now().month
+
+    # Diccionario de equivalentes de meses en letras y en español
+    months_in_spanish = {
+        1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
+        5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
+        9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
+    }
+
+    # Filtrar pagos por año
+    if month:
+        # Si se proporciona un mes, filtrar por año y mes
+        total_revenue = Payment.objects.filter(year=year, payment_date__month=month).aggregate(total=Sum('payment_amount'))['total']
+        if total_revenue is None:
+            total_revenue = 0
+
+        # Formatear el total mensual con separadores de miles y sin decimales
+        formatted_total_revenue = int(total_revenue)
+
+        # Filtrar pagos por año y mes y calcular el total mensual
+        monthly_revenues_dict = {month: formatted_total_revenue}
+    else:
+        # Filtrar pagos por año y calcular el total anual
+        total_revenue = Payment.objects.filter(year=year).aggregate(total=Sum('payment_amount'))['total']
+        if total_revenue is None:
+            total_revenue = 0
+
+        # Formatear el total anual con separadores de miles y sin decimales
+        formatted_total_revenue = int(total_revenue)
+
+        # Filtrar pagos por año y mes y calcular los totales mensuales
+        monthly_revenues = Payment.objects.filter(year=year).values('payment_date__month').annotate(total=Sum('payment_amount'))
+
+        # Crear un diccionario para almacenar las ganancias mensuales
+        monthly_revenues_dict = {month: 0 for month in range(1, 13)}
+        for revenue in monthly_revenues:
+            month = revenue['payment_date__month']
+            total = revenue['total']
+            monthly_revenues_dict[month] = int(total)
+
+        # Limitar los datos hasta el mes actual si el año es el actual
+        if year == current_year:
+            monthly_revenues_dict = {month: total for month, total in monthly_revenues_dict.items() if month <= current_month}
 
     # Formatear las ganancias mensuales y cambiar los meses a letras en español
     formatted_monthly_revenues = [(months_in_spanish[month], total) for month, total in monthly_revenues_dict.items()]
