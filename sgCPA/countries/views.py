@@ -5,7 +5,7 @@ from utils.utils import sendEmail
 from .models import Country
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Count
 
@@ -54,32 +54,38 @@ def registrar_pais(request):
 
 def listado_paises(request):
 
-    country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
-    page = request.GET.get('page', 1)
-    
-    has_results = country_list.exists()
-    
-    if not has_results:
-        
-        data = {
-            'has_results': False,
-            'param': id
-        }
-        return render(request, 'listado_paises.html', data)
-    
     try:
-        paginator = Paginator(country_list, 10)
-        country_list = paginator.page(page)
-    except:
-        raise Http404
 
-    data = {
-        'entity': country_list,
-        'paginator': paginator,
-        'has_results': True
-    }
+        country_list = Country.objects.filter(Q(active=True) | Q(active__isnull=True))
+        page = request.GET.get('page', 1)
 
-    return render(request, 'listado_paises.html', data)
+        has_results = country_list.exists()
+
+        if not has_results:
+
+            data = {
+                'has_results': False,
+                'param': id
+            }
+            return render(request, 'listado_paises.html', data)
+
+        try:
+            paginator = Paginator(country_list, 10)
+            country_list = paginator.page(page)
+        except:
+            raise Http404
+
+        data = {
+            'entity': country_list,
+            'paginator': paginator,
+            'has_results': True
+        }
+
+        return render(request, 'listado_paises.html', data)
+
+    except Exception as e:
+        print(e)
+        return HttpResponse("Ocurrió un error", status=500)
 
 def buscar(request, name):
     

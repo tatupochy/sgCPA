@@ -3,7 +3,7 @@ from django.db.models import Q
 from countries.models import Country
 from .models import Cities
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 
 
 # Create your views here.
@@ -84,14 +84,21 @@ def obtener_ciudades_por_pais(request, id):
     return JsonResponse({"ciudades": ciudades_data})
 
 def listado_ciudades(request):
-    city_list = Cities.objects.filter(Q(active=True) | Q(active__isnull=True))
-    
-    paginator = Paginator(city_list, 10)
-    
-    data = {
-        'entity': city_list,
-        'paginator': paginator,
-        'has_results': True
-    }
-    
-    return render(request, 'listado_ciudades.html', data)
+
+    try:
+        city_list = Cities.objects.filter(Q(active=True) | Q(active__isnull=True))
+
+        paginator = Paginator(city_list, 10)
+
+        data = {
+            'entity': city_list,
+            'paginator': paginator,
+            'has_results': True
+        }
+
+        return render(request, 'listado_ciudades.html', data)
+
+    except Exception as e:
+
+        print(e)
+        return HttpResponse("Ocurrió un error", status=500)
