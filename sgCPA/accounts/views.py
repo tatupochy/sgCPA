@@ -368,38 +368,43 @@ def user_create_by_person_view(request, pk):
     if request.method == "GET":
         return render(request, "user_create_by_person.html", {'person': person, 'groups': roles})
     else:
-        form_data = request.POST.dict()
-        print('form_data', form_data)
+        try:
+            form_data = request.POST.dict()
+            print('form_data', form_data)
 
-        password = form_data['password']
+            password = form_data['password']
 
-        # create user with person data
-        person = Person.objects.get(pk=pk)
-        if person.user:
-            return render(request, "user_create_by_person.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'person': person})
-        username = form_data['username']
-        email = person.email
-        first_name = person.name
-        last_name = person.last_name
-        password = form_data['password']
-        user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
+            # create user with person data
+            person = Person.objects.get(pk=pk)
+            if person.user:
+                return render(request, "user_create_by_person.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'person': person})
+            username = form_data['username']
+            email = person.email
+            first_name = person.name
+            last_name = person.last_name
+            password = form_data['password']
+            user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
 
-        subject = 'Bienvenido a sgCPA'
-        message = ("Tu usuario ha sido creado. \n" +
-                "Usuario: " + username + "\n" +
-                "Contraseña: " + password + "\n" +
-                "Por favor, cambia tu contraseña en tu primer inicio de sesión.")
+            subject = 'Bienvenido a sgCPA'
+            message = ("Tu usuario ha sido creado. \n" +
+                    "Usuario: " + username + "\n" +
+                    "Contraseña: " + password + "\n" +
+                    "Por favor, cambia tu contraseña en tu primer inicio de sesión.")
 
-        # send email to user, bring .env variables
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
+            # send email to user, bring .env variables
+            send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
 
-        person.user = user
-        person.save()
-        # asign group to user
-        group = form_data['group']
-        user.groups.add(group)
+            person.user = user
+            person.save()
+            # asign group to user
+            group = form_data['group']
+            user.groups.add(group)
 
-        return redirect('user_detail', pk=user.pk)
+            return redirect('user_detail', pk=user.pk)
+
+        except Exception as e:
+            print(e)
+            return HttpResponse("Ocurrió un error", status=500)
 
 @attribute_required
 @login_required_custom
