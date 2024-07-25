@@ -1,4 +1,4 @@
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.views import LoginView
 from django.contrib.auth import logout
@@ -145,12 +145,16 @@ def person_create_view(request):
 
 @login_required_custom
 def person_detail_view(request, pk):
-    person = get_object_or_404(Person, pk=pk)
+    try:
+        person = get_object_or_404(Person, pk=pk)
 
-    print("person birth_date", person.birth_date)
-    formatted_birth_date = person.birth_date.strftime('%Y-%m-%d')
-    person.birth_date = formatted_birth_date
-    return render(request, "person_detail.html", {'person': person})
+        print("person birth_date", person.birth_date)
+        formatted_birth_date = person.birth_date.strftime('%Y-%m-%d')
+        person.birth_date = formatted_birth_date
+        return render(request, "person_detail.html", {'person': person})
+    except Exception as e:
+        print(e)
+        return HttpResponse("Ocurrió un error", status=500)
 
 
 @attribute_required
@@ -246,9 +250,14 @@ def users_view(request):
 
 @login_required_custom
 def user_detail_view(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    person = Person.objects.filter(user=user).first()
-    return render(request, "user_detail.html", {'user': user, 'person': person})
+    try:
+        user = get_object_or_404(User, pk=pk)
+        person = Person.objects.filter(user=user).first()
+        return render(request, "user_detail.html", {'user': user, 'person': person})
+    except Exception as e:
+
+        print(e)
+        return HttpResponse("Ocurrió un error", status=500)
 
 
 @attribute_required
