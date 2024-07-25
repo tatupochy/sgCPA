@@ -44,6 +44,14 @@
             <label for="id_birth_date" class="form-label">Fecha de nacimiento:</label>
             <input type="date" class="form-control" id="id_birth_date" name="birth_date" value="{{ person.birth_date }}" disabled readonly >
         </div>
+        <div class="form-group">
+            <label for="id_is_active" class="form-label">Estado:</label>
+            {% if person.active %}
+              <input type="text" class="form-control" id="id_is_active" name="active" value="Activo" disabled readonly >
+            {% else %}
+              <input type="text" class="form-control" id="id_is_active" name="active" value="Inactivo" disabled readonly >
+            {% endif %}
+          </div>
         {% if not person.user %}
             <button type="button" class="btn btn-primary" onclick="window.location.href = '/accounts/users/create_by_person/{{ person.id }}'">Crear usuario</button>
         {% else %}

@@ -183,6 +183,18 @@ def person_edit_view(request, pk):
         person.country = country
         person.postal_code = form_data['postal_code']
         person.birth_date = form_data['birth_date']
+        if 'active' in form_data:
+            if form_data['active'] == 'on':
+                person.active = True
+
+                if person.user:
+                    user = person.user
+                    user.is_active = True
+                    user.save()
+            else:
+                person.active = False
+        else:
+            person.active = False
 
         if person.user is not None:
             user = person.user
@@ -193,6 +205,19 @@ def person_edit_view(request, pk):
 
         person.save()
         return redirect('person_detail', pk=person.pk)
+
+
+@login_required_custom
+def person_delete_view(request, pk):
+    person = get_object_or_404(Person, pk=pk)
+    person.active = False
+    if person.user:
+        person.user.is_active = False
+        person.user.save()
+
+    person.save()
+
+    return redirect('persons')
 
 
 @login_required_custom

@@ -68,7 +68,10 @@ def teacher_update(request, pk):
 
 def teacher_delete(request, pk):
     teacher = get_object_or_404(Teacher, pk=pk)
-    if request.method == 'POST':
-        teacher.delete()
-        return JsonResponse({'success': True, 'redirect_url': '/teachers/'})
-    return render(request, 'teachers/teacher_confirm_delete.html', {'teacher': teacher})
+
+    # check if there are any courses related to this teacher
+    if teacher.course_set.all():
+        return render(request, 'teachers/teacher_error.html', {'error': 'Este profesor tiene cursos asignados, no se puede eliminar.'})
+    teacher.delete()
+
+    return render(request, 'teachers/teacher_list.html', {'teachers': Teacher.objects.all()})

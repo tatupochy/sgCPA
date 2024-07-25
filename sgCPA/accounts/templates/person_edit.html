@@ -64,6 +64,10 @@
                     <label for="id_postal_code" class="form-label">Código postal:</label>
                     <input type="text" class="form-control" id="id_postal_code" name="postal_code" value="{{ person.postal_code }}" required>
                 </div>
+                <div class="form-check">
+                    <label class="form-check-label" for="active">Activo</label>
+                    <input class="form-check-input" type="checkbox" name="active" id="active" {% if person.active %} checked {% endif %}>
+                </div> 
                 <button type="submit" class="btn btn-primary">Guardar cambios</button>
                 {% if form.errors %}
                 <div class="alert alert-danger mt-3">

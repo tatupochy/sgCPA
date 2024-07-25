@@ -21,6 +21,7 @@ class Person(models.Model):
     postal_code = models.CharField(max_length=20, blank=True, null=True)
     birth_date = models.DateField(blank=True, null=True)
     ci = models.CharField(max_length=20, blank=True, null=True)
+    active = models.BooleanField(default=True)
 
     class Meta:
         permissions = [

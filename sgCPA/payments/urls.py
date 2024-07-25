@@ -66,10 +66,12 @@ urlpatterns = [
     path('cash_boxes/create/', views.cash_box_create, name='cash_box_create'),
     path('cash_boxes/', views.cash_box_list, name='cash_box_list'),
     path('cash_boxes/<int:cash_box_id>/', views.cash_box_detail, name='cash_box_detail'),
+    path('cash_boxes/<int:cash_box_id>/delete', views.cash_box_delete, name='cash_box_delete'),
     ########
     path('stampings/create/', views.stamping_create, name='stamping_create'),
     path('stampings/', views.stamping_list, name='stamping_list'),
     path('stampings/<int:stamping_id>/', views.stamping_detail, name='stamping_detail'),
+    path('stampings/<int:stamping_id>/delete', views.stamping_delete, name='stamping_delete'),
 
 ]
 
