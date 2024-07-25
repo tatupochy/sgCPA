@@ -810,6 +810,16 @@ def cash_box_detail(request, cash_box_id):
     cash_box = CashBox.objects.get(id=cash_box_id)
     return render(request, 'cash_box_detail.html', {'cash_box': cash_box})
 
+def cash_box_delete(request, cash_box_id):
+    cash_box = get_object_or_404(CashBox, id=cash_box_id)
+
+    # check if there are invoices with this cash box
+    invoices = Invoice.objects.filter(cash_box=cash_box)
+    if invoices:
+        return render(request, 'error.html', {'error': 'No se puede eliminar la caja porque tiene facturas asociadas'})
+
+    cash_box.delete()
+
 
 def stamping_create(request):
     if request.method == 'POST':
@@ -859,3 +869,16 @@ def stamping_list(request):
 def stamping_detail(request, stamping_id):
     stamping = Stamping.objects.get(id=stamping_id)
     return render(request, 'stamping_detail.html', {'stamping': stamping})
+
+
+def stamping_delete(request, stamping_id):
+    stamping = get_object_or_404(Stamping, id=stamping_id)
+
+    # check if there are cash boxes with this stamping
+    cash_boxes = CashBox.objects.filter(stamping=stamping)
+    if cash_boxes:
+        return render(request, 'error.html', {'error': 'No se puede eliminar el timbrado porque tiene cajas asociadas'})
+
+    stamping.delete()
+
+    return redirect('stamping_list')

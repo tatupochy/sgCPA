@@ -426,8 +426,13 @@ def shift_edit(request, id):
 
 def shift_delete(request, id):
     shift = get_object_or_404(Shift, pk=id)
+    # check if there are courses with this shift
+    courses = Course.objects.filter(shift=shift)
+    if courses.exists():
+        render(request, 'shifts/shift_error.html', {'message': 'No se puede eliminar el turno porque tiene cursos asociados'})
+
     shift.delete()
-    return redirect('shift_list')
+    return render(request, 'shifts/shifts.html')
 
 
 def section_list(request):
@@ -468,5 +473,11 @@ def section_edit(request, id):
 
 def section_delete(request, id):
     section = get_object_or_404(Section, pk=id)
+
+    # check if there are courses with this section
+    courses = Course.objects.filter(section=section)
+    if courses.exists():
+        render(request, 'sections/section_error.html', {'message': 'No se puede eliminar la sección porque tiene cursos asociados'})
+
     section.delete()
-    return redirect('section_list')
+    return render(request, 'sections/sections.html')
