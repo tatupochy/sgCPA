@@ -4,6 +4,7 @@ from django.http import HttpResponseBadRequest, HttpResponse, JsonResponse, Http
 
 from countries.models import Country
 from cities.models import Cities
+from accounts.models import Person
 from attendances.models import Attendance, AttendanceStudent
 from payments.models import Enrollment, EnrollmentDetail, Fee, State
 from countries.views import paises_con_ciudades
@@ -29,6 +30,17 @@ def registrar_alumno(request):
     
     city = Cities.objects.get(pk=form_data.get('city'))
     country = Country.objects.get(pk=form_data.get('country'))
+
+    person = Person(
+        name=form_data.get('name'),
+        last_name=form_data.get('lastName'),
+        email=form_data.get('email'),
+        phone=form_data.get('phone'),
+        city=city,
+        country=country,
+        birth_date=form_data.get('birthDate'),
+        ci=form_data.get('ciNumber'),
+    )
     
     student = Student(
         name=form_data.get('name'),
@@ -45,6 +57,7 @@ def registrar_alumno(request):
     
     try:
         student.full_clean()
+        person.full_clean()
     except ValidationError as e:
         errors = e.message_dict
         data = {
@@ -54,6 +67,9 @@ def registrar_alumno(request):
         return render(request, 'students/registrar_alumno.html', data)
 
     student.save()
+    person.student = student
+    person.save()
+
     return HttpResponseRedirect('/listado_alumnos')
 
 
@@ -74,16 +90,20 @@ def editar_alumno(request, id):
     else:
        student = get_object_or_404(Student, id=id)
        form_data = request.POST
-       
+
        student.email = form_data.get('email')
        student.phone = form_data.get('phone')
        student.fatherPhone = form_data.get('fatherPhone')
        student.motherPhone = form_data.get('motherPhone')
-       
-       
-        
+
+       person = Person.objects.get(student=student)
+
+       person.email = form_data.get('email'),
+       person.phone = form_data.get('phone'),
        try:
           student.full_clean()
+          person.full_clean()
+          person.save()
           student.save()  # Guardar los cambios en la base de datos
           return HttpResponseRedirect('/listado_alumnos')
        except ValidationError as e:

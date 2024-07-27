@@ -145,16 +145,12 @@ def person_create_view(request):
 
 @login_required_custom
 def person_detail_view(request, pk):
-    try:
-        person = get_object_or_404(Person, pk=pk)
+    person = get_object_or_404(Person, pk=pk)
 
-        print("person birth_date", person.birth_date)
-        formatted_birth_date = person.birth_date.strftime('%Y-%m-%d')
-        person.birth_date = formatted_birth_date
-        return render(request, "person_detail.html", {'person': person})
-    except Exception as e:
-        print(e)
-        return HttpResponse("Ocurrió un error", status=500)
+    print("person birth_date", person.birth_date)
+    formatted_birth_date = person.birth_date.strftime('%Y-%m-%d')
+    person.birth_date = formatted_birth_date
+    return render(request, "person_detail.html", {'person': person})
 
 
 @attribute_required
@@ -251,9 +247,9 @@ def users_view(request):
 @login_required_custom
 def user_detail_view(request, pk):
     try:
-        user = get_object_or_404(User, pk=pk)
-        person = Person.objects.filter(user=user).first()
-        return render(request, "user_detail.html", {'user': user, 'person': person})
+        user_obj = get_object_or_404(User, pk=pk)
+        person = Person.objects.filter(user=user_obj).first()
+        return render(request, "user_detail.html", {'user_obj': user_obj, 'person': person})
     except Exception as e:
 
         print(e)
@@ -368,43 +364,38 @@ def user_create_by_person_view(request, pk):
     if request.method == "GET":
         return render(request, "user_create_by_person.html", {'person': person, 'groups': roles})
     else:
-        try:
-            form_data = request.POST.dict()
-            print('form_data', form_data)
+        form_data = request.POST.dict()
+        print('form_data', form_data)
 
-            password = form_data['password']
+        password = form_data['password']
 
-            # create user with person data
-            person = Person.objects.get(pk=pk)
-            if person.user:
-                return render(request, "user_create_by_person.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'person': person})
-            username = form_data['username']
-            email = person.email
-            first_name = person.name
-            last_name = person.last_name
-            password = form_data['password']
-            user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
+        # create user with person data
+        person = Person.objects.get(pk=pk)
+        if person.user:
+            return render(request, "user_create_by_person.html", {'roles': roles, 'error': 'La persona ya tiene un usuario asociado', 'person': person})
+        username = form_data['username']
+        email = person.email
+        first_name = person.name
+        last_name = person.last_name
+        password = form_data['password']
+        user = User.objects.create_user(username = username, email = email, first_name = first_name, last_name = last_name, password = password, is_active=True)
 
-            subject = 'Bienvenido a sgCPA'
-            message = ("Tu usuario ha sido creado. \n" +
-                    "Usuario: " + username + "\n" +
-                    "Contraseña: " + password + "\n" +
-                    "Por favor, cambia tu contraseña en tu primer inicio de sesión.")
+        subject = 'Bienvenido a sgCPA'
+        message = ("Tu usuario ha sido creado. \n" +
+                "Usuario: " + username + "\n" +
+                "Contraseña: " + password + "\n" +
+                "Por favor, cambia tu contraseña en tu primer inicio de sesión.")
 
-            # send email to user, bring .env variables
-            send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
+        # send email to user, bring .env variables
+        send_mail(subject, message, settings.EMAIL_HOST_USER, [email])
 
-            person.user = user
-            person.save()
-            # asign group to user
-            group = form_data['group']
-            user.groups.add(group)
+        person.user = user
+        person.save()
+        # asign group to user
+        group = form_data['group']
+        user.groups.add(group)
 
-            return redirect('user_detail', pk=user.pk)
-
-        except Exception as e:
-            print(e)
-            return HttpResponse("Ocurrió un error", status=500)
+        return redirect('user_detail', pk=user.pk)
 
 @attribute_required
 @login_required_custom

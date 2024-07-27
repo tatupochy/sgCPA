@@ -5,6 +5,7 @@ from .models import Teacher
 from django.http import JsonResponse
 from cities.models import Cities
 from countries.models import Country
+from accounts.models import Person
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
@@ -29,6 +30,10 @@ def teacher_detail(request, pk):
 
 def teacher_create(request):
     if request.method == 'POST':
+
+        country = Country.objects.get(pk=request.POST.get('country_id'))
+        city = Cities.objects.get(pk=request.POST.get('city_id'))
+
         name = request.POST.get('name')
         lastName = request.POST.get('lastName')
         email = request.POST.get('email')
@@ -36,11 +41,16 @@ def teacher_create(request):
         ciNumber = request.POST.get('ciNumber')
         phone = request.POST.get('phone')
         active = request.POST.get('active')
-        city_id = request.POST.get('city_id')
-        country_id = request.POST.get('country_id')
+        city_id = city
+        country_id = country
 
-        teacher = Teacher(name=name, lastName=lastName, email=email, birthDate=birthDate, ciNumber=ciNumber, phone=phone, active=active, city_id=city_id, country_id=country_id)
+        # crear persona
+        person = Person(name=name, last_name=lastName, email=email, birth_date=birthDate, ci=ciNumber, phone=phone, city=city_id, country=country_id)
+
+        teacher = Teacher(name=name, lastName=lastName, email=email, birthDate=birthDate, ciNumber=ciNumber, phone=phone, active=active, city=city_id, country=country_id)
         teacher.save()
+        person.teacher = teacher
+        person.save()
         return redirect('teacher_list')
     else:
         city_list = Cities.objects.all()
@@ -53,6 +63,10 @@ def teacher_create(request):
 def teacher_update(request, pk):
     teacher = get_object_or_404(Teacher, pk=pk)
     if request.method == 'POST':
+
+        country = Country.objects.get(pk=request.POST.get('country_id'))
+        city = Cities.objects.get(pk=request.POST.get('city_id'))
+
         teacher.name = request.POST.get('name')
         teacher.lastName = request.POST.get('lastName')
         teacher.email = request.POST.get('email')
@@ -60,9 +74,22 @@ def teacher_update(request, pk):
         teacher.ciNumber = request.POST.get('ciNumber')
         teacher.phone = request.POST.get('phone')
         teacher.active = request.POST.get('active')
-        teacher.city_id = request.POST.get('city')
-        teacher.country_id = request.POST.get('country')
+        teacher.city_id = city
+        teacher.country_id = country
         teacher.save()
+
+        # actualizar persona
+        person = Person.objects.get(teacher=teacher)
+        person.name = request.POST.get('name')
+        person.last_name = request.POST.get('lastName')
+        person.email = request.POST.get('email')
+        person.birth_date = request.POST.get('birthDate')
+        person.ci = request.POST.get('ciNumber')
+        person.phone = request.POST.get('phone')
+        person.city = city
+        person.country = country
+        person.save()
+
         return JsonResponse({'success': True, 'redirect_url': teacher.get_absolute_url()})
     return render(request, 'teachers/teacher_edit.html', {'teacher': teacher})
 

@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import User, Group
 from django.dispatch import receiver
 from django.db.models.signals import post_migrate
+from students.models import Student
+from teachers.models import Teacher
 from cities.models import Cities as City
 from countries.models import Country
 
@@ -11,6 +13,8 @@ from countries.models import Country
 
 class Person(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, blank=True, null=True)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, unique=True)
