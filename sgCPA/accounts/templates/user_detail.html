@@ -6,35 +6,35 @@
 <!-- Main jumbotron for a primary marketing message or call to action -->
 <div class="container card" style="padding: 1%;">
 
-{#   <a class="btn btn-primary" href="{% url 'users' %}" role="button">Atrás</a>#}
+{#   <a class="btn btn-primary" href="{% url 'user_objs' %}" role="button">Atrás</a>#}
     <div class="row">
       <div class="col">
         <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/accounts/users'" style="cursor: pointer;"></i>
-        <h1>Detalles de usuario: {{ user.first_name }}</h1>
+        <h1>Detalles de usuario: {{ user_obj.first_name }}</h1>
       </div>
     </div>
     
     <div class="row">
         <div class="col">
           <div class="form-group">
-              <label for="id_username" class="form-label">Nombre de usuario:</label>
-              <input type="text" class="form-control" id="id_username" name="username" value="{{ user.username }}" disabled readonly >
+              <label for="id_user_objname" class="form-label">Nombre de usuario:</label>
+              <input type="text" class="form-control" id="id_user_objname" name="user_objname" value="{{ user_obj.user_objname }}" disabled readonly >
           </div>
           <div class="form-group">
               <label for="id_email" class="form-label">Correo electrónico:</label>
-              <input type="email" class="form-control" id="id_email" name="email" value="{{ user.email }}" disabled readonly >
+              <input type="email" class="form-control" id="id_email" name="email" value="{{ user_obj.email }}" disabled readonly >
           </div>
           <div class="form-group">
               <label for="id_first_name" class="form-label">Primer nombre:</label>
-              <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user.first_name }}" disabled readonly >
+              <input type="text" class="form-control" id="id_first_name" name="first_name" value="{{ user_obj.first_name }}" disabled readonly >
           </div>
           <div class="form-group">
               <label for="id_last_name" class="form-label">Apellido:</label>
-              <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user.last_name }}" disabled readonly >
+              <input type="text" class="form-control" id="id_last_name" name="last_name" value="{{ user_obj.last_name }}" disabled readonly >
           </div>
           <div class="form-group">
             <label for="id_is_active" class="form-label">Estado:</label>
-            {% if user.is_active %}
+            {% if user_obj.is_active %}
               <input type="text" class="form-control" id="id_is_active" name="active" value="Activo" disabled readonly >
             {% else %}
               <input type="text" class="form-control" id="id_is_active" name="active" value="Inactivo" disabled readonly >
@@ -42,13 +42,13 @@
           </div>
           <div class="form-group">
             <label for="id_group" class="form-label">Rol:</label>
-            <input type="text" class="form-control" id="id_group" name="group" value="{% for group in user.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}" disabled readonly>
+            <input type="text" class="form-control" id="id_group" name="group" value="{% for group in user_obj.groups.all %}{{ group.name }}{% if not forloop.last %}, {% endif %}{% endfor %}" disabled readonly>
         </div>
         </div>
     </div>
     <div class="row">
         <div class="col">
-            <a class="btn btn-primary" href="{% url 'user_edit' user.pk %}" role="button">Editar</a>
+            <a class="btn btn-primary" href="{% url 'user_edit' user_obj.pk %}" role="button">Editar</a>
             <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">Eliminar</button>
             {% if person %}
                 <button type="button" class="btn btn-secundary" onclick= "window.location.href = '/accounts/persons/{{ person.id }}'">Ver persona</button>
@@ -72,7 +72,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
-        <button type="button" class="btn btn-danger" onclick="window.location.href = '/accounts/users/{{ user.pk }}/delete'">Eliminar</button>
+        <button type="button" class="btn btn-danger" onclick="window.location.href = '/accounts/users/{{ user_obj.pk }}/delete'">Eliminar</button>
       </div>
     </div>
   </div>

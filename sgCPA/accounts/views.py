@@ -246,9 +246,9 @@ def users_view(request):
 
 @login_required_custom
 def user_detail_view(request, pk):
-    user = get_object_or_404(User, pk=pk)
-    person = Person.objects.filter(user=user).first()
-    return render(request, "user_detail.html", {'user': user, 'person': person})
+    user_obj = get_object_or_404(User, pk=pk)
+    person = Person.objects.filter(user=user_obj).first()
+    return render(request, "user_detail.html", {'user_obj': user_obj, 'person': person})
 
 
 @attribute_required
