@@ -1,9 +1,9 @@
 import locale
 from django.shortcuts import render
-from django.db.models import Count,Min, Sum
+from django.db.models import Count,Min, Sum, Q
 from django.db.models.functions import TruncMonth,ExtractYear, ExtractMonth
 from attendances.models import AttendanceStudent
-from students.models import Course
+from students.models import Course, Shift
 import calendar
 from datetime import datetime, timedelta
 from django.http import HttpResponse, JsonResponse
@@ -282,20 +282,82 @@ def latePayments(request, year=None, month=None):
     })
 
 
-def coursesRanking(request):
+def coursesRanking(request, year=None, month=None):
+    
+     # Filtrar EnrollmentDetail por año y mes si se proporcionan
+    enrollment_details = EnrollmentDetail.objects.all()
+    if year:
+        enrollment_details = enrollment_details.filter(student_enrollment_date__year=year)
+    if year and month:
+        enrollment_details = enrollment_details.filter(student_enrollment_date__year=year, student_enrollment_date__month=month)
 
-    courses_with_enrollment_counts = Course.objects.annotate(num_enrollment_details=Count('enrollment__enrollmentdetail')).order_by('-num_enrollment_details')
+        
+     # Obtener el primer año de registros y el año actual
+    first_enrollment = EnrollmentDetail.objects.aggregate(first_year=Min('student_enrollment_date'))
+    first_year = first_enrollment['first_year'].year if first_enrollment['first_year'] else datetime.datetime.now().year
+    
+    current_year = datetime.now().year
+    years = list(range(first_year, current_year + 1))
 
+    courses_with_enrollment_counts = Course.objects.annotate(num_enrollment_details=Count('enrollment__enrollmentdetail')).filter(num_enrollment_details__gt=0).order_by('-num_enrollment_details')
+    
+    shifts = Shift.objects.all()
+    
     courses_list = []
     for course in courses_with_enrollment_counts:
         courses_list.append({
             'course_name': course.name,
             'num_enrollment_details': course.num_enrollment_details,
+            'shift': course.shift
         })
 
+    data = {
+        'courses_list': courses_list,
+        'shifts': shifts,
+        'years': years
+    }
 
-    return render(request, 'coursesRanking.html', {'courses_list': courses_list})
+    return render(request, 'coursesRanking.html', data)
 
+def get_courses_ranking_filter(request, year=None, month=None, shift_id=None):
+     # Filtrar EnrollmentDetail por año y mes si se proporcionan
+    filter_criteria = Q()
+    if year:
+        filter_criteria &= Q(enrollment__enrollmentdetail__student_enrollment_date__year=year)
+    if month:
+        filter_criteria &= Q(enrollment__enrollmentdetail__student_enrollment_date__month=month)
+
+    # Construir un filtro para Shift basado en el parámetro shift_id
+    shift_filter = Q()
+    if shift_id:
+        shift_filter &= Q(shift_id=shift_id)
+
+    # Anotar los cursos con el número de detalles de inscripción que cumplen con el filtro
+    courses_with_enrollment_counts = Course.objects.annotate(
+        num_enrollment_details=Count('enrollment__enrollmentdetail', filter=filter_criteria)
+    ).filter(
+        num_enrollment_details__gt=0
+    ).filter(
+        shift_filter
+    ).order_by('-num_enrollment_details')
+        
+    shifts = Shift.objects.all()
+    shifts_list = [{'id': shift.id, 'name': shift.name} for shift in shifts]
+    
+    courses_list = []
+    for course in courses_with_enrollment_counts:
+        courses_list.append({
+            'course_name': course.name,
+            'num_enrollment_details': course.num_enrollment_details,
+            'shift':  {'id': course.shift.id, 'name': course.shift.name} if course.shift else None
+        })
+
+    data = {
+        'courses_list': courses_list,
+        'shifts': shifts_list
+    }
+    
+    return JsonResponse(data)
 
 def revenues(request):
     
@@ -311,51 +373,6 @@ def revenues(request):
     }
 
     return render(request, 'revenues.html', data)
-
-
-
-# def get_revenues_per_year(request, year):
-    current_year = datetime.now().year
-    current_month = datetime.now().month
-
-    # Diccionario de equivalentes de meses en letras y en español
-    months_in_spanish = {
-        1: "Enero", 2: "Febrero", 3: "Marzo", 4: "Abril",
-        5: "Mayo", 6: "Junio", 7: "Julio", 8: "Agosto",
-        9: "Septiembre", 10: "Octubre", 11: "Noviembre", 12: "Diciembre"
-    }
-
-    # Filtrar pagos por año y calcular el total anual
-    total_revenue = Payment.objects.filter(year=year).aggregate(total=Sum('payment_amount'))['total']
-    if total_revenue is None:
-        total_revenue = 0
-
-    # Formatear el total anual con separadores de miles y sin decimales
-    formatted_total_revenue = int(total_revenue)
-
-    # Filtrar pagos por año y mes y calcular los totales mensuales
-    monthly_revenues = Payment.objects.filter(year=year).values('payment_date__month').annotate(total=Sum('payment_amount'))
-
-    # Crear un diccionario para almacenar las ganancias mensuales
-    monthly_revenues_dict = {month: 0 for month in range(1, 13)}
-    for revenue in monthly_revenues:
-        month = revenue['payment_date__month']
-        total = revenue['total']
-        monthly_revenues_dict[month] = int(total)
-
-    # Limitar los datos hasta el mes actual si el año es el actual
-    if year == current_year:
-        monthly_revenues_dict = {month: total for month, total in monthly_revenues_dict.items() if month <= current_month}
-
-    # Formatear las ganancias mensuales y cambiar los meses a letras en español
-    formatted_monthly_revenues = [(months_in_spanish[month], total) for month, total in monthly_revenues_dict.items()]
-
-    return JsonResponse({
-        "year": year,
-        "total_revenue": formatted_total_revenue,
-        "monthly_revenues": formatted_monthly_revenues
-    })
-
 
 def get_revenues_per_year(request, year, month=None):
     current_year = datetime.now().year

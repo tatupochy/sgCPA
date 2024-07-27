@@ -4,11 +4,66 @@
 {% block content %}
 <div>
     <h1>Cantidad de matriculados por curso</h1>
+    <div>
+        <div>
+            <span>Filtro por año y mes</span>
+        </div>
+        <div class="w-full d-flex gap-4 mb-4">
+            <div class="w-50">
+                <label>Año</label>
+                <select class="form-control" id="yearSelector">
+                    <option disabled selected></option>
+                    {% for year in years %}
+                    <option value="{{ year }}">{{ year }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="w-50">
+                <label>Mes</label>
+                <select disabled class="form-control" id="monthSelector">
+                    <option value="0" selected>Seleccionar mes</option>
+                    <option value="1" {% if selected_month == "1" %}selected{% endif %}>Enero</option>
+                    <option value="2" {% if selected_month == "2" %}selected{% endif %}>Febrero</option>
+                    <option value="3" {% if selected_month == "3" %}selected{% endif %}>Marzo</option>
+                    <option value="4" {% if selected_month == "4" %}selected{% endif %}>Abril</option>
+                    <option value="5" {% if selected_month == "5" %}selected{% endif %}>Mayo</option>
+                    <option value="6" {% if selected_month == "6" %}selected{% endif %}>Junio</option>
+                    <option value="7" {% if selected_month == "7" %}selected{% endif %}>Julio</option>
+                    <option value="8" {% if selected_month == "8" %}selected{% endif %}>Agosto</option>
+                    <option value="9" {% if selected_month == "9" %}selected{% endif %}>Septiembre</option>
+                    <option value="10" {% if selected_month == "10" %}selected{% endif %}>Octubre</option>
+                    <option value="11" {% if selected_month == "11" %}selected{% endif %}>Noviembre</option>
+                    <option value="12" {% if selected_month == "12" %}selected{% endif %}>Diciembre</option>
+                </select>
+
+            </div>
+
+        </div>
+
+        <div class="d-flex flex-column mb-4">
+            <div>
+                <span>Filtro por Turno</span>
+            </div>
+            <div>
+                <div class="w-50">
+                    <label>Turno</label>
+                    <select class="form-control" id="shiftSelector">
+                        <option disabled selected></option>
+                        {% for shift in shifts %}
+                        <option value="{{ shift.id }}">{{ shift.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
     <table class="table table-bordered" id="enrollments-data-table">
         <thead>
             <tr>
                 <th>Nombre del curso</th>
                 <th>Cantidad total de matriculados</th>
+                <th>Turno</th>
             </tr>
         </thead>
         <tbody>
@@ -16,6 +71,7 @@
             <tr>
                 <td>{{course.course_name}}</td>
                 <td>{{course.num_enrollment_details}}</td>
+                <td>{{course.shift}}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -34,7 +90,29 @@
 <script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
 <script>
     $(document).ready(function () {
-        $('#enrollments-data-table').DataTable({
+
+        const yearSelector = $('#yearSelector');
+        const monthSelector = $('#monthSelector');
+        const shiftSelector = $('#shiftSelector');
+
+        // Mapa de nombres de los meses en español
+        const monthNames = {
+            0: 'Ninguno',
+            1: 'Enero',
+            2: 'Febrero',
+            3: 'Marzo',
+            4: 'Abril',
+            5: 'Mayo',
+            6: 'Junio',
+            7: 'Julio',
+            8: 'Agosto',
+            9: 'Septiembre',
+            10: 'Octubre',
+            11: 'Noviembre',
+            12: 'Diciembre'
+        };
+
+        var table = $('#enrollments-data-table').DataTable({
             dom: 'Bfrtip',
             searching: true,
             buttons: [
@@ -50,7 +128,7 @@
                         return 'Listado_total_matriculaciones_por_curso_' + datestring;
                     },
                     exportOptions: {
-                        columns: [0, 1]
+                        columns: [0, 1, 2]
                     },
                     customize: function (doc) {
                         doc.styles.tableHeader.alignment = 'left';
@@ -58,6 +136,68 @@
                         if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
                             doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
                         }
+
+                        doc.header = function (currentPage, pageCount) {
+                            let now = new Date();
+                            let formattedTime = now.getFullYear() + "-" +
+                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                ("0" + now.getDate()).slice(-2) + " " +
+                                ("0" + now.getHours()).slice(-2) + ":" +
+                                ("0" + now.getMinutes()).slice(-2);
+                            return {
+                                margin: [10, 10, 10, 10],
+                                columns: [
+                                    {
+                                        text: 'sgCPA',
+                                        fontSize: 18,
+                                        alignment: 'start'
+                                    },
+                                    {
+                                        text: 'Generado el: ' + formattedTime + '\n' +
+                                            'Página ' + currentPage.toString() + ' de ' + pageCount,
+                                        fontSize: 10,
+                                        alignment: 'center'
+                                    }
+                                ]
+                            };
+                        };
+
+                        // // Verificar si se han seleccionado filtros
+                        const year = yearSelector.val();
+                        const month = monthSelector.val();
+                        const shift = shiftSelector.val();
+                        const shiftText = shiftSelector.find('option:selected').text();
+
+                          if (year || month) {
+                              let filterText = 'Filtros aplicados:\n ';
+                              if (year) {
+                                   filterText += 'Año: ' + year + '\n';
+                               }
+                               if (month) {
+                                   filterText += 'Mes: ' + (monthNames[month] || month) + '\n';
+                               }
+                               if (shift){
+                                 filterText += 'Turno: ' + shiftText + '\n';
+                               }
+
+
+                               doc.content.unshift({
+                                   text: filterText,
+                                   margin: [10, 10, 10, 10]
+                               });
+                          }
+
+
+                          let totalPages = doc.content.length - 1;
+
+
+                          doc.footer = function (page, totalPages) {
+                              return {
+                                  text: page.toString() + ' de ' + totalPages,
+                                 alignment: 'center'
+                             };
+                          };
+
                     }
                 },
             ],
@@ -76,6 +216,130 @@
                 }
             }
         });
+
+        {
+
+
+            $('#yearSelector').change(async function () {
+                const value = $(this).val();
+                const url = `/reports/get_courses_ranking_filter/${value}/`
+                const monthSelector = document.getElementById('monthSelector')
+
+                monthSelector.disabled = false;
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    const { courses_list } = data;
+
+
+                    // Limpiar la tabla
+                    table.clear().draw();
+
+                    // Agregar las nuevas filas
+                    courses_list.forEach(element => {
+                        table.row.add([
+                            element.course_name,
+                            parseFloat(element.num_enrollment_details).toFixed(0),
+                            element.shift.name
+                        ]);
+                    });
+
+                    // Dibujar la tabla con las nuevas filas
+                    table.draw();
+
+                    // Actualizar el pie de página con la ganancia total
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
+                }
+            });
+
+        }
+
+        {       
+            $('#monthSelector').change(async function () {
+                const value = $(this).val();
+                if (!value) return;
+                const yearSelector = document.getElementById('yearSelector')
+                const year = yearSelector.value;
+                // const url = `get_revenues_per_year/${year}/${value}`;
+                const url = `/reports/get_courses_ranking_filter/${year}/${value}`
+
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    const { courses_list } = data;
+
+                    // Limpiar la tabla
+                    table.clear().draw();
+
+                    // Agregar las nuevas filas
+                    courses_list.forEach(element => {
+                        table.row.add([
+                            element.course_name,
+                            parseFloat(element.num_enrollment_details).toFixed(0),
+                            element.shift.name
+                        ]);
+                    });
+
+                    // Dibujar la tabla con las nuevas filas
+                    table.draw();
+
+                    // Actualizar el pie de página con la ganancia total
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
+                }
+            });
+        }
+
+        {
+            $('#shiftSelector').change(async function () {
+                const value = $(this).val();
+                if (!value) return;
+                const yearSelector = document.getElementById('yearSelector')
+                const monthSelector = document.getElementById('monthSelector')
+                const year = yearSelector.value;
+                const month = monthSelector.value;
+                // const url = `get_revenues_per_year/${year}/${value}`;
+                const url = `/reports/get_courses_ranking_filter/${year}/${month}/${value}`
+
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    const { courses_list } = data;
+
+                    // Limpiar la tabla
+                    table.clear().draw();
+
+                    // Agregar las nuevas filas
+                    courses_list.forEach(element => {
+                        table.row.add([
+                            element.course_name,
+                            parseFloat(element.num_enrollment_details).toFixed(0),
+                            element.shift.name
+                        ]);
+                    });
+
+                    // Dibujar la tabla con las nuevas filas
+                    table.draw();
+
+                    // Actualizar el pie de página con la ganancia total
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
+                }
+            });
+        }
     });
 </script>
 {% endblock %}
