@@ -40,6 +40,14 @@
             <label for="email" class="mb-2 form-label">Correo Electronico</label>
             <input class="form-control" id="email" type="text" name="email" value="{{ teacher.email }}" readonly/>
         </div>
+        <div class="form-group">
+            <label for="id_active" class="form-label">Estado:</label>
+            {% if teacher.active %}
+              <input type="text" class="form-control" id="id_active" name="active" value="Activo" disabled readonly >
+            {% else %}
+              <input type="text" class="form-control" id="id_active" name="active" value="Inactivo" disabled readonly >
+            {% endif %}
+          </div>
     </form>
 </div>
 {% endblock %}

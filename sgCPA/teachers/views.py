@@ -64,6 +64,8 @@ def teacher_update(request, pk):
     teacher = get_object_or_404(Teacher, pk=pk)
     if request.method == 'POST':
 
+        form_data = request.POST.copy()
+
         country = Country.objects.get(pk=request.POST.get('country_id'))
         city = Cities.objects.get(pk=request.POST.get('city_id'))
 
@@ -73,9 +75,17 @@ def teacher_update(request, pk):
         teacher.birthDate = request.POST.get('birthDate')
         teacher.ciNumber = request.POST.get('ciNumber')
         teacher.phone = request.POST.get('phone')
-        teacher.active = request.POST.get('active')
         teacher.city_id = city
         teacher.country_id = country
+
+        if 'active' in form_data:
+            if form_data['active'] == 'on':
+                teacher.active = True
+            else:
+                teacher.active = False
+        else:
+            teacher.active = False
+
         teacher.save()
 
         # actualizar persona
@@ -91,7 +101,10 @@ def teacher_update(request, pk):
         person.save()
 
         return JsonResponse({'success': True, 'redirect_url': teacher.get_absolute_url()})
-    return render(request, 'teachers/teacher_edit.html', {'teacher': teacher})
+    else:
+        formatted_birthDate = teacher.birthDate.strftime('%Y-%m-%d')
+        teacher.birthDate = formatted_birthDate
+        return render(request, 'teachers/teacher_edit.html', {'teacher': teacher})
 
 def teacher_delete(request, pk):
     teacher = get_object_or_404(Teacher, pk=pk)
