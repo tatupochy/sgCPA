@@ -29,16 +29,30 @@
             <input class="form-control" id="phone" type="text" name="phone" value="{{ teacher.phone }}" />
         </div>
         <div class="form-group">
-            <label for="country" class="mb-2 form-label">País</label>
-            <input class="form-control" id="country" type="text" name="country" value="{{ teacher.country.name }}" />
+            <label for="country" class="mb-2 form-label">Pais</label>
+            <select class="form-select" id="country" name="country_id" required>
+                <option value="{{ teacher.country.id }}" selected>{{ teacher.country.name }}</option>
+                {% for country in country_list %}
+                    <option value="{{ country.id }}">{{ country.name }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-group">
             <label for="city" class="mb-2 form-label">Ciudad</label>
-            <input class="form-control" id="city" type="text" name="city" value="{{ teacher.city.name }}" />
+            <select class="form-select" id="city" name="city_id" required>
+                <option value="{{ teacher.city.id }}" selected>{{ teacher.city.name }}</option>
+                {% for city in city_list %}
+                    <option value="{{ city.id }}">{{ city.name }}</option>
+                {% endfor %}
+            </select>
         </div>
         <div class="form-group">
             <label for="email" class="mb-2 form-label">Correo Electronico</label>
             <input class="form-control" id="email" type="text" name="email" value="{{ teacher.email }}" />
+        </div>
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" name="active" id="active" {% if teacher.active %} checked {% endif %}>
+            <label class="form-check-label" for="active">Activo</label>
         </div>
         <button type="submit" class="btn btn-primary">Guardar</button>
     </form>
