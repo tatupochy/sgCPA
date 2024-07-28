@@ -149,6 +149,17 @@
         </article>
     </section>
 
+    {% if curso %}
+        <section class="d-flex gap-3 justify-content-center w-100">
+    
+            <article class="w-50">
+                <label for="active" class="mb-2 form-label">Curso activo?</label>
+                <input type="checkbox" id="active" name="active" {% if curso.active %}checked{% endif %} />
+            </article>
+        </section>
+    {% endif %}
+
+
    
 
     <!-- <section class="d-flex justify-content-center gap-3">

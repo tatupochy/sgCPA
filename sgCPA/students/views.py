@@ -241,7 +241,7 @@ def registrar_curso(request):
                 name=name,
                 shift=shift,
                 section=section,
-                active=active,
+                active=True,
                 start_date=start_date,
                 end_date=end_date,
                 fee_amount=fee_amount,
@@ -262,7 +262,7 @@ def registrar_curso(request):
                 Attendance.objects.create(date=date, course=curso)
                
            
-            return redirect('detalle_curso', id=curso.id)
+            return redirect('/listar_curso')
             
         else:
             # Si falta algún campo requerido, mostrar un mensaje de error o realizar alguna otra acción
@@ -314,10 +314,8 @@ def editar_curso(request, id):
         curso.start_date = curso.start_date.strftime("%Y-%m-%d")
         curso.end_date = curso.end_date.strftime("%Y-%m-%d")
         
-        # curso.enrollment_start_date = curso.enrollment_start_date.strftime("%Y-%m-%d")
-        # curso.enrollment_end_date = curso.enrollment_end_date.strftime("%Y-%m-%d")
-        
         ids_de_materias = list(curso.subjects.values_list('id', flat=True))
+        
         
         
         data = {
