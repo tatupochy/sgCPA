@@ -274,12 +274,18 @@ def latePayments(request, year=None, month=None):
     
     studentsDebts_sorted = sorted(studentsDebts, key=lambda x: x['totalDebt'], reverse=True)
     
-    return render(request, 'latePayments.html', {
-        'studentsDebts': studentsDebts_sorted,
-        'years_range': years_range,
-        'selected_year': year,
-        'selected_month': str(month) if month else None
-    })
+    if month and year:
+        data = {
+            'studentsDebts': studentsDebts_sorted
+        }
+        return JsonResponse(data)    
+    else:    
+        return render(request, 'latePayments.html', {
+            'studentsDebts': studentsDebts_sorted,
+            'years_range': years_range,
+            'selected_year': year,
+            'selected_month': str(month) if month else None
+        })
 
 
 def coursesRanking(request, year=None, month=None):

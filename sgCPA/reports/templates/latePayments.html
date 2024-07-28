@@ -10,7 +10,6 @@
             <select class="form-control" id="yearSelector">
                 <option disabled selected></option>
                 {% for year in years_range %}
-                <!-- <option value="{{ year }}">{{year}}</option> -->
                 <option value="{{ year }}" {% if year == selected_year %}selected{% endif %}>{{ year }}</option>
                 {% endfor %}
             </select>
@@ -18,7 +17,7 @@
 
         <div class="w-50">
             <label>Mes</label>
-            <select class="form-control" id="monthSelector">
+            <select class="form-control" id="monthSelector" disabled>
                 <option disabled selected></option>
                 <option value="1" {% if selected_month == "1" %}selected{% endif %}>Enero</option>
                 <option value="2" {% if selected_month == "2" %}selected{% endif %}>Febrero</option>
@@ -36,7 +35,7 @@
         </div>
     </div>
     <div class="d-flex gap-4 mb-4">
-        <button class="btn btn-primary" id="filterButton">Filtrar</button>
+        <!-- <button class="btn btn-primary" id="filterButton">Filtrar</button> -->
         <button class="btn btn-primary" id="clearfilterButton">Limpiar Filtros</button>
     </div>
     <table class="table table-bordered w-full" id="debt-data-table">
@@ -93,7 +92,7 @@
             12: 'Diciembre'
         };
 
-        $('#debt-data-table').DataTable({
+        var table = $('#debt-data-table').DataTable({
             dom: 'Bfrtip',
             searching: false,
             buttons: [
@@ -123,10 +122,10 @@
                         doc.header = function (currentPage, pageCount) {
                             let now = new Date();
                             let formattedTime = now.getFullYear() + "-" +
-                                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
-                                                ("0" + now.getDate()).slice(-2) + " " +
-                                                ("0" + now.getHours()).slice(-2) + ":" +
-                                                ("0" + now.getMinutes()).slice(-2);
+                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                ("0" + now.getDate()).slice(-2) + " " +
+                                ("0" + now.getHours()).slice(-2) + ":" +
+                                ("0" + now.getMinutes()).slice(-2);
                             return {
                                 margin: [10, 10, 10, 0],
                                 columns: [
@@ -137,7 +136,7 @@
                                     },
                                     {
                                         text: 'Generado el: ' + formattedTime + '\n' +
-                                              'Página ' + currentPage.toString() + ' de ' + pageCount,
+                                            'Página ' + currentPage.toString() + ' de ' + pageCount,
                                         fontSize: 10,
                                         alignment: 'center'
                                     }
@@ -192,6 +191,92 @@
                 }
             }
         });
+
+        {
+
+
+            $('#yearSelector').change(async function () {
+                // const value = $(this).val();
+                // const url = `/reports/get_courses_ranking_filter/${value}/`
+                const monthSelector = document.getElementById('monthSelector')
+
+                monthSelector.disabled = false;
+
+                // try {
+                //     const response = await fetch(url);
+                //     if (!response.ok) {
+                //         throw new Error('Network response was not ok');
+                //     }
+                //     const data = await response.json();
+                //     const { courses_list } = data;
+
+
+                //     // Limpiar la tabla
+                //     table.clear().draw();
+
+                //     // Agregar las nuevas filas
+                //     courses_list.forEach(element => {
+                //         table.row.add([
+                //             element.course_name,
+                //             parseFloat(element.num_enrollment_details).toFixed(0),
+                //             element.shift.name
+                //         ]);
+                //     });
+
+                //     // Dibujar la tabla con las nuevas filas
+                //     table.draw();
+
+                //     // Actualizar el pie de página con la ganancia total
+                // } catch (error) {
+                //     console.error('There was a problem with the fetch operation:', error);
+                // }
+            });
+
+        }
+
+        {
+            $('#monthSelector').change(async function () {
+                const value = $(this).val();
+                if (!value) return;
+                const yearSelector = document.getElementById('yearSelector')
+                const year = yearSelector.value;
+                // const url = `get_revenues_per_year/${year}/${value}`;
+                const url = `/reports/latePayments/${year}/${value}/`
+
+
+                try {
+                    const response = await fetch(url);
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    const { studentsDebts } = data;
+                    // console.log(studentsDebts)
+
+                    // // Limpiar la tabla
+                    table.clear().draw();
+
+                    // // Agregar las nuevas filas
+                    studentsDebts.forEach(element => {
+                         table.row.add([
+                             element.ciNumber,
+                             element.name,
+                             element.totalDebt,
+                             element.atraso
+                         ]);
+                     });
+
+                    // Dibujar la tabla con las nuevas filas
+                    table.draw();
+
+                    // Actualizar el pie de página con la ganancia total
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
+                }
+            });
+        }
+
+        
     });
 </script>
 
