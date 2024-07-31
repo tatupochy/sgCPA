@@ -19,18 +19,9 @@
             <label>Mes</label>
             <select class="form-control" id="monthSelector" disabled>
                 <option disabled selected></option>
-                <option value="1" {% if selected_month == "1" %}selected{% endif %}>Enero</option>
-                <option value="2" {% if selected_month == "2" %}selected{% endif %}>Febrero</option>
-                <option value="3" {% if selected_month == "3" %}selected{% endif %}>Marzo</option>
-                <option value="4" {% if selected_month == "4" %}selected{% endif %}>Abril</option>
-                <option value="5" {% if selected_month == "5" %}selected{% endif %}>Mayo</option>
-                <option value="6" {% if selected_month == "6" %}selected{% endif %}>Junio</option>
-                <option value="7" {% if selected_month == "7" %}selected{% endif %}>Julio</option>
-                <option value="8" {% if selected_month == "8" %}selected{% endif %}>Agosto</option>
-                <option value="9" {% if selected_month == "9" %}selected{% endif %}>Septiembre</option>
-                <option value="10" {% if selected_month == "10" %}selected{% endif %}>Octubre</option>
-                <option value="11" {% if selected_month == "11" %}selected{% endif %}>Noviembre</option>
-                <option value="12" {% if selected_month == "12" %}selected{% endif %}>Diciembre</option>
+                {% for month in months_range %}
+                <option value="{{ month.value }}">{{ month.name }}</option>
+                {% endfor %}
             </select>
         </div>
     </div>
