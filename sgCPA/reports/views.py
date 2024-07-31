@@ -216,6 +216,8 @@ def latePayments(request, year=None, month=None):
 
     # Obtener el año actual
     current_year = timezone.now().year
+    current_date = timezone.now().date()
+    current_month = current_date.month
 
     # Obtener el menor año con cuotas vencidas hasta el año actual en la tabla Fee
     earliest_overdue_year_fee = Fee.objects.filter(
@@ -228,6 +230,25 @@ def latePayments(request, year=None, month=None):
         years_range = list(range(earliest_overdue_year_fee, current_year + 1))
     else:
         years_range = []
+        
+    # Lista de meses en español
+    months_list = [
+        {'value': 1, 'name': 'Enero'},
+        {'value': 2, 'name': 'Febrero'},
+        {'value': 3, 'name': 'Marzo'},
+        {'value': 4, 'name': 'Abril'},
+        {'value': 5, 'name': 'Mayo'},
+        {'value': 6, 'name': 'Junio'},
+        {'value': 7, 'name': 'Julio'},
+        {'value': 8, 'name': 'Agosto'},
+        {'value': 9, 'name': 'Septiembre'},
+        {'value': 10, 'name': 'Octubre'},
+        {'value': 11, 'name': 'Noviembre'},
+        {'value': 12, 'name': 'Diciembre'}
+    ]
+
+    # Filtrar meses hasta el mes actual
+    months_range = [month for month in months_list if month['value'] <= current_month]
 
     for student in students:
         
@@ -274,6 +295,7 @@ def latePayments(request, year=None, month=None):
     
     studentsDebts_sorted = sorted(studentsDebts, key=lambda x: x['totalDebt'], reverse=True)
     
+    
     if month and year:
         data = {
             'studentsDebts': studentsDebts_sorted
@@ -284,7 +306,7 @@ def latePayments(request, year=None, month=None):
             'studentsDebts': studentsDebts_sorted,
             'years_range': years_range,
             'selected_year': year,
-            'selected_month': str(month) if month else None
+            'months_range': months_range, 
         })
 
 
