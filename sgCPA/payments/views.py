@@ -80,26 +80,32 @@ def search_pending_payments(request):
 
 def pending_payments(request, pk):
     if request.method == 'POST':
-        student_ci = request.POST['student']
-        student = Student.objects.get(ciNumber=student_ci)
+        try:
+            student_ci = request.POST['student']
+            student = Student.objects.get(ciNumber=student_ci)
 
-        selected_fees = request.POST.getlist('selected_fees')
-        selected_enrollment_details = request.POST.getlist('selected_enrollment_details')
+            selected_fees = request.POST.getlist('selected_fees')
+            selected_enrollment_details = request.POST.getlist('selected_enrollment_details')
 
-        pending_fees = []
-        pending_enrollment_details = []
+            pending_fees = []
+            pending_enrollment_details = []
 
-        for fee_id in selected_fees:
-            fee = Fee.objects.get(id=fee_id)
-            pending_fees.append(fee)
+            for fee_id in selected_fees:
+                fee = Fee.objects.get(id=fee_id)
+                pending_fees.append(fee)
 
-        for enrollment_detail_id in selected_enrollment_details:
-            enrollment_detail = EnrollmentDetail.objects.get(id=enrollment_detail_id)
-            pending_enrollment_details.append(enrollment_detail)
+            for enrollment_detail_id in selected_enrollment_details:
+                enrollment_detail = EnrollmentDetail.objects.get(id=enrollment_detail_id)
+                pending_enrollment_details.append(enrollment_detail)
 
-        invoice = create_invoice(pending_fees, pending_enrollment_details, student, request.user)
+            invoice = create_invoice(pending_fees, pending_enrollment_details, student, request.user)
 
-        return redirect('show_payment_resume', pk=invoice.id)
+            return redirect('show_payment_resume', pk=invoice.id)
+
+        except Exception as e:
+
+            print(e)
+            return HttpResponse("Ocurrió un error", status=500)
 
     else:
         student = Student.objects.get(id=pk)
@@ -211,24 +217,28 @@ def show_payment_resume(request, pk):
 
         return redirect('payment_invoice_create', pk=pk)
     else:
-        # Obtener la factura por ID, lanzando un error 404 si no se encuentra
-        invoice = get_object_or_404(Invoice, id=pk)
-        formatted_invoice_date = invoice.date.strftime('%Y-%m-%d')
-        invoice.date = formatted_invoice_date
-        # Obtener los detalles de la factura
-        invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
+        try:
+            # Obtener la factura por ID, lanzando un error 404 si no se encuentra
+            invoice = get_object_or_404(Invoice, id=pk)
+            formatted_invoice_date = invoice.date.strftime('%Y-%m-%d')
+            invoice.date = formatted_invoice_date
+            # Obtener los detalles de la factura
+            invoice_details = InvoiceDetail.objects.filter(invoice=invoice)
 
-        is_invoice_paid = False
-        payment = Payment.objects.filter(invoice=invoice).first()
-        if payment:
-            is_invoice_paid = True
+            is_invoice_paid = False
+            payment = Payment.objects.filter(invoice=invoice).first()
+            if payment:
+                is_invoice_paid = True
 
-        context = {
-            'invoice': invoice,
-            'invoice_details': invoice_details,
-            'is_invoice_paid': is_invoice_paid
-        }
-        return render(request, 'show_payment_resume.html', context)
+            context = {
+                'invoice': invoice,
+                'invoice_details': invoice_details,
+                'is_invoice_paid': is_invoice_paid
+            }
+            return render(request, 'show_payment_resume.html', context)
+        except Exception as e:
+            print(e)
+            return HttpResponse("Ocurrió un error", status=500)
 
 
 def invoices(request):
