@@ -15,6 +15,7 @@
             <tr>
                 <th scope="col">id</th>
                 <th scope="col">Curso</th>
+                <th>Cantidad de Inscriptos</th>
                 <th scope="col">Acción</th>
             </tr>
         </thead>
@@ -23,6 +24,7 @@
             <tr id={{enrollment.id}}>
                 <td>{{ forloop.counter }}</td>
                 <td>{{ enrollment.course.name }}</td>
+                <td>{{enrollment.student_count }}</td>
                 <td class="acciones-container">
                     <div class="acciones">
                         <a class="btn btn-primary" href="{% url 'enrollment_detail' enrollment.id  %}">

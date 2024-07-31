@@ -8,14 +8,14 @@
     {% csrf_token %}
     <i class="fa fa-arrow-left" aria-hidden="true" onclick= "window.location.href = '/enrollments'" style="cursor: pointer;"></i>
     <div class="d-flex  flex-column w-full">
-        <h1>Matrícula: {{ enrollments.0.enrollment.name }} </h1>
+        <h1 id="courseName">Matrícula: {{ enrollments.0.enrollment.name }} </h1>
         <label>Fecha inicio de matriculacion: {{enrollments.0.enrollment.enrollment_start_date}}</label>
         <label>Fecha fin de matriculacion: {{enrollments.0.enrollment.enrollment_end_date}}</label>
         <label>Cantidad de cupos: {{enrollments.0.enrollment.course.space_available}}</label>
         <div class="d-flex align-items-center justify-content-start w-full gap-4 my-4">
             <h2 class="m-0">Alumnos matriculados</h2>
             
-            <button id="submit_button" type="submit" class="btn btn-primary" data-course="{{enrollments.0.enrollment.course.name}}" >Descargar PDF</button>
+            <!-- <button id="submit_button" type="submit" class="btn btn-primary" data-course="{{enrollments.0.enrollment.course.name}}" >Descargar PDF</button> -->
         </div>
     </div>
     <table id="student_table" name="student_table" class="table table-hover table-bordered">
@@ -24,7 +24,6 @@
                 <th>Nombres</th>
                 <th>Apellidos</th>
                 <th>Numero de Cedula</th>
-                <!-- <th>Matricular</th> -->
             </tr>
         </thead>
         <tbody class="tbody-table">
@@ -33,47 +32,106 @@
                 <td>{{enrollment.student.name}}</td>
                 <td>{{enrollment.student.lastName}}</td>
                 <td>{{enrollment.student.ciNumber}}</td>
-                <!-- <td>
-                    <input value="{{student.id}}" name="{{student.id}}"  type="checkbox"/>
-                </td> -->
             </tr>
             {% endfor %}
-            <tr></tr>
         </tbody>
     </table>
-    <!-- <form method="post" class="form">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="id_student" class="form-label">Estudiante:</label>
-            <input type="text" class="form-control" id="id_student" name="student" value="{{ enrollment.student.ciNumber }}" disabled readonly>
-        </div>
-        <div class="form-group">
-            <label for="id_year" class="form-label">Año:</label>
-            <input type="number" class="form-control" id="id_year" name="year" value="{{ enrollment.year }}" disabled readonly>
-        </div>
-        <div class="form-group">
-            <label for="id_enrollment_date" class="form-label">Fecha:</label>
-            <input type="date" class="form-control" id="id_enrollment_date" name="enrollment_date" value="{{ enrollment.enrollment_date }}" disabled readonly>
-        </div>
-        <div class="form-group">
-            <label for="id_enrollment_amount" class="form-label">Monto:</label>
-            <input type="text" class="form-control" id="id_enrollment_amount" value="{{ enrollment.enrollment_amount }}" name="enrollment_amount" disabled readonly>
-        </div>
-        <div class="form-group">
-            <label for="id_enrollment_paid_amount" class="form-label">Monto pagado:</label>
-            <input type="text" class="form-control" id="id_enrollment_paid_amount" value="{{ enrollment.enrollment_paid_amount }}" name="enrollment_paid_amount" disabled readonly>
-        </div>
-        <div class="form-group">
-            <label for="id_state" class="form-label">Estado:</label>
-            <input type="text" class="form-control" id="id_state" value="{{ enrollment.state.description }}" name="id_state" disabled readonly>
-        </div>
-        {% if not has_fees %}
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/fees/create_fees/{{ enrollment.student.id }}'">Crear cuotas</button>
-        {% endif %}
-        {% if has_fees %}
-        <button type="button" class="btn btn-primary" onclick= "window.location.href = '/enrollments/{{ enrollment.id }}/detail_payment'">Ver detalle de pago</button>
-        {% endif %}
-    </form> -->
+    
 </form>
-<script src="{% static 'scripts/detail_enrollment.js' %}"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.2/css/buttons.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/dataTables.buttons.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.1.3/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/pdfmake.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.53/vfs_fonts.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.html5.min.js"></script>
+<script src="https://cdn.datatables.net/buttons/1.6.2/js/buttons.print.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        var courseName = $('#courseName').text().replace('Matrícula: ', '').trim();
+
+        var table = $('#student_table').DataTable({
+            dom: 'Bfrtip',
+            searching: true,
+            buttons: [
+                'excel', 'csv',
+                {
+                    extend: 'pdfHtml5',
+                    text: 'PDF',
+                    pageLength: 4, //para que solo se muestren 4 
+                    title: courseName,
+                    filename: function () {
+                        var d = new Date();
+                        var datestring = d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) + "_" + ("0" + d.getHours()).slice(-2) + ("0" + d.getMinutes()).slice(-2);
+                        return 'Listado_total_matriculaciones_por_curso_' + datestring;
+                    },
+                    exportOptions: {
+                        columns: [0, 1, 2]
+                    },
+                    customize: function (doc) {
+                        doc.styles.tableHeader.alignment = 'left';
+                        // Ensure table widths are set
+                        if (doc.content[1] && doc.content[1].table && doc.content[1].table.body) {
+                            doc.content[1].table.widths = Array(doc.content[1].table.body[0].length + 1).join('*').split('');
+                        }
+
+                        doc.header = function (currentPage, pageCount) {
+                            let now = new Date();
+                            let formattedTime = now.getFullYear() + "-" +
+                                ("0" + (now.getMonth() + 1)).slice(-2) + "-" +
+                                ("0" + now.getDate()).slice(-2) + " " +
+                                ("0" + now.getHours()).slice(-2) + ":" +
+                                ("0" + now.getMinutes()).slice(-2);
+                            return {
+                                margin: [10, 10, 10, 10],
+                                columns: [
+                                    {
+                                        text: 'sgCPA',
+                                        fontSize: 18,
+                                        alignment: 'start'
+                                    },
+                                    {
+                                        text: 'Generado el: ' + formattedTime + '\n' +
+                                            'Página ' + currentPage.toString() + ' de ' + pageCount,
+                                        fontSize: 10,
+                                        alignment: 'center'
+                                    }
+                                ]
+                            };
+                        };
+
+                          let totalPages = doc.content.length - 1;
+
+
+                          doc.footer = function (page, totalPages) {
+                              return {
+                                  text: page.toString() + ' de ' + totalPages,
+                                 alignment: 'center'
+                             };
+                          };
+
+                    }
+                },
+            ],
+            language: {
+                "lengthMenu": "Mostrar _MENU_ registros por página",
+                "zeroRecords": "No se encontraron resultados",
+                "info": "Mostrando página _PAGE_ de _PAGES_",
+                "infoEmpty": "No hay registros disponibles",
+                "infoFiltered": "(filtrado de _MAX_ registros totales)",
+                "search": "Buscar:",
+                "paginate": {
+                    "first": "Primero",
+                    "last": "Último",
+                    "next": "Siguiente",
+                    "previous": "Anterior"
+                }
+            }
+        });
+    });
+</script>
+<!-- <script src="{% static 'scripts/detail_enrollment.js' %}"></script> -->
 {% endblock %}
